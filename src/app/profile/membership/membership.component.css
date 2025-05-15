@@ -1,0 +1,154 @@
+.main {
+  /* background-color: #f5f3f3; */
+  width: 80vw;
+  height: 85vh;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.membership {
+  border: solid #d2d4c8 1px;
+  width: 45%;
+  height: 95%;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+
+}
+
+.membershipDetails {
+  border: solid #839a10 1px;
+  width: 70%;
+  height: 65%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+    padding: 10px;
+}
+
+.membershipStatus {
+  border: solid #d2d4c8 1px;
+  width: 70%;
+  height: 15%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.membershipStatus span {
+  font-size: small;
+  color: #c9941d;
+  font-weight: bolder;
+}
+
+.image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.image-container img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+.edit-icon {
+  position: absolute;
+  bottom: 5px;
+  right: -10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+  padding: 0;
+}
+
+.edit-icon fa-icon {
+  color: gray;
+}
+
+.cancel-btn {
+  position: absolute;
+  bottom: -105px;
+  right: -145px;
+  width: 54px;
+  height: 24px;
+  border-radius: 5%;
+  background-color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+  padding: 0;
+}
+
+.save-btn {
+  position: absolute;
+  bottom: -105px;
+  right: 10px;
+  width: 54px;
+  height: 24px;
+  border-radius: 5%;
+  background-color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+  padding: 0;
+}
+
+/* payment */
+.payment {
+  border: solid #d2d4c8 1px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 45%;
+  height: 85%;
+  border-radius: 5px;
+}
+
+@media screen and (max-width: 480px) {
+  .main{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+  }
+  .membership {
+    width: 75vw;
+    height: 70vh;
+  }
+  .membershipDetails {
+    width: 90%;
+    height: 70%;
+
+  }
+  .membershipStatus {
+    width: 90%;
+    height: 15%;
+    display: flex;
+    align-items: center;
+    border: solid #879b21 1px;
+  }
+  .payment {
+    width: 100%;
+    height: 60%;
+  }
+}

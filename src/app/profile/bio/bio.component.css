@@ -1,0 +1,10 @@
+.main{
+  background-color: #f5f3f3;
+  width: 80vw;
+  height: 85vh;
+  border: solid red 1px;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+}

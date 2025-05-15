@@ -1,1 +1,45 @@
-<p>signin works!</p>
+<div class="main">
+    <div class="logo">
+
+    </div>
+
+    <div class="signinContainer">
+        <p style="color: #d2d4c8;">Welcome back</p>
+        <p class="line" *ngIf="loadingLine"></p>
+        <div class="formContainer">
+            <form class="signUpForm" [formGroup]="signinForm" (ngSubmit)="onSignIn()">
+
+
+                <input type="email" placeholder="Email" formControlName="email"
+                    [class.invalid]="signinForm.get('email')?.invalid && (signinForm.get('email')?.touched)">
+                <p class="error"
+                    *ngIf="signinForm.get('email')?.touched && signinForm.get('email')?.hasError('required')">
+                    Email name is required.
+                </p>
+                <p class="error"
+                    *ngIf="signinForm.get('email')?.touched && signinForm.get('email')?.hasError('pattern')">
+                    Invlid email format
+                </p>
+
+                <input type="password" placeholder="Password" formControlName="password"
+                    [class.invalid]="signinForm.get('password')?.invalid && (signinForm.get('password')?.touched)">
+                <p class="error"
+                    *ngIf="signinForm.get('password')?.touched && signinForm.get('password')?.hasError('required')">
+                    Password is required
+                </p>
+                <p class="error"
+                    *ngIf="signinForm.get('password')?.touched && signinForm.get('password')?.hasError('minlength')">
+                    Password must be atleast 8 characters
+                </p>
+
+                <button type="submit" data-cy="signin-btn" class="signin-btn" value="Submit">Sign in</button>
+                <div style="font-size: small; margin-top: 5px;margin-bottom: 10px; text-align: center;">
+                    <span>Already have an account? </span>
+                    <a routerLink="/signup" style="margin-left: 4px;">Sign up</a>
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+</div>

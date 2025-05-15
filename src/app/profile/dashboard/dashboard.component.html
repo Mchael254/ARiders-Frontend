@@ -1,0 +1,68 @@
+<div class="main">
+  <div class="navigation">
+    <h4>A Riders</h4>
+    <div class="navLinks">
+      <ul>
+        <li><a (click)="setView('dashboard')">Dashboard</a></li>
+        <li><a (click)="setView('profile')">Profile</a></li>
+        <li><a (click)="setView('events')">Events</a></li>
+        <li><a (click)="setView('rides')">Rides</a></li>
+        <li><a (click)="setView('bio')">Bio</a></li>
+        <li><a (click)="logout()">Logout</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="viewPanel">
+    <div class="viewBar">
+      <div class="account">
+        <!-- <p>{{ userEmail }}</p> -->
+        <img src="../../assets/ariders.jpg" alt="Profile Picture" />
+      </div>
+
+      <div class="panelActions">
+        <p>{{ currentView }}</p>
+      </div>
+
+      <div class="side">
+        <div class="viewBarLinks">
+          <a (click)="toggleSideNav()"><fa-icon [icon]="faBars"></fa-icon></a>
+        </div>
+
+        <div class="sidePanel" [ngClass]="{ sidePanelOpen: sideNavOpen }">
+          <div class="sidePanelContent">
+            <h4>A riders</h4>
+            <div class="closeSideNav" (click)="toggleSideNav()">Close</div>
+            <ul>
+              <li><a (click)="setView('dashboard')">Dashboard</a></li>
+              <li><a (click)="setView('profile')">Profile</a></li>
+              <li><a (click)="setView('events')">Events</a></li>
+              <li><a (click)="setView('rides')">Rides</a></li>
+              <li><a (click)="setView('bio')">Bio</a></li>
+              <li><a (click)="logout()">Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div *ngIf="currentView === 'dashboard'">
+        <p>dashboard</p>
+      </div>
+
+      <div *ngIf="currentView === 'profile'">
+       <app-membership></app-membership>
+      </div>
+
+      <div class="events" *ngIf="currentView === 'events'"></div>
+
+      <div *ngIf="currentView === 'rides'"></div>
+
+      <div *ngIf="currentView === 'bio'">
+        <app-bio></app-bio>
+      </div>
+      
+    </div>
+  </div>
+</div>

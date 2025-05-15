@@ -1,0 +1,181 @@
+.main {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  height: 100vh;
+}
+
+/* navigation */
+.navigation {
+  width: 220px;
+  background-color: black;
+  height: 100vh;
+  padding: 10px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+}
+
+.navigation h4 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #c9941d;
+  font-weight: bolder;
+}
+
+.navLinks {
+  list-style: none;
+  padding: 0;
+}
+
+.navLinks li {
+  margin: 15px 0;
+}
+
+.navLinks a {
+  text-decoration: none;
+  color: white;
+  padding: 10px;
+  display: block;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+  cursor: pointer;
+}
+
+.navLinks a:hover {
+  background: linear-gradient(to right, #c9941d, #c8a54b);
+}
+
+
+/* view panel */
+.viewPanel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  border: solid blue 2px;
+  padding: 0.5px;
+  height: auto;
+  width: 84%;
+  background-color: white;
+}
+
+.viewBar {
+  display: flex;
+  width: 97.5%;
+  border: solid #d2d4c8 1px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 5px;
+  border-radius: 5px;
+
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  padding: 2px 5px;
+  font-size: small;
+  border-radius: 20px;
+}
+
+.account img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin: 2px;
+}
+
+.panelActions {
+  width: 60%;
+  padding: 5px;
+  text-align: center;
+  background-color: #fff;
+}
+
+.side {
+  display: none;
+}
+
+.panel {
+  height: 98%;
+  width: 98%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: solid #b3371e 1px;
+  margin: 5px;
+  border-radius: 5px;
+}
+
+@media screen and (max-width: 480px) {
+  .navigation {
+    display: none;
+  }
+
+  .viewPanel {
+    width: 100%;
+    height: 100vh;
+  }
+
+  .side {
+    display: block;
+  }
+
+  .sidePanel {
+    top: 0;
+    position: fixed;
+    right: -250px;
+    transition: left 0.3s ease;
+    width: 150px;
+    height: 90vh;
+    background-color: black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px;
+    z-index: 1000;
+  }
+
+  .sidePanelContent {
+    margin-top: 10px;
+    height: 60%;
+    padding: 3px;
+  }
+
+  .sidePanelContent a {
+    text-decoration: none;
+    color: #c9941d;
+    padding: 10px;
+    display: block;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    cursor: pointer;
+    margin: 5px 0;
+  }
+
+  .sidePanelContent a:hover {
+    background: linear-gradient(to right, #c9941d, #c8a54b);
+    color: white;
+  }
+
+  .sidePanelOpen {
+    right: 0;
+  }
+
+  .closeSideNav {
+    color: black;
+    padding: 5px;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    font-size: medium;
+    margin-bottom: 3px;
+  }
+
+  .panel {
+    height: 100vh;
+    overflow-y: auto;
+  }
+}

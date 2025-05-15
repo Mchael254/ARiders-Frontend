@@ -1,0 +1,34 @@
+<div class="main">
+  <div class="membership">
+    <div class="membershipDetails">
+      <div class="image-container">
+        <img [src]="
+                previewImage ||
+                '../../assets/batProfile.jpg'
+              " alt="Profile Image" />
+
+        <button *ngIf="profileBtn && !previewImage" style="background-color: white" class="edit-icon"
+          (click)="fileInput.click()">
+          <fa-icon [icon]="faPen"></fa-icon>
+        </button>
+
+        <div *ngIf="previewImage" style="position: absolute; top: 8px; left: 8px">
+          <button (click)="cancelImageChange()" class="cancel-btn" style="margin-right: 6px">
+            Cancel
+          </button>
+          <button (click)="uploadImage()" class="save-btn" style="background-color: green; color: white">
+            Save
+          </button>
+        </div>
+
+        <input type="file" #fileInput accept="image/*" style="display: none" (change)="onImageSelected($event)" />
+      </div>
+    </div>
+
+    <div class="membershipStatus">
+      <h4>Membership Status: <span style="color: green">Active</span></h4>
+    </div>
+  </div>
+
+  <div class="payment"></div>
+</div>
