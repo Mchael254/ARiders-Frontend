@@ -1,3 +1,69 @@
-<div class="main">
-    
+<div class="main" *ngIf="profile$ | async as profile">
+    <div class="infoCards">
+        <div class="detailsHeader">
+            <div class="image-container">
+                <img [src]="profile.profile_image || '../../assets/batProfile.jpg'" alt="Profile Image" />
+
+            </div>
+            <div class="text-details">
+                <h3 class="name">{{ profile.first_name }}</h3> <span style="margin-left: 10px; margin-right: 25px;"><h3 class="name">{{ profile.last_name }}</h3> </span>
+                <h3 class="name">{{ profile.role }}</h3> 
+            </div>
+        </div>
+
+        <!-- BASIC INFO -->
+        <div class="infoCard">
+            <h4>Basic Information</h4>
+
+            <form [formGroup]="basicForm">
+                <label>First Name</label>
+                <input formControlName="first_name" />
+
+                <label>Last Name</label>
+                <input formControlName="last_name" />
+
+                <label>Middle Name</label>
+                <input formControlName="middle_name" />
+
+                <div *ngIf="basicForm.dirty" class="action-buttons">
+                    <button class="save" (click)="saveBasic()" type="button">Save</button>
+                    <button class="cancel" (click)="resetForm('basic')" type="button">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ADDRESS INFO -->
+        <div class="infoCard">
+            <h4>Address</h4>
+
+            <form [formGroup]="addressForm">
+                <label>City</label>
+                <input formControlName="city" />
+
+                <label>County</label>
+                <input formControlName="county" />
+
+                <div *ngIf="addressForm.dirty" class="action-buttons">
+                    <button class="save" (click)="saveAddress()" type="button">Save</button>
+                    <button class="cancel" (click)="resetForm('address')" type="button">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- CONTACT INFO -->
+        <div class="infoCard">
+            <h4>Contact</h4>
+
+            <form [formGroup]="contactForm">
+                <label>Phone Number</label>
+                <input formControlName="phone_number" />
+
+                <div *ngIf="contactForm.dirty" class="action-buttons">
+                    <button class="save" (click)="saveContact()" type="button">Save</button>
+                    <button class="cancel" (click)="resetForm('contact')" type="button">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
 </div>

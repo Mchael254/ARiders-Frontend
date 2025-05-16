@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, isDevMode } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -20,9 +20,12 @@ import {HttpClientModule } from '@angular/common/http';
 import { MembershipComponent } from './profile/membership/membership.component';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { authReducer } from './store/auth/auth.reducer';
 import { AuthEffects } from './store/auth/auth.effects';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { metaReducers, reducers } from './store';
+
 
 
 
@@ -46,10 +49,12 @@ import { AuthEffects } from './store/auth/auth.effects';
     FontAwesomeModule,
     HttpClientModule,
     ReactiveFormsModule,
+    FormsModule,
     BrowserAnimationsModule,
     ToastModule,
-    StoreModule.forRoot({ auth: authReducer }),
     EffectsModule.forRoot([AuthEffects]),
+    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() }),
+    StoreModule.forRoot(reducers, { metaReducers }),
   ],
   providers: [
     MessageService,

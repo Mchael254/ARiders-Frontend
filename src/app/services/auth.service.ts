@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { from, Observable, tap } from 'rxjs';
+import { from, map, Observable, switchMap, tap } from 'rxjs';
 import { environment } from 'src/environments/environment.development';
 
 @Injectable({
@@ -10,10 +10,10 @@ import { environment } from 'src/environments/environment.development';
 })
 export class AuthService {
   supabaseKey = environment.supabaseKey;
-  
-  
+
+
   constructor(private http: HttpClient, private router: Router) {
-     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey)
+    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey)
   }
 
   private supabase: SupabaseClient;
@@ -36,9 +36,28 @@ export class AuthService {
   // Login with supabase
   login(loginData: { email: string; password: string }): Observable<any> {
     return from(this.supabase.auth.signInWithPassword(loginData)).pipe(
-      tap(response => console.log('Supabase response from service:', response))
+      switchMap(response => {
+        const userId = response.data?.user?.id;
+        if (!userId) {
+          throw new Error('Login failed or user ID missing.');
+        }
+
+        // Fetch profile from members table
+        return from(
+          this.supabase.from('members').select('*').eq('id', userId).single()
+        ).pipe(
+          map(profileRes => ({
+            session: response.data.session,
+            user: response.data.user,
+            profile: profileRes.data,
+            error: response.error || profileRes.error
+          }))
+        );
+      })
     );
   }
+
+
 
   logout() {
     localStorage.removeItem('auth_user');

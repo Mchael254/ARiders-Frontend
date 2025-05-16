@@ -1,11 +1,12 @@
-<div class="main">
+<div class="main" *ngIf="profile$ | async as profile">
   <div class="membership">
     <div class="membershipDetails">
       <div class="image-container">
         <img [src]="
-                previewImage ||
-                '../../assets/batProfile.jpg'
-              " alt="Profile Image" />
+            previewImage ||
+            profile.profile_image ||
+            '../../assets/batProfile.jpg'
+          " alt="Profile Image" />
 
         <button *ngIf="profileBtn && !previewImage" style="background-color: white" class="edit-icon"
           (click)="fileInput.click()">
@@ -23,10 +24,17 @@
 
         <input type="file" #fileInput accept="image/*" style="display: none" (change)="onImageSelected($event)" />
       </div>
+      <div class="details">
+        <p><strong>Name:</strong> {{ profile.user?.first_name }} <span>{{profile.last_name}}</span></p>
+        <p><strong>Email:</strong> {{ profile.user?.email }}</p>
+        <p><strong>Role:</strong> {{ profile.user?.role }}</p>
+
+      </div>
+
     </div>
 
     <div class="membershipStatus">
-      <h4>Membership Status: <span style="color: green">Active</span></h4>
+      <h4>Membership Status: <span style="color: green">{{profile.membership_status}}</span></h4>
     </div>
   </div>
 

@@ -2,7 +2,7 @@ export interface User {
   id: string;
   email: string;
   phone?: string;
-  role?: string; // Supabase doesn't include role by default unless in metadata
+  role?: string; 
   [key: string]: any;
   first_name?:string;
   middle_name?:string;
@@ -13,6 +13,8 @@ export interface User {
   work_phone?:string;
   emergency_phone?:string;
   gender?:string;
+  profile_image?:string;
+    membership_status?:string;
 }
 
 export interface SupabaseSession {
@@ -29,4 +31,32 @@ export interface LoginResponse {
     session: SupabaseSession;
   };
   error: any;
+}
+
+export interface AuthSession {
+  user: User;
+  token: string;
+  role: string;
+  profile_image?: string;
+  city?: string;
+  county?: string;
+  phone_number: string;
+  first_name: string;
+  last_name: string;
+  middle_name: string;
+    membership_status?:string;
+}
+
+export interface AppUser {
+  id: string;
+  email: string;
+  role?: string;
+  profile_image?: string;
+  city?: string;
+  county?: string;
+  phone_number?: string;
+  first_name?: string;
+  middle_name?: string;
+  last_name?: string;
+  membership_status?:string;
 }

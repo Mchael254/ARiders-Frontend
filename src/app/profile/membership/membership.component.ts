@@ -1,8 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
+import { select, Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 
 import { ResponsesService } from 'src/app/services/responses.service';
+import { AuthState } from 'src/app/store/auth/auth.reducer';
 
 @Component({
   selector: 'app-membership',
@@ -10,7 +13,14 @@ import { ResponsesService } from 'src/app/services/responses.service';
   styleUrls: ['./membership.component.css'],
 })
 export class MembershipComponent {
-  constructor(private http: HttpClient, private response: ResponsesService) { }
+  profile$!: Observable<AuthState>;
+
+  constructor(private http: HttpClient,
+    private response: ResponsesService,
+    private store: Store<{ auth: AuthState }>) {
+    this.profile$ = this.store.pipe(select('auth'));
+  }
+
   previewImage: string | null = null;
   faPen = faPen;
   profileBtn: boolean = true;
