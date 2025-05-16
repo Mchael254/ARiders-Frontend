@@ -33,3 +33,10 @@ export const loadSessionSuccess = createAction(
 );
 
 export const loadSessionSkipped = createAction('[Auth] Load Session Skipped');
+
+//update profile pic 
+export const updateProfileImage = createAction(
+  '[Auth] Update Profile Image',
+  props<{ profile_image: string }>()
+);
+

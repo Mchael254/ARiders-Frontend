@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 
 import { AppRoutingModule } from './app-routing.module';
@@ -25,6 +26,7 @@ import { authReducer } from './store/auth/auth.reducer';
 import { AuthEffects } from './store/auth/auth.effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { metaReducers, reducers } from './store';
+import { SpinnerComponent } from './shared/spinner/spinner.component';
 
 
 
@@ -40,7 +42,8 @@ import { metaReducers, reducers } from './store';
     AdminComponent,
     DashboardComponent,
     BioComponent,
-    MembershipComponent
+    MembershipComponent,
+    SpinnerComponent
 
   ],
   imports: [
@@ -52,6 +55,7 @@ import { metaReducers, reducers } from './store';
     FormsModule,
     BrowserAnimationsModule,
     ToastModule,
+    ProgressSpinnerModule,
     EffectsModule.forRoot([AuthEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() }),
     StoreModule.forRoot(reducers, { metaReducers }),

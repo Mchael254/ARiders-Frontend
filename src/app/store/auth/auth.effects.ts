@@ -47,11 +47,6 @@ export class AuthEffects {
               membership_status:profile.membership_status
             };
 
-            // this.storage.setItem('auth_session', {
-            //   user: authUser,
-            //   token,
-            // });
-
             return AuthActions.loginSuccess({
               user: authUser,
               token,

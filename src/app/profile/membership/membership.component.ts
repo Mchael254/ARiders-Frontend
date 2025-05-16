@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
 import { select, Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 
 import { ResponsesService } from 'src/app/services/responses.service';
+import { updateProfileImage } from 'src/app/store/auth/auth.actions';
 import { AuthState } from 'src/app/store/auth/auth.reducer';
 
 @Component({
@@ -13,6 +14,7 @@ import { AuthState } from 'src/app/store/auth/auth.reducer';
   styleUrls: ['./membership.component.css'],
 })
 export class MembershipComponent {
+  @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
   profile$!: Observable<AuthState>;
 
   constructor(private http: HttpClient,
@@ -26,6 +28,7 @@ export class MembershipComponent {
   profileBtn: boolean = true;
   fileInput: any;
   selectedFile: File | null = null;
+  isUploading = false;
 
   onImageSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
@@ -43,10 +46,15 @@ export class MembershipComponent {
   cancelImageChange(): void {
     this.previewImage = null;
     this.selectedFile = null;
+    if (this.fileInputRef?.nativeElement) {
+      this.fileInputRef.nativeElement.value = '';
+    }
   }
 
   uploadImage(): void {
     if (!this.selectedFile) return;
+
+    this.response.showSpinner();
 
     const userId = '99443178-66b5-44bb-9b0a-f119e6b4083e';
 
@@ -58,10 +66,19 @@ export class MembershipComponent {
       .subscribe({
         next: (response) => {
           this.previewImage = null;
-          this.response.showSuccess('profile pic updated');
+          this.selectedFile = null;
+          this.fileInputRef.nativeElement.value = '';
+          this.response.showSuccess('Profile picture updated');
+
+          this.store.dispatch(updateProfileImage({ profile_image: response.imageUrl }));
+
+          this.response.hideSpinner();
+
         },
         error: (err) => {
           console.error('Upload failed', err);
+          this.response.showError('Upload failed');
+          this.response.hideSpinner();
         },
       });
   }

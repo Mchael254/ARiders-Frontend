@@ -7,6 +7,7 @@ import { SigninComponent } from './signin/signin.component';
 import { DashboardComponent } from './profile/dashboard/dashboard.component';
 import { MembershipComponent } from './profile/membership/membership.component';
 import { BioComponent } from './profile/bio/bio.component';
+import { SpinnerComponent } from './shared/spinner/spinner.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -16,7 +17,8 @@ const routes: Routes = [
   { path: 'signin', component: SigninComponent },
   { path: 'dashboard', component: DashboardComponent },
   {path:'membership',component:MembershipComponent},
-  {path:'bio',component:BioComponent}
+  {path:'bio',component:BioComponent},
+  {path:'spinner',component:SpinnerComponent}
 
 ];
 

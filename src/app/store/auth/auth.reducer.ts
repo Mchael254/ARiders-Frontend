@@ -18,7 +18,7 @@ export interface AuthState {
   first_name?: string;
   last_name?: string;
   middle_name?: string;
-  membership_status?:string;
+  membership_status?: string;
 }
 
 export const initialState: AuthState = {
@@ -39,7 +39,7 @@ export const authReducer = createReducer(
     error: null
   })),
 
-  on(AuthActions.loginSuccess, (state, { user, token, role, profile_image, city, county, phone_number, first_name, last_name, middle_name,membership_status }) => ({
+  on(AuthActions.loginSuccess, (state, { user, token, role, profile_image, city, county, phone_number, first_name, last_name, middle_name, membership_status }) => ({
     ...state,
     user,
     token,
@@ -84,5 +84,12 @@ export const authReducer = createReducer(
   on(AuthActions.loadSessionSkipped, (state) => ({
     ...state,
     loading: false
-  }))
+  })),
+
+  //update profile pic
+  on(AuthActions.updateProfileImage, (state, { profile_image }) => ({
+    ...state,
+    profile_image
+  })),
+
 );
