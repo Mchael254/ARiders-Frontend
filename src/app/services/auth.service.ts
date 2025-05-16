@@ -3,16 +3,17 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { from, Observable, tap } from 'rxjs';
+import { environment } from 'src/environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  supabaseUrl = import.meta.env.NG_APP_PUBLIC_SUPABASE_URL;
-  supabaseKey = import.meta.env.NG_APP_PUBLIC_SUPABASE_ANON_KEY
+  supabaseKey = environment.supabaseKey;
+  
   
   constructor(private http: HttpClient, private router: Router) {
-    this.supabase = createClient(this.supabaseUrl, this.supabaseKey);
+     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey)
   }
 
   private supabase: SupabaseClient;

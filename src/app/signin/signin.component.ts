@@ -43,7 +43,7 @@ export class SigninComponent {
           if (role === 'admin') {
             this.router.navigate(['/admin']);
           } else if (role === 'member') {
-            this.router.navigate(['/profile']);
+            this.router.navigate(['/dashboard']);
           } else {
             this.router.navigate(['/home']);
           }
@@ -61,6 +61,7 @@ export class SigninComponent {
 
     if (password === '' || email === '' || password.length < 8) {
       this.response.showWarning('Check fields ⚠️');
+      
       return false;
     }
 
@@ -76,8 +77,7 @@ export class SigninComponent {
     }
 
     const form = this.signinForm.getRawValue() as loginForm;
-
-    // this.store.dispatch(AuthActions.login({ email: form.email, password: form.password }));
+    this.store.dispatch(AuthActions.login({ email: form.email, password: form.password }));
   }
 
 }
