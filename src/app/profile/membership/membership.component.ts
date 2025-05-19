@@ -5,6 +5,7 @@ import { select, Store } from '@ngrx/store';
 import { Observable, Subject, takeUntil } from 'rxjs';
 
 import { ResponsesService } from 'src/app/services/responses.service';
+import { UserService } from 'src/app/services/user.service';
 import { updateProfileImage } from 'src/app/store/auth/auth.actions';
 import { AuthState } from 'src/app/store/auth/auth.reducer';
 
@@ -20,6 +21,7 @@ export class MembershipComponent {
 
   constructor(private http: HttpClient,
     private response: ResponsesService,
+    private userService: UserService,
     private store: Store<{ auth: AuthState }>) {
     this.profile$ = this.store.pipe(select('auth'));
 
@@ -64,19 +66,12 @@ export class MembershipComponent {
     }
   }
 
-  uploadImage(): void {
-    if (!this.selectedFile || !this.profileId) {
-      this.response.showError('No picture selected');
-      return;
-    }
+  uploadImage(userId: string): void {
+    if (!this.selectedFile) return;
 
     this.response.showSpinner();
 
-    const formData = new FormData();
-    formData.append('image', this.selectedFile);
-    formData.append('userId', this.profileId);
-    this.http
-      .post<any>('http://localhost:3000/user/upload-profile-picture', formData)
+    this.userService.uploadProfileImage(userId, this.selectedFile)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
@@ -90,7 +85,11 @@ export class MembershipComponent {
         error: (err) => {
           console.error('Upload failed', err);
           this.response.showError('Upload failed');
+          this.previewImage = null;
+          this.selectedFile = null;
+          this.fileInputRef.nativeElement.value = '';
           this.response.hideSpinner();
+          
         },
       });
   }

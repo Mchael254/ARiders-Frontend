@@ -60,10 +60,7 @@ export class AuthService {
 
 
   logout() {
-    localStorage.removeItem('auth_user');
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_role');
-    localStorage.removeItem('auth_profile_image');
+   
   }
 
 }

@@ -1,0 +1,83 @@
+<div class="main">
+
+    <div class="navigation">
+        <h4>A Riders</h4>
+        <div class="navLinks">
+            <ul>
+                <li><a (click)="setView('dashboard')">Dashboard</a></li>
+                <li><a (click)="setView('members')">Members</a></li>
+                <li><a (click)="setView('contributions')">Contributions</a></li>
+                <li><a (click)="setView('admin-events')">Events </a></li>
+                <li><a (click)="setView('reports')">Reports</a></li>
+                <li><a (click)="setView('settings')">Settings</a></li>
+                <li><a (click)="logOut()">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="viewPanel">
+        <div class="viewBar">
+            <div class="account">
+                <!-- <p>{{ userEmail }}</p> -->
+                <img src="../../assets/ariders.jpg" alt="Profile Picture" />
+            </div>
+
+            <div class="panelActions">
+                <p>{{ currentView }}</p>
+            </div>
+
+            <div class="side">
+                <div class="viewBarLinks">
+                    <a (click)="toggleSideNav()"><fa-icon [icon]="faBars"></fa-icon></a>
+                </div>
+
+                <div class="sidePanel" [ngClass]="{ sidePanelOpen: sideNavOpen }">
+                    <div class="sidePanelContent">
+                        <h4>A riders</h4>
+                        <div class="closeSideNav" (click)="toggleSideNav()">Close</div>
+                        <ul>
+                            <li><a (click)="setView('dashboard')">Dashboard</a></li>
+                            <li><a (click)="setView('members')">Members</a></li>
+                            <li><a (click)="setView('contributions')">Contributions</a></li>
+                            <li><a (click)="setView('admin-events')">Events </a></li>
+                            <li><a (click)="setView('reports')">Reports</a></li>
+                            <li><a (click)="setView('settings')">Settings</a></li>
+                            <li><a (click)="logOut()">Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div *ngIf="currentView === 'dashboard'">
+                <p>dashboard</p>
+            </div>
+
+            <div *ngIf="currentView === 'members'">
+                <app-members></app-members>
+            </div>
+
+            <div class="events" *ngIf="currentView === 'contributions'">
+                <app-contributions></app-contributions>
+
+            </div>
+
+            <div *ngIf="currentView === 'reports'">
+                <app-reports></app-reports>
+
+            </div>
+
+            <div *ngIf="currentView === 'admin-events'">
+                <app-admin-events></app-admin-events>
+            </div>
+
+            <div *ngIf="currentView === 'settings'">
+                <app-settings></app-settings>
+            </div>  
+
+        </div>
+
+
+    </div>
+</div>

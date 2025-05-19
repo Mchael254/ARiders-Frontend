@@ -40,3 +40,19 @@ export const updateProfileImage = createAction(
   props<{ profile_image: string }>()
 );
 
+//update profile section
+export const updateUserProfileSection = createAction(
+  '[Auth] Update User Profile Section',
+  props<{ section: 'basic' | 'address' | 'contact'; data: any; userId: string | number }>()
+);
+
+export const updateUserProfileSuccess = createAction(
+  '[Profile] Update Section Success',
+  props<{ updatedData: any }>()
+);
+
+export const updateUserProfileFailure = createAction(
+  '[Profile] Update Section Failure',
+  props<{ error: any }>()
+);
+

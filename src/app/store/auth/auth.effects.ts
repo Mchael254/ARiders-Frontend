@@ -7,6 +7,9 @@ import { of } from 'rxjs';
 import { LocalStorageService } from '../../services/local-storage.service';
 import { Router } from '@angular/router';
 import { AuthSession } from './auth.Model';
+import { updateUserProfileFailure, updateUserProfileSection, updateUserProfileSuccess } from './auth.actions';
+import { HttpClient } from '@angular/common/http';
+import { ResponsesService } from 'src/app/services/responses.service';
 
 
 @Injectable()
@@ -16,6 +19,8 @@ export class AuthEffects {
     private authService: AuthService,
     private storage: LocalStorageService,
     private router: Router,
+    private http: HttpClient,
+    private responsesService: ResponsesService
   ) { }
 
   login$ = createEffect(() =>
@@ -30,7 +35,7 @@ export class AuthEffects {
 
             const token = session.access_token;
 
-            console.log('[AuthEffect] Profile data:', profile);
+            // console.log('[AuthEffect] Profile data:', profile);
 
             // Save user in storage as a whole object
             const authUser = {
@@ -41,10 +46,13 @@ export class AuthEffects {
               city: profile.city,
               county: profile.county,
               phone_number: profile.phone_number,
+              emergency_phone:profile.emergency_phone,
+              work_phone:profile.work_phone,
               first_name: profile.first_name,
               last_name: profile.last_name,
               middle_name: profile.middle_name,
-              membership_status:profile.membership_status
+              gender:profile.gender,
+              membership_status: profile.membership_status
             };
 
             return AuthActions.loginSuccess({
@@ -55,10 +63,13 @@ export class AuthEffects {
               city: profile.city,
               county: profile.county,
               phone_number: profile.phone_number,
+              emergency_phone:profile.emergency_phone,
+              work_phone:profile.work_phone,
               first_name: profile.first_name,
               last_name: profile.last_name,
               middle_name: profile.middle_name,
-              membership_status:profile.membership_status
+              gender: profile.gender,
+              membership_status: profile.membership_status
             });
           }),
           catchError((err) =>
@@ -106,5 +117,42 @@ export class AuthEffects {
     { dispatch: false },
   );
 
-  
+  updateProfile$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(updateUserProfileSection),
+      tap(() => this.responsesService.showSpinner()),
+      switchMap(({ section, data, userId }) =>
+        this.http.put('http://localhost:5300/user/update-user-profile', { section, data, userId }).pipe(
+          tap((response: any) => {
+            console.log('Update Response:', response);
+            this.responsesService.hideSpinner();
+
+            if (!response || Object.keys(response).length === 0) {
+              this.responsesService.showWarning('No changes detected');
+            } else {
+              this.responsesService.showSuccess(`${section} updated successfully`);
+            }
+          }),
+          map((response: any) => {
+            if (!response || Object.keys(response).length === 0) {
+              return updateUserProfileFailure({ error: 'No changes detected' });
+            }
+            return updateUserProfileSuccess({ updatedData: response }); 
+            // response is the updated member object
+          }),
+          catchError((error) => {
+            this.responsesService.hideSpinner();
+            this.responsesService.showError(error.message);
+            return of(updateUserProfileFailure({ error: error.message }));
+          })
+        )
+      )
+
+    )
+  );
+
+
+
+
+
 }

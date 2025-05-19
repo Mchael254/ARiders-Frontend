@@ -2,19 +2,20 @@ export interface User {
   id: string;
   email: string;
   phone?: string;
-  role?: string; 
+  role?: string;
   [key: string]: any;
-  first_name?:string;
-  middle_name?:string;
-  last_name?:string;
-  county?:string;
-  city?:string;
-  home_phone?:string;
-  work_phone?:string;
-  emergency_phone?:string;
-  gender?:string;
-  profile_image?:string;
-    membership_status?:string;
+  first_name?: string;
+  middle_name?: string;
+  last_name?: string;
+  county?: string;
+  city?: string;
+  home_phone?: string;
+  work_phone?: string;
+  emergency_phone?: string;
+  gender?: string;
+  profile_image?: string;
+  membership_status?: string;
+  dob?: string;
 }
 
 export interface SupabaseSession {
@@ -41,10 +42,14 @@ export interface AuthSession {
   city?: string;
   county?: string;
   phone_number: string;
+  emergency_phone?: string;
+  work_phone?:string;
   first_name: string;
   last_name: string;
   middle_name: string;
-    membership_status?:string;
+  gender:string;
+  membership_status?: string;
+  dob?: string;
 }
 
 export interface AppUser {
@@ -55,8 +60,12 @@ export interface AppUser {
   city?: string;
   county?: string;
   phone_number?: string;
+  emergency_phone?: string;
+  work_phone?:string;
   first_name?: string;
   middle_name?: string;
   last_name?: string;
-  membership_status?:string;
+  gender?:string;
+  membership_status?: string;
+  dob?: string;
 }

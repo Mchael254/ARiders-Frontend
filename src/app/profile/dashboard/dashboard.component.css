@@ -52,7 +52,7 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  border: solid blue 2px;
+  /* border: solid blue 2px; */
   padding: 0.5px;
   height: auto;
   width: 84%;
@@ -104,7 +104,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border: solid #b3371e 1px;
+  /* border: solid #b3371e 1px; */
   margin: 5px;
   border-radius: 5px;
 }
@@ -178,4 +178,11 @@
     height: 100vh;
     overflow-y: auto;
   }
+}
+
+@media screen and (min-width: 481px) and (max-width:768px){
+  .navigation{
+    display: none;
+  }
+
 }

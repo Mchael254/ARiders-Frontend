@@ -4,8 +4,6 @@ import { localStorageSync } from 'ngrx-store-localstorage';
 import * as fromAuth from './auth/auth.reducer';
 import { AES, enc } from 'crypto-js';
 
-
-
 export interface AppState {
   auth: fromAuth.AuthState;
 }

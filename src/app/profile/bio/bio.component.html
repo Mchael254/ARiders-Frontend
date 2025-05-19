@@ -6,8 +6,10 @@
 
             </div>
             <div class="text-details">
-                <h3 class="name">{{ profile.first_name }}</h3> <span style="margin-left: 10px; margin-right: 25px;"><h3 class="name">{{ profile.last_name }}</h3> </span>
-                <h3 class="name">{{ profile.role }}</h3> 
+                <h3 class="name">{{ profile.first_name }}</h3> <span style="margin-left: 10px; margin-right: 25px;">
+                    <h3 class="name">{{ profile.last_name }}</h3>
+                </span>
+                <h3 class="name">{{ profile.role }}</h3>
             </div>
         </div>
 
@@ -25,8 +27,21 @@
                 <label>Middle Name</label>
                 <input formControlName="middle_name" />
 
+                <label>Gender</label>
+                <p-dropdown id="gender" [options]="genderOptions" formControlName="gender" placeholder="Select Gender"
+                    optionLabel="label" optionValue="value"></p-dropdown>
+
+                <label for="dob">Date of Birth</label>
+                <p-calendar id="dob" formControlName="dob" [maxDate]="today" dateFormat="yy-mm-dd" [showIcon]="true"
+                    [monthNavigator]="true" [yearNavigator]="true" yearRange="1900:2099"
+                    placeholder="Select your birthdate"></p-calendar>
+
+                <div *ngIf="basicForm.get('dob')?.invalid && basicForm.get('dob')?.touched" class="text-danger">
+                    Please select a valid date of birth.
+                </div>
+
                 <div *ngIf="basicForm.dirty" class="action-buttons">
-                    <button class="save" (click)="saveBasic()" type="button">Save</button>
+                    <button class="save" (click)="saveBasic(profileId ?? '')" type="button">Save</button>
                     <button class="cancel" (click)="resetForm('basic')" type="button">Cancel</button>
                 </div>
             </form>
@@ -44,7 +59,7 @@
                 <input formControlName="county" />
 
                 <div *ngIf="addressForm.dirty" class="action-buttons">
-                    <button class="save" (click)="saveAddress()" type="button">Save</button>
+                    <button class="save" (click)="saveAddress(profileId ?? '')" type="button">Save</button>
                     <button class="cancel" (click)="resetForm('address')" type="button">Cancel</button>
                 </div>
             </form>
@@ -56,10 +71,27 @@
 
             <form [formGroup]="contactForm">
                 <label>Phone Number</label>
-                <input formControlName="phone_number" />
+                <input formControlName="phone_number" maxlength="10" class="form-control" />
+                <div *ngIf="contactForm.get('phone_number')?.invalid && contactForm.get('phone_number')?.touched">
+                    <small class="text-danger" style="color: red;">contact must be exactly 10 digits.</small>
+                </div>
+
+                <label>Emergency Number</label>
+                <input type="text" formControlName="emergency_phone" maxlength="10" placeholder="Emergency Contact"
+                    class="form-control" />
+                <div *ngIf="contactForm.get('emergency_phone')?.invalid && contactForm.get('emergency_phone')?.touched">
+                    <small class="text-danger">contact must be exactly 10 digits.</small>
+                </div>
+
+                <label>Work Number</label>
+                <input type="text" formControlName="work_phone" maxlength="10" placeholder="Work Contact"
+                    class="form-control" />
+                <div *ngIf="contactForm.get('work_phone')?.invalid && contactForm.get('work_phone')?.touched">
+                    <small class="text-danger">contact must be exactly 10 digits.</small>
+                </div>
 
                 <div *ngIf="contactForm.dirty" class="action-buttons">
-                    <button class="save" (click)="saveContact()" type="button">Save</button>
+                    <button class="save" (click)="saveContact(profileId ?? '')" type="button">Save</button>
                     <button class="cancel" (click)="resetForm('contact')" type="button">Cancel</button>
                 </div>
             </form>

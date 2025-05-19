@@ -15,10 +15,15 @@ export interface AuthState {
   city?: string;
   county?: string;
   phone_number?: string;
+  emergency_phone?:string;
+  work_phone?:string;
   first_name?: string;
   last_name?: string;
   middle_name?: string;
+  gender?:string;
   membership_status?: string;
+  emergency_number?: string;
+  dob?: string;
 }
 
 export const initialState: AuthState = {
@@ -39,7 +44,7 @@ export const authReducer = createReducer(
     error: null
   })),
 
-  on(AuthActions.loginSuccess, (state, { user, token, role, profile_image, city, county, phone_number, first_name, last_name, middle_name, membership_status }) => ({
+  on(AuthActions.loginSuccess, (state, { user, token, role, profile_image, city, county, phone_number, emergency_phone, work_phone, first_name, last_name, middle_name, gender, membership_status,dob }) => ({
     ...state,
     user,
     token,
@@ -50,10 +55,14 @@ export const authReducer = createReducer(
     city,
     county,
     phone_number,
+    emergency_phone,
+    work_phone,
     first_name,
     last_name,
     middle_name,
-    membership_status
+    gender,
+    membership_status,
+    dob,
   })),
 
   on(AuthActions.loginFailure, (state, { error }) => ({
@@ -64,7 +73,7 @@ export const authReducer = createReducer(
 
   on(AuthActions.logout, () => initialState),
 
-  on(AuthActions.loadSessionSuccess, (state, { user, token, role, profile_image, city, county, phone_number, first_name, last_name, middle_name, membership_status }) => ({
+  on(AuthActions.loadSessionSuccess, (state, { user, token, role, profile_image, city, county, phone_number, emergency_phone, work_phone, first_name, last_name, middle_name, gender, membership_status, dob }) => ({
     ...state,
     user,
     token,
@@ -75,10 +84,14 @@ export const authReducer = createReducer(
     city,
     county,
     phone_number,
+    emergency_phone,
+    work_phone,
     first_name,
     last_name,
     middle_name,
-    membership_status
+    gender,
+    membership_status,
+    dob,
   })),
 
   on(AuthActions.loadSessionSkipped, (state) => ({
@@ -91,5 +104,22 @@ export const authReducer = createReducer(
     ...state,
     profile_image
   })),
+
+
+
+  // update user profile
+  on(AuthActions.updateUserProfileSuccess, (state, { updatedData }) => ({
+    ...state,
+    ...updatedData
+  })),
+
+
+  on(AuthActions.updateUserProfileFailure, (state, { error }) => ({
+    ...state,
+    error
+  }))
+
+
+
 
 );
