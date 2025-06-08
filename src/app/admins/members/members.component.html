@@ -1,92 +1,133 @@
 <div class="main">
-    <p-toast />
+    <p-toast></p-toast>
     <div class="sticky-toolbar">
         <p-toolbar>
             <ng-template pTemplate="start">
-                <p-button severity="danger" label="Delete" icon="pi pi-trash" (onClick)="deleteSelectedProducts()"
-                    [disabled]="!selectedProducts || !selectedProducts.length" size="small" />
+                <p-button severity="danger" label="Delete" icon="pi pi-trash" (onClick)="deleteSelectedMembers()"
+                    [disabled]="!selectedMembers || !selectedMembers.length" size="small"></p-button>
             </ng-template>
 
             <ng-template pTemplate="center">
-                <span class="p-input-icon-left">
-                    <i class="pi pi-search"></i>
-                    <input pInputText type="text" (input)="filterGlobal($event)" placeholder="Search..."
-                        styleClass="p-inputtext-sm search-input" />
-                </span>
+                <div class="search">
+                    <span class="p-input-icon-left">
+                        <i class="pi pi-search"></i>
+                        <input pInputText type="text" (input)="filterGlobal($event)" placeholder="Search members..."
+                            styleClass="p-inputtext-sm search-input" />
+                    </span>
+
+                    <p-button label="Clear" icon="pi pi-times" severity="secondary" size="small"
+                        (onClick)="clearSelection()" [disabled]="!selectedMembers.length">
+                    </p-button>
+                </div>
             </ng-template>
 
             <ng-template pTemplate="end">
-                <p-button label="Export" icon="pi pi-upload" size="small" styleClass="export-button" />
+                <div class="flex align-items-center gap-2">
+                    <span *ngIf="selectedMembers?.length" class="text-sm">
+                        {{ selectedMembers.length }} selected
+                    </span>
+
+                    <!-- Show input only if there are selected members -->
+                    <input *ngIf="selectedMembers?.length" type="text" pInputText class="p-inputtext-sm"
+                        [(ngModel)]="pdfTitle" placeholder="Enter PDF title..." style="width: 200px;" />
+
+                    <!-- Export Button -->
+                    <p-button label="Export" icon="pi pi-upload" size="small" styleClass="export-button"
+                        (onClick)="exportSelectedMembersToPDF()" [disabled]="!selectedMembers.length">
+                    </p-button>
+                </div>
             </ng-template>
+
         </p-toolbar>
-
     </div>
-    <div class="products">
-        <p-table #dt [value]="products" [rows]="7" [paginator]="true"
-            [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
-            [tableStyle]="{ 'min-width': '75rem' }" [(selection)]="selectedProducts" [rowHover]="true" dataKey="id"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-            [showCurrentPageReport]="true" styleClass="p-datatable-sm">
 
+    <div class="members">
+        <p-table #dt [value]="members" [rows]="10" [paginator]="true"
+            [globalFilterFields]="['first_name', 'last_name', 'email', 'role', 'membership_status']"
+            [tableStyle]="{ 'min-width': '60rem' }" [(selection)]="selectedMembers" [rowHover]="true" dataKey="id"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            [showCurrentPageReport]="true" [scrollable]="true" scrollHeight="400px" [resizableColumns]="true"
+            styleClass="p-datatable-sm">
             <ng-template pTemplate="header">
                 <tr>
                     <th style="width: 4rem">
-                        <p-tableHeaderCheckbox />
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
                     </th>
-                    <th pSortableColumn="name" style="min-width:15rem">
-                        Name <p-sortIcon field="name" />
+                    <th pSortableColumn="first_name" style="min-width: 10rem">
+                        Name <p-sortIcon field="first_name"></p-sortIcon>
                     </th>
                     <th>
-                        Image
+                        Profile Image
                     </th>
-                    <th pSortableColumn="price">
-                        Price <p-sortIcon field="price" />
+                    <th pSortableColumn="email" style="min-width: 10rem">
+                        Email <p-sortIcon field="email"></p-sortIcon>
                     </th>
-                    <th pSortableColumn="category" style="min-width:10rem">
-                        Category <p-sortIcon field="category" />
+                    <th pSortableColumn="role" style="min-width: 5rem">
+                        Role <p-sortIcon field="role"></p-sortIcon>
                     </th>
-                    <th pSortableColumn="rating">
-                        Reviews <p-sortIcon field="rating" />
+                    <th style="min-width: 10rem">
+                        Membership Status
                     </th>
-                    <th pSortableColumn="inventoryStatus" style="min-width:10rem">
-                        Status <p-sortIcon field="inventoryStatus" />
-                    </th>
-                    <th></th>
+                    <!-- <th style="min-width: 6rem">
+                        Actions
+                    </th> -->
                 </tr>
             </ng-template>
-            <ng-template pTemplate="body" let-product>
-                <tr>
+
+            <ng-template pTemplate="body" let-member>
+                <tr [ngClass]="{'inactive-row': member.membership_status === 'inactive'}">
                     <td>
-                        <p-tableCheckbox [value]="product" />
+                        <p-tableCheckbox [value]="member"></p-tableCheckbox>
                     </td>
                     <td>
-                        {{ product.name }}
+                        {{ member.first_name }} {{ member.last_name }}
                     </td>
                     <td>
-                        <img [src]="'https://primefaces.org/cdn/primeng/images/demo/product/' + product.image"
-                            [alt]="product.name" width="50" class="shadow-4" />
+                        <img *ngIf="member.profile_image; else noImage" [src]="member.profile_image"
+                            alt="{{ member.first_name }}'s profile" width="50" height="50"
+                            style="object-fit: cover; border-radius: 50%;" />
+                        <ng-template #noImage>
+                            <img src="../../../assets/ariders.jpg" alt="">
+                        </ng-template>
                     </td>
                     <td>
-                        {{ product.price | currency : 'USD' }}
+                        {{ member.email }}
                     </td>
                     <td>
-                        {{ product.category }}
+                        <div *ngIf="selectedRoleMemberId === member.id; else showRole">
+                            <p-dropdown [options]="roles" [(ngModel)]="member.role" optionLabel="label"
+                                optionValue="value" appendTo="body" (onChange)="updateRole(member)" styleClass="z-5"
+                                [disabled]="member.membership_status !== 'active'">
+                            </p-dropdown>
+                        </div>
+                        <ng-template #showRole>
+                            {{ member.role }}
+                            <button *ngIf="member.membership_status === 'active'"
+                                (click)="selectedRoleMemberId = member.id"
+                                class="p-button p-button-text p-button-sm p-button-secondary tiny-edit-btn">
+                                <i class="pi pi-pencil"></i>
+                            </button>
+                        </ng-template>
                     </td>
+
                     <td>
-                        {{ product.rating }}
+                        <div class="flex align-items-center gap-2">
+                            <span
+                                [ngClass]="{ 'active-status': member.membership_status === 'active', 'inactive-status': member.membership_status !== 'active' }">
+                                {{ member.membership_status }}
+                            </span>
+                            <p-button *ngIf="member.membership_status === 'inactive'" label="Activate"
+                                styleClass="tiny-orange-button" (onClick)="activateMember(member)">
+                            </p-button>
+                        </div>
                     </td>
-                    <td>
-                        {{ product.inventoryStatus }}
-                    </td>
-                    <td>
-                        <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
-                            (onClick)="deleteProduct(product)" styleClass="p-button-sm" />
-                    </td>
+
                 </tr>
             </ng-template>
+
             <ng-template pTemplate="summary">
                 <div class="flex align-items-center justify-content-between">
-                    In total there are {{ products ? products.length : 0 }} products.
+                    In total there are {{ totalCount || members.length }} members.
                 </div>
             </ng-template>
         </p-table>

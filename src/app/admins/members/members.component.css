@@ -50,5 +50,63 @@
     width: auto;
 }
 
+.inactive-row {
+  background-color: #f5f5f5;
+  color: #999;
+  font-style: italic;
+}
+
+/* Tiny orange button with black text */
+::ng-deep .tiny-orange-button {
+    transform: scale(0.8);
+    padding: 0.15rem 0.5rem !important;
+    font-size: 0.7rem !important;
+    background-color: #ffa500 !important;
+    color: #000000 !important;
+    border: 1px solid #cc8400 !important;
+    border-radius: 3px !important;
+}
+
+/* Hover state */
+::ng-deep .tiny-orange-button:hover {
+    background-color: #ff8c00 !important;
+}
+
+/* Active/pressed state */
+::ng-deep .tiny-orange-button:active {
+    background-color: #e67300 !important;
+}
+
+/* Focus state */
+::ng-deep .tiny-orange-button:focus {
+    box-shadow: 0 0 0 0.1rem rgba(255, 165, 0, 0.3) !important;
+}
+
+
+/* Component CSS or global styles */
+::ng-deep .tiny-edit-btn {
+    transform: scale(0.8);  /* Shrinks the entire button */
+    padding: 0.1rem !important;
+    min-width: auto !important;
+    
+    /* Make the pencil icon smaller */
+    .pi-pencil {
+        font-size: 0.7rem !important;
+    }
+    
+    /* Optional: Hover effect */
+    &:hover {
+        background: rgba(0, 0, 0, 0.04) !important;
+    }
+    
+    /* Active state */
+    &:active {
+        transform: scale(0.75);
+    }
+}
+
+
+
+
 
 

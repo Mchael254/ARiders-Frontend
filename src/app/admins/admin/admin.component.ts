@@ -8,7 +8,7 @@ import { faBars } from '@fortawesome/free-solid-svg-icons';
 })
 export class AdminComponent {
   sideNavOpen: boolean = false;
-  currentView = 'members';
+  currentView = 'contributions';
   faBars = faBars;
 
   toggleSideNav() {

@@ -9,7 +9,7 @@ import { faBars, faPen } from '@fortawesome/free-solid-svg-icons';
 export class DashboardComponent {
 
   sideNavOpen: boolean = false;
-  currentView = 'bio';
+  currentView = 'profile';
   faBars = faBars;
   faPen = faPen;
   previewImage: string | null = null;

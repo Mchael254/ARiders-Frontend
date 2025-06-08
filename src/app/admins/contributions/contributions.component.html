@@ -1,1 +1,220 @@
-<p>contributions works!</p>
+<div class="main">
+    <div class="summaryTabs">
+        <div class="tab" [class.active]="activeTab === 0" (click)="setActivetab(0)">
+            <p>Contribution</p><span style="margin-left: 10px;"><fa-icon [icon]="faPiggyBank"></fa-icon></span>
+        </div>
+        <div class="tab" [class.active]="activeTab === 1" (click)="setActivetab(1)">
+            <p>Debt</p><span style="margin-left: 10px;"><fa-icon [icon]="faCreditCard"></fa-icon></span>
+        </div>
+        <div class="tab" [class.active]="activeTab === 2" (click)="setActivetab(2)">
+            <p>Invoice</p><span style="margin-left: 10px;"><fa-icon [icon]="faMoneyBill"></fa-icon></span>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+        <div class="spinner"></div>
+        <p>Loading contribution analysis...</p>
+    </div>
+
+    <!-- Contribution Analysis Panel -->
+    <div class="summaryContent" *ngIf="activeTab === 0 && !isLoading">
+
+        <!-- Header with Period Info -->
+        <div class="analysis-header" *ngIf="contributionAnalysis">
+            <div class="header-info">
+                <h2>Contribution Analysis</h2>
+                <p class="period-info">
+                    <p-calendar [(ngModel)]="startDate" [showIcon]="true" [showOnFocus]="false" inputId="startDate"
+                        dateFormat="yy-mm-dd" />
+                    <span>to</span>
+                    <p-calendar [(ngModel)]="endDate" [showIcon]="true" [showOnFocus]="false" inputId="endDate"
+                        dateFormat="yy-mm-dd" />
+                    <button pButton type="button" label="Analyze" (click)="fetchData()"
+                        class="dateButton"></button>
+                    <fa-icon [icon]="faCalendar"></fa-icon>
+                    {{ contributionAnalysis.summary.reportPeriod }}
+                    ({{ contributionAnalysis.period.startDate }} to {{ contributionAnalysis.period.endDate }})
+                </p>
+            </div>
+            <div class="trend-indicator">
+                <span class="trend-label">Trend:</span>
+                <span [style.color]="getTrendColor(contributionAnalysis.insights.trendDirection)">
+                    <fa-icon *ngIf="getTrendIcon(contributionAnalysis.insights.trendDirection)"
+                        [icon]="getTrendIcon(contributionAnalysis.insights.trendDirection)"></fa-icon>
+                    {{ contributionAnalysis.insights.trendDirection }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Key Metrics Cards -->
+        <div class="metrics-grid" *ngIf="contributionAnalysis">
+            <div class="metric-card primary">
+                <div class="metric-icon">
+                    <fa-icon [icon]="faPiggyBank"></fa-icon>
+                </div>
+                <div class="metric-content">
+                    <h3>{{ contributionAnalysis.summary.total_contributions_period }}</h3>
+                    <p>Total Collected (Period)</p>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-content">
+                    <h3>{{ contributionAnalysis.summary.total_expected_contributions }}</h3>
+                    <p>Expected Contributions</p>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <fa-icon [icon]="faUsers"></fa-icon>
+                </div>
+                <div class="metric-content">
+                    <h3>{{ contributionAnalysis.summary.zero_contributors }}</h3>
+                    <p>Zero Contributors</p>
+                </div>
+            </div>
+
+            <div class="metric-card success">
+                <div class="metric-content">
+                    <h3>{{ contributionAnalysis.insights.consistencyScore }}%</h3>
+                    <p>Consistency Score</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quarterly Analysis -->
+        <div class="section" *ngIf="contributionAnalysis">
+            <h3>Quarterly Performance</h3>
+            <div class="quarters-grid">
+                <div class="quarter-card" *ngFor="let qKey of getQuarterKeys()">
+                    <div class="quarter-header">
+                        <h4>{{ qKey }}</h4>
+                        <span class="collection-rate"
+                            [style.color]="getPerformanceColor(contributionAnalysis.quarters[qKey].averageCollectionRate > '50' ? 'good' : 'critical')">
+                            {{ contributionAnalysis.quarters[qKey].averageCollectionRate }}%
+                        </span>
+                    </div>
+                    <div class="quarter-stats">
+                        <div class="stat">
+                            <span class="label">Expected:</span>
+                            <span class="value">{{ contributionAnalysis.quarters[qKey].totalExpectedFormatted }}</span>
+                        </div>
+                        <div class="stat">
+                            <span class="label">Collected:</span>
+                            <span class="value">{{ contributionAnalysis.quarters[qKey].totalCollectedFormatted }}</span>
+                        </div>
+                        <div class="stat">
+                            <span class="label">Avg Contributors:</span>
+                            <span class="value">{{ contributionAnalysis.quarters[qKey].averageContributors }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Breakdown -->
+        <div class="section" *ngIf="contributionAnalysis">
+            <h3>Monthly Performance</h3>
+            <div class="monthly-table-container">
+                <table class="monthly-table">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Expected</th>
+                            <th>Collected</th>
+                            <th>Contributors</th>
+                            <th>Rate</th>
+                            <th>Performance</th>
+                            <th>Shortfall</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let month of contributionAnalysis.monthly"
+                            [class.zero-collection]="month.contributors === 0">
+                            <td class="month-name">{{ month.monthName }}</td>
+                            <td>{{ month.expected }}</td>
+                            <td class="collected">{{ month.collected }}</td>
+                            <td class="contributors">
+                                <fa-icon [icon]="faUsers"></fa-icon>
+                                {{ month.contributors }}
+                            </td>
+                            <td class="rate">{{ month.collection_rate }}</td>
+                            <td>
+                                <span class="performance-badge"
+                                    [style.background-color]="getPerformanceColor(month.performance)"
+                                    [style.color]="'white'">
+                                    {{ month.performance }}
+                                </span>
+                            </td>
+                            <td class="shortfall">{{ month.shortfall }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Key Insights -->
+        <div class="section insights-section" *ngIf="contributionAnalysis">
+            <h3>Key Insights</h3>
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <h4>Best Quarter</h4>
+                    <p>Q{{ contributionAnalysis.insights.bestQuarter.quarter }} with {{
+                        contributionAnalysis.insights.bestQuarter.averageCollectionRate }}% collection rate</p>
+                </div>
+
+                <div class="insight-card">
+                    <h4>Top Contributor</h4>
+                    <p>{{ contributionAnalysis.summary.highest_contributor }}</p>
+                </div>
+
+                <div class="insight-card">
+                    <h4>Analysis Period</h4>
+                    <p>{{ contributionAnalysis.insights.monthsAnalyzed }} months across {{
+                        contributionAnalysis.insights.totalQuarters }} quarters</p>
+                </div>
+
+                <div class="insight-card">
+                    <h4>Collection Trend</h4>
+                    <p [style.color]="getTrendColor(contributionAnalysis.insights.trendDirection)">
+                        <fa-icon *ngIf="getTrendIcon(contributionAnalysis.insights.trendDirection)"
+                            [icon]="getTrendIcon(contributionAnalysis.insights.trendDirection)"></fa-icon>
+                        {{ contributionAnalysis.insights.trendDirection }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="section" *ngIf="contributionAnalysis">
+            <h3>Recent Activity</h3>
+            <div class="recent-months">
+                <div class="recent-month" *ngFor="let month of getRecentMonths()">
+                    <div class="month-header">
+                        <span class="month-name">{{ month.monthName }}</span>
+                        <span class="collection-amount">{{ month.collected }}</span>
+                    </div>
+                    <div class="month-details">
+                        <span class="contributors">{{ month.contributors }} contributors</span>
+                        <span class="rate" [style.color]="getPerformanceColor(month.performance)">
+                            {{ month.collection_rate }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Debt panel -->
+    <div class="summaryContent" *ngIf="activeTab === 1">
+        <p>Debt Analysis Coming Soon...</p>
+    </div>
+
+    <!-- Invoice Panel -->
+    <div class="summaryContent" *ngIf="activeTab === 2">
+        <p>Invoice Analysis Coming Soon...</p>
+    </div>
+</div>

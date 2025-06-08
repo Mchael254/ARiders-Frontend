@@ -8,6 +8,10 @@ import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { CardModule } from 'primeng/card';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { SelectButtonModule } from 'primeng/selectbutton';
 
 
 import { AppRoutingModule } from './app-routing.module';
@@ -38,6 +42,7 @@ import { SettingsComponent } from './admins/settings/settings.component';
 import { ContributionsComponent } from './admins/contributions/contributions.component';
 import { AdminEventsComponent } from './admins/admin-events/admin-events.component';
 import { ReportsComponent } from './admins/reports/reports.component';
+import { PaymentComponent } from './payment/payment.component';
 
 
 
@@ -59,7 +64,8 @@ import { ReportsComponent } from './admins/reports/reports.component';
     SettingsComponent,
     ContributionsComponent,
     AdminEventsComponent,
-    ReportsComponent
+    ReportsComponent,
+    PaymentComponent
 
   ],
   imports: [
@@ -79,8 +85,13 @@ import { ReportsComponent } from './admins/reports/reports.component';
     ToolbarModule,
     InputTextModule,
     DialogModule,
+    CardModule,
+    InputNumberModule,
+    ConfirmDialogModule,
+    SelectButtonModule,
     EffectsModule.forRoot([AuthEffects]),
     StoreModule.forRoot(reducers, { metaReducers }),
+    
   ],
   providers: [
     MessageService,

@@ -13,6 +13,7 @@ import { SettingsComponent } from './admins/settings/settings.component';
 import { AdminEventsComponent } from './admins/admin-events/admin-events.component';
 import { ContributionsComponent } from './admins/contributions/contributions.component';
 import { MembersComponent } from './admins/members/members.component';
+import { PaymentComponent } from './payment/payment.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -37,7 +38,8 @@ const routes: Routes = [
   { path: 'contributions', component: ContributionsComponent },
   {path: 'members', component:MembersComponent},
 
-
+  //payment
+  {path: 'payment', component:PaymentComponent},
 
 ];
 
