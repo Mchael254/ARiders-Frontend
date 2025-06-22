@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 
 interface ContributionMetric {
   metric: string;
@@ -30,14 +30,27 @@ interface ContributionAnalytics {
 })
 export class ContributionService {
 
-  constructor(private http:HttpClient) { }
+  constructor(private http: HttpClient) { }
 
   baseContributionUrl = ' http://localhost:5300/api/contributions';
 
-  getGeneralContribution(periodData:any):Observable<any>{
-    const url = `${this.baseContributionUrl}/grandContributionSummary`;
-    return this.http.post(url,periodData)
-  
+  getGeneralContribution(periodData: any): Observable<any> {
+    const url = `http://localhost:5300/api/contributions/grandContributionSummary`;
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.post(url, periodData, { headers }).pipe(
+      catchError(err => {
+        console.error('API Error:', err);
+        return of({
+          success: false,
+          message: err.message,
+          period: periodData
+        });
+      })
+    );
+
   }
 
 

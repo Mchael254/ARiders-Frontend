@@ -43,6 +43,7 @@ import { ContributionsComponent } from './admins/contributions/contributions.com
 import { AdminEventsComponent } from './admins/admin-events/admin-events.component';
 import { ReportsComponent } from './admins/reports/reports.component';
 import { PaymentComponent } from './payment/payment.component';
+import { NgChartsModule } from 'ng2-charts';
 
 
 
@@ -89,6 +90,7 @@ import { PaymentComponent } from './payment/payment.component';
     InputNumberModule,
     ConfirmDialogModule,
     SelectButtonModule,
+     NgChartsModule, 
     EffectsModule.forRoot([AuthEffects]),
     StoreModule.forRoot(reducers, { metaReducers }),
     

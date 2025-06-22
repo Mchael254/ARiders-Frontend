@@ -1,53 +1,63 @@
-export interface ContributionAnalysis {
-  success: boolean;
-  message: string;
-  period: {
+export interface AnalysisPeriod {
+  startDate: string;
+  endDate: string;
+}
+
+export interface SummaryData {
+  reportDate: string;
+  reportPeriod: string;
+  quartersIncluded: number;
+  total_contributions_period: string;
+  total_contributions_all_time: string;
+  total_expected_contributions: string;
+  zero_contributors: string;
+  highest_contributor: string;
+  lowest_collection_month: string;
+  average_contributors_per_month: string;
+  consistent_contributors: string;
+  last_month_growth: string;
+  best_collection_month: string;
+  analysisPeriod?: {
     startDate: string;
     endDate: string;
+    periodLabel: string;
   };
-  summary: {
-    reportDate: string;
-    reportPeriod: string;
-    quartersIncluded: number;
-    total_contributions_period: string;
-    total_contributions_all_time: string;
-    total_expected_contributions: string;
-    zero_contributors: string;
-    highest_contributor: string;
-    [key: string]: any;
-  };
-  quarters: {
-    [key: string]: {
-      quarter: number;
-      totalExpected: number;
-      totalCollected: number;
-      averageCollectionRate: string;
-      totalExpectedFormatted: string;
-      totalCollectedFormatted: string;
-      averageContributors: string;
-    };
-  };
-  monthly: Array<{
+}
+
+export interface Insights {
+  trendDirection: string;
+  bestQuarter: any | null;
+  worstQuarter: any | null;
+  bestMonthOverall: {
     monthName: string;
-    expected: string;
-    collected: string;
-    contributors: number;
-    collection_rate: string;
-    shortfall: string;
-    shortfallPercentage: string;
-    performance: string;
-  }>;
-  insights: {
-    trendDirection: string;
-    bestQuarter: any;
-    worstQuarter: any;
-    totalQuarters: number;
-    monthsAnalyzed: number;
-    consistencyScore: string;
+    amount: number;
+    amountFormatted: string;
+    collectionRate: string;
+  } | null;
+  totalQuarters: number;
+  monthsAnalyzed: number;
+  consistencyScore: string;
+  analysisPeriod?: {
+    startDate: string;
+    endDate: string;
+    periodLabel: string;
   };
-  charts: {
-    quarterlyComparison: Array<any>;
-    monthlyTrend: Array<any>;
-    contributorTrend: Array<any>;
+}
+
+export interface AnalysisResponse {
+  success: boolean;
+  message?: string;
+  period: AnalysisPeriod;
+  summary: SummaryData;
+  quarters: Record<string, any>;
+  monthly: any[];
+  insights: Insights;
+  charts: any;
+  metadata?: {
+    requestedPeriod: AnalysisPeriod;
+    processingTime: string;
+    dataPointsProcessed: number;
+    quartersAnalyzed: number;
+    monthsWithData: number;
   };
 }
