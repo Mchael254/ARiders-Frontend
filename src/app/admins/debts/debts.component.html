@@ -1,0 +1,282 @@
+<div class="main">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Filter Controls with Navigation -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-wrap items-end gap-4">
+
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Report Date</label>
+                    <input type="date" [(ngModel)]="reportDate" (change)="updateReport()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Look Back Months</label>
+                    <input type="number" min="1" [(ngModel)]="lookBackMonths" (change)="updateReport()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+
+                <button (click)="updateReport()"
+                    class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Update Report
+                </button>
+            </div>
+
+            <div class="flex justify-between items-center mt-2">
+                <p class="text-sm text-gray-500">
+                    Reporting Period: <span class="font-medium">{{ reportPeriod.start }}</span> to <span
+                        class="font-medium">{{ reportPeriod.end }}</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="loading" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-600"></div>
+            <p class="mt-2 text-gray-600">Loading debt summary...</p>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="error" class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-red-700">{{ error }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div *ngIf="!loading && analysis" class="space-y-8">
+            <!-- Performance Overview Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-indigo-500">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Collection Rate</h3>
+                    <p class="text-3xl font-bold text-indigo-600">{{ collectionRate | number:'1.1-1' }}%</p>
+                    <div class="mt-2">
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-indigo-600 h-2.5 rounded-full" [style.width]="collectionRate + '%'"></div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">
+                        <span class="font-medium">{{ formatCurrency(totalActualRevenue) }}</span> collected of
+                        <span class="font-medium">{{ formatCurrency(totalExpectedRevenue) }}</span> expected
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-red-500">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Total Debt</h3>
+                    <p class="text-3xl font-bold text-red-600">{{ formatCurrency(analysis.debt_segmentation.total_debt)
+                        }}</p>
+                    <p class="text-sm text-gray-500 mt-1">
+                        {{ analysis.debt_segmentation.member_count }} members analyzed
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-orange-500">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Severe Debt</h3>
+                    <p class="text-3xl font-bold text-orange-600">
+                        {{ analysis.debt_segmentation.severe_debt.count }} members
+                    </p>
+                    <p class="text-sm text-gray-500 mt-1">
+                        {{ formatCurrency(analysis.debt_segmentation.severe_debt.total) }}
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Current Month</h3>
+                    <p class="text-3xl font-bold text-blue-600">
+                        {{ currentMonthDebtors.length }} debtors
+                    </p>
+                    <p class="text-sm text-gray-500 mt-1">
+                        {{ formatCurrency(currentMonthDebtTotal) }} outstanding
+                    </p>
+                </div>
+            </div>
+
+            <!-- Risk Analysis Section -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800">Risk Analysis</h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div *ngFor="let risk of ['high_risk', 'medium_risk', 'low_risk', 'current']"
+                            class="border rounded-lg p-4" [class.border-red-200]="risk === 'high_risk'"
+                            [class.border-orange-200]="risk === 'medium_risk'"
+                            [class.border-yellow-200]="risk === 'low_risk'"
+                            [class.border-green-200]="risk === 'current'">
+                            <h3 class="font-semibold text-gray-700 capitalize">{{ risk.replace('_', ' ') }}</h3>
+                            <p class="text-2xl font-bold mt-1">
+                                {{ membersByRiskLevel[risk].length || 0 }}
+                                <span class="text-sm font-normal text-gray-500">members</span>
+                            </p>
+                            <div class="mt-2">
+                                <div *ngFor="let member of membersByRiskLevel[risk]?.slice(0, 3)"
+                                    class="text-sm truncate">
+                                    {{ member.first_name }} {{ member.last_name }}
+                                </div>
+                                <p *ngIf="(membersByRiskLevel[risk]?.length || 0) > 3"
+                                    class="text-xs text-gray-500 mt-1">
+                                    +{{ (membersByRiskLevel[risk].length || 0) - 3 }} more
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Month Debtors Table -->
+            <div class="py-2 px-1 bg-white rounded-lg shadow-md">
+
+                <h1 class="text-2xl text-blue-400"> Current Month ({{ currentMonthName }})</h1>
+                <!-- Summary Ribbon -->
+                <div
+                    class="flex align-items-center justify-between mb-4 p-4 surface-100 bg-white border-round border border-gray-200">
+                    <div class="flex flex-wrap align-items-center gap-3">
+                        <p-tag severity="info" icon="pi pi-money-bill"
+                            value="Expected: {{ formatCurrency(currentMonthExpectedTotal) }}"
+                            styleClass="font-semibold px-3 py-2">
+                        </p-tag>
+                        <p-tag severity="danger" icon="pi pi-exclamation-triangle"
+                            value="Outstanding: {{ formatCurrency(currentMonthDebtTotal) }}"
+                            styleClass="font-semibold px-3 py-2">
+                        </p-tag>
+                        <p-tag severity="warning" icon="pi pi-users" value="{{ currentMonthDebtors.length }} Debtors"
+                            styleClass="font-semibold px-3 py-2">
+                        </p-tag>
+                    </div>
+
+                    <div class="flex justify-between items-center px-1 border border-gray-200">
+                        <p-button label="Export" icon="pi pi-file-export" severity="info"
+                            (onClick)="exportFilteredDebtorsToPDF()" styleClass="p-button-sm">
+                        </p-button>
+                        <!-- <p-button icon="pi pi-refresh" severity="secondary" (onClick)="updateReport()"
+                            styleClass="p-button-sm" [rounded]="true" pTooltip="Refresh data" tooltipPosition="top">
+                        </p-button> -->
+                    </div>
+                </div>
+
+                <!-- Filter Controls -->
+                <div class="flex items-center justify-around mb-4 border-round bg-gray-100 border border-gray-200 p-1">
+                    <!-- Search Input (now more compact) -->
+                    <div class="flex-1 min-w-[200px]" style="max-width: 300px;">
+                        <div class="p-inputgroup">
+                            <span class="p-inputgroup-addon">
+                                <i class="pi pi-search"></i>
+                            </span>
+                            <input type="text" pInputText placeholder="Search name/email" [(ngModel)]="searchTerm"
+                                class="w-full" />
+                        </div>
+                    </div>
+
+                    <!-- Dropdown (now more compact) -->
+                    <div class="flex-1 min-w-[200px]" style="max-width: 250px;">
+                        <p-dropdown [options]="paymentStatusOptions" [(ngModel)]="activeFilter" optionLabel="label"
+                            optionValue="value" placeholder="Payment Status" [showClear]="false" styleClass="w-full">
+                            <ng-template let-option pTemplate="item">
+                                <div class="flex align-items-center gap-2">
+                                    <span [class]="'payment-status-' + option.value">{{option.label}}</span>
+                                </div>
+                            </ng-template>
+                        </p-dropdown>
+
+                    </div>
+                </div>
+
+                <!-- Debtors Table with Built-in Pagination -->
+                <div class="border border-gray-300 p-1">
+                    <p-table [value]="filteredDebtors" [paginator]="true" [rows]="10"
+                        [rowsPerPageOptions]="[10, 25, 50]" [showCurrentPageReport]="true"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                        [responsiveLayout]="'scroll'" styleClass="p-datatable-striped p-datatable-sm h-full">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th style="width: 25%">Member </th>
+                                <th style="width: 15%">
+                                    <div class="flex align-items-center gap-1">
+                                        Status
+                                        <sup
+                                            class="flex items-center justify-center text-xs bg-red-200 text-black border-full px-2 py-1 border-1 rounded-full"
+                                            style="line-height: 1.2; font-size: 0.7rem">
+                                            {{membersByPaymentStatus[activeFilter].length || 0}}
+                                        </sup>
+                                    </div>
+                                </th>
+                                <th style="width: 15%">Expected </th>
+                                <th style="width: 15%">Paid </th>
+                                <th style="width: 15%">Balance</th>
+                                <th style="width: 15%">Actions</th>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="body" let-member>
+                            <tr>
+                                <td>
+                                    <div class="flex align-items-center gap-2">
+                                        <p-avatar [label]="member.first_name.charAt(0) + member.last_name.charAt(0)"
+                                            size="large" shape="circle"
+                                            [style]="{ 'background-color': '#e0e7ff', 'color': '#3730a3' }"></p-avatar>
+                                        <div>
+                                            <div class="font-medium">{{ member.first_name }} {{ member.last_name }}
+                                            </div>
+                                            <!-- <div class="text-sm text-color-secondary">{{ member.email | slice:0:8 }}...</div> -->
+
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p-tag [value]="member.payment_status | titlecase" [severity]="member.payment_status === 'fully_paid' ? 'success' : 
+                                           member.payment_status === 'partial' ? 'warning' : 'danger'"
+                                        icon="pi pi-circle-fill" iconPos="right"></p-tag>
+                                </td>
+                                <td class="font-medium">{{ formatCurrency(member.total_expected) }}</td>
+                                <td>{{ formatCurrency(member.total_paid) }}</td>
+                                <td>
+                                    <span [ngClass]="{
+                            'text-green-500 font-semibold': member.current_month_debt <= 0,
+                            'text-red-500 font-semibold': member.current_month_debt > 0
+                        }">
+                                        {{ formatCurrency(member.current_month_debt) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="flex gap-2">
+                                        <p-button icon="pi pi-send" severity="info"
+                                            class="p-button-sm p-button-outlined" [rounded]="true" [text]="true"
+                                            pTooltip="Send Reminder" tooltipPosition="top"></p-button>
+                                        <p-button icon="pi pi-eye" severity="secondary"
+                                            class="p-button-sm p-button-outlined" [rounded]="true" [text]="true"
+                                            pTooltip="View Details" tooltipPosition="top"></p-button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="flex flex-column align-items-center justify-content-center gap-2">
+                                        <i class="pi pi-search"
+                                            style="font-size: 2rem; color: var(--text-color-secondary)"></i>
+                                        <span class="text-color-secondary">No debtors found matching your
+                                            criteria</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>

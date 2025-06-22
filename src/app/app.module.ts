@@ -12,6 +12,8 @@ import { CardModule } from 'primeng/card';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { AvatarModule } from 'primeng/avatar';
+import { TagModule } from 'primeng/tag';
 
 
 import { AppRoutingModule } from './app-routing.module';
@@ -44,6 +46,10 @@ import { AdminEventsComponent } from './admins/admin-events/admin-events.compone
 import { ReportsComponent } from './admins/reports/reports.component';
 import { PaymentComponent } from './payment/payment.component';
 import { NgChartsModule } from 'ng2-charts';
+import { DebtsComponent } from './admins/debts/debts.component';
+import { ButtonModule } from 'primeng/button';
+import { MenuModule } from 'primeng/menu';
+import { TooltipModule } from 'primeng/tooltip';
 
 
 
@@ -66,7 +72,8 @@ import { NgChartsModule } from 'ng2-charts';
     ContributionsComponent,
     AdminEventsComponent,
     ReportsComponent,
-    PaymentComponent
+    PaymentComponent,
+    DebtsComponent
 
   ],
   imports: [
@@ -90,10 +97,17 @@ import { NgChartsModule } from 'ng2-charts';
     InputNumberModule,
     ConfirmDialogModule,
     SelectButtonModule,
-     NgChartsModule, 
+    TableModule,
+    ButtonModule,
+    TagModule,
+    AvatarModule,
+    CardModule,
+    NgChartsModule,
+    MenuModule,
+    TooltipModule,
     EffectsModule.forRoot([AuthEffects]),
     StoreModule.forRoot(reducers, { metaReducers }),
-    
+
   ],
   providers: [
     MessageService,

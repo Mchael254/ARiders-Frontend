@@ -7,6 +7,7 @@
                 <li><a (click)="setView('dashboard')">Dashboard</a></li>
                 <li><a (click)="setView('members')">Members</a></li>
                 <li><a (click)="setView('contributions')">Contributions</a></li>
+                <li><a (click)="setView('debts')">Debts</a></li>
                 <li><a (click)="setView('admin-events')">Events </a></li>
                 <li><a (click)="setView('reports')">Reports</a></li>
                 <li><a (click)="setView('settings')">Settings</a></li>
@@ -39,6 +40,7 @@
                             <li><a (click)="setView('dashboard')">Dashboard</a></li>
                             <li><a (click)="setView('members')">Members</a></li>
                             <li><a (click)="setView('contributions')">Contributions</a></li>
+                            <li><a (click)="setView('debts')">Debts</a></li>
                             <li><a (click)="setView('admin-events')">Events </a></li>
                             <li><a (click)="setView('reports')">Reports</a></li>
                             <li><a (click)="setView('settings')">Settings</a></li>
@@ -63,6 +65,11 @@
 
             </div>
 
+            <div class="events" *ngIf="currentView === 'debts'">
+                <app-debts></app-debts>
+
+            </div>
+
             <div *ngIf="currentView === 'reports'">
                 <app-reports></app-reports>
 
@@ -74,7 +81,7 @@
 
             <div *ngIf="currentView === 'settings'">
                 <app-settings></app-settings>
-            </div>  
+            </div>
 
         </div>
 
