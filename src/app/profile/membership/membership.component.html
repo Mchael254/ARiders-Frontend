@@ -1,0 +1,43 @@
+<div class="main" *ngIf="profile$ | async as profile">
+  <div class="membership">
+    <div class="membershipDetails">
+      <div class="image-container" style="position: relative;">
+
+        <img [src]="previewImage || profile.profile_image || '../../assets/batProfile.jpg'" alt="Profile Image" />
+        <button *ngIf="profileBtn && !previewImage" style="background-color: white" class="edit-icon"
+          (click)="fileInput.click()">
+          <fa-icon [icon]="faPen"></fa-icon>
+        </button>
+
+        <div *ngIf="previewImage" style="position: absolute; top: 8px; left: 8px">
+          <button (click)="cancelImageChange()" class="cancel-btn" style="margin-right: 6px">
+            Cancel
+          </button>
+          <button (click)="uploadImage(profileId ?? '')" class="save-btn" style="background-color:#c9941d; color: white">
+            Save
+          </button>
+        </div>
+
+        <!-- 👇 File input -->
+        <input type="file" #fileInput accept="image/*" style="display: none" (change)="onImageSelected($event)" />
+      </div>
+
+      <div class="details">
+        <p><strong>Name:</strong> {{ profile.first_name }} <span>{{profile.last_name}}</span></p>
+        <p><strong>Email:</strong> {{ profile.user?.email }}</p>
+
+      </div>
+
+    </div>
+
+    <div class="membershipStatus">
+      <h4>Membership Status: <span style="color: green">{{profile.membership_status}}</span></h4>
+    </div>
+  </div>
+
+  <div class="payment">
+    <app-payment>
+      
+    </app-payment>
+  </div>
+</div>

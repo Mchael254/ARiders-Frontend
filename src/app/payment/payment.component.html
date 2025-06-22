@@ -1,0 +1,39 @@
+<div class="main">
+    <p-card header="Make a Payment" styleClass="payment-card">
+        <div class="mpesaCard">
+            <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()">
+                <div class="p-field">
+                    <label for="phoneNumber">Phone Number</label>
+                    <input pInputText id="phoneNumber" formControlName="phoneNumber" placeholder="e.g., 0703142445" />
+                    <small
+                        *ngIf="paymentForm.controls['phoneNumber'].invalid && paymentForm.controls['phoneNumber'].touched"
+                        class="p-error">
+                        Enter a valid phone number
+                    </small>
+                </div>
+
+                <div class="p-field">
+                    <label for="amount">Amount (KES)</label>
+                    <p-inputNumber id="amount" formControlName="amount" [min]="1" [useGrouping]="false"
+                        placeholder="Enter amount"></p-inputNumber>
+                    <small *ngIf="paymentForm.controls['amount'].invalid && paymentForm.controls['amount'].touched"
+                        class="p-error">
+                        Amount must be at least 1
+                    </small>
+                </div>
+
+                <button pButton type="submit" label="Pay Now" [disabled]="paymentForm.invalid || loading"
+                    class="pay-btn"></button>
+            </form>
+        </div>
+    </p-card>
+
+    <p-dialog header="Confirm Payment" [(visible)]="displayConfirmDialog" [modal]="true" [closable]="false"
+        [dismissableMask]="true">
+        <p>Do you want to proceed with this payment?</p>
+        <ng-template pTemplate="footer">
+            <button pButton label="No" icon="pi pi-times" class="p-button-text" (click)="cancelPayment()"></button>
+            <button pButton label="Yes" icon="pi pi-check" (click)="confirmPayment()" autofocus></button>
+        </ng-template>
+    </p-dialog>
+</div>

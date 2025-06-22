@@ -1,0 +1,96 @@
+.main {
+    border: solid red 1px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    width: 25vw;
+    height: 47vh;
+}
+
+.mpesaCard {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    height: 34vh;
+    margin-bottom: 10px;
+    margin-top: 7px;
+}
+
+.mpesaCard form {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: 10px;
+    margin-bottom: 5px;
+    padding: 5px;
+    height: 95%;
+
+}
+
+/* input {
+    width: 98%;
+    height: 6vh;
+    margin: 8px 0;
+    padding: 8px;
+    border-radius: 5px;
+    border: solid #d9d9d9 1px;
+    font-size: 0.9rem;
+} */
+
+
+::ng-deep .pay-btn {
+    background-color: #c9941d;
+    color: black;
+    border: none;
+
+}
+::ng-deep .payment-card{
+    /* border: solid rgb(111, 0, 255) 1px; */
+    width: 20vw;
+    height: 45vh;
+     display: flex;
+    justify-content: center; /* center horizontally */
+    align-items: center;     /* center vertically */
+    flex-direction: column;
+    padding: 2rem;
+    min-height: 300px; 
+}
+
+.status-updates {
+  margin-top: 2rem;
+  
+  .p-timeline-event-opposite {
+    flex: 0 0 6rem;
+  }
+  
+  .success {
+    color: var(--green-600);
+    background-color: var(--green-50);
+    padding: 0.5rem;
+    border-radius: 4px;
+  }
+  
+  .error {
+    color: var(--red-600);
+    background-color: var(--red-50);
+    padding: 0.5rem;
+    border-radius: 4px;
+  }
+  
+  .info {
+    color: var(--primary-color);
+    background-color: var(--primary-50);
+    padding: 0.5rem;
+    border-radius: 4px;
+  }
+  
+  .warning {
+    color: var(--yellow-600);
+    background-color: var(--yellow-50);
+    padding: 0.5rem;
+    border-radius: 4px;
+  }
+}
