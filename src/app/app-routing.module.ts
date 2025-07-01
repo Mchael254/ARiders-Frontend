@@ -14,10 +14,16 @@ import { AdminEventsComponent } from './admins/admin-events/admin-events.compone
 import { ContributionsComponent } from './admins/contributions/contributions.component';
 import { MembersComponent } from './admins/members/members.component';
 import { PaymentComponent } from './payment/payment.component';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { LandingComponent } from './landing/landing.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/home', pathMatch: 'full' },
-  { path: 'home', component: HomeComponent },
+  { path: '', redirectTo: '/landing', pathMatch: 'full' },
+  { path: 'landing', component: LandingComponent },
+
+  //landing components
+  {path:'landing', component:LandingComponent},
+  
 
   { path: 'signup', component: SignupComponent },
   { path: 'signin', component: SigninComponent },
@@ -40,6 +46,8 @@ const routes: Routes = [
 
   //payment
   {path: 'payment', component:PaymentComponent},
+
+  {path: '**', component:PageNotFoundComponent }
 
 ];
 

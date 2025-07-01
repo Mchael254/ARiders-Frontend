@@ -11,6 +11,9 @@
                 <li><a (click)="setView('admin-events')">Events </a></li>
                 <li><a (click)="setView('reports')">Reports</a></li>
                 <li><a (click)="setView('settings')">Settings</a></li>
+                <li><a (click)="setView('memberDebt')">memberDebt</a></li>
+
+
                 <li><a (click)="logOut()">Logout</a></li>
             </ul>
         </div>
@@ -66,7 +69,7 @@
             </div>
 
             <div class="events" *ngIf="currentView === 'debts'">
-                <app-debts></app-debts>
+                <app-debts ></app-debts>
 
             </div>
 
@@ -81,6 +84,10 @@
 
             <div *ngIf="currentView === 'settings'">
                 <app-settings></app-settings>
+            </div>
+
+            <div *ngIf="currentView === 'memberDebt'">
+                <app-memberdebt></app-memberdebt>
             </div>
 
         </div>

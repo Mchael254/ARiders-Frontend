@@ -1,4 +1,4 @@
-<div class="footer">
+<!-- <div class="footer">
     <div class="top">
         <div class="foots">
             <img src="/assets/ariders.jpg">
@@ -39,4 +39,107 @@
 
     </div>
 
-</div>
+</div> -->
+
+
+<footer class=" bg-black py-16 px-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Logo -->
+    <div class="mb-12">
+      <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+        <img src="../../assets/ariders.jpg" alt="logo" class="w-full h-full object-cover rounded-lg">
+      </div>
+    </div>
+
+    <!-- Footer Links Grid -->
+    <div class="flex flex-wrap justify-between gap-8 mb-16">
+      <!-- Solutions Column -->
+      <div *ngIf="footerData.solutions.items.length > 0">
+        <h3 class="text-yellow-400 font-semibold text-lg mb-6">{{ footerData.solutions.title }}</h3>
+        <ul class="space-y-4">
+          <li *ngFor="let item of footerData.solutions.items">
+            <a 
+              [href]="item.href" 
+              class="text-gray-600 hover:text-white transition-colors duration-200"
+              [routerLink]="item.routerLink"
+            >
+              {{ item.name }}
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Support Column -->
+      <div *ngIf="footerData.support.items.length > 0">
+        <h3 class="text-yellow-400 font-semibold text-lg mb-6">{{ footerData.support.title }}</h3>
+        <ul class="space-y-4">
+          <li *ngFor="let item of footerData.support.items">
+            <a 
+              [href]="item.href" 
+              class="text-gray-600 hover:text-white transition-colors duration-200"
+              [routerLink]="item.routerLink"
+            >
+              {{ item.name }}
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Company Column -->
+      <div *ngIf="footerData.company.items.length > 0">
+        <h3 class="text-yellow-400 font-semibold text-lg mb-6">{{ footerData.company.title }}</h3>
+        <ul class="space-y-4">
+          <li *ngFor="let item of footerData.company.items">
+            <a 
+              [href]="item.href" 
+              class="text-gray-600 hover:text-white transition-colors duration-200"
+              [routerLink]="item.routerLink"
+            >
+              {{ item.name }}
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Legal Column -->
+      <div *ngIf="footerData.legal.items.length > 0">
+        <h3 class="text-yellow-400 font-semibold text-lg mb-6">{{ footerData.legal.title }}</h3>
+        <ul class="space-y-4">
+          <li *ngFor="let item of footerData.legal.items">
+            <a 
+              [href]="item.href" 
+              class="text-gray-600 hover:text-white transition-colors duration-200"
+              [routerLink]="item.routerLink"
+            >
+              {{ item.name }}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom Section -->
+    <div class="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-gray-700">
+      <!-- Copyright -->
+      <div class="text-gray-500 text-sm mb-4 md:mb-0">
+        © {{ currentYear }} {{ companyName }}. All rights reserved.
+      </div>
+
+      <!-- Social Media Links -->
+      <div class="flex space-x-6">
+        <a 
+          *ngFor="let social of socialLinks" 
+          [href]="social.href"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-yellow-400 hover:text-white transition-colors duration-200"
+          [attr.aria-label]="social.name"
+        >
+          <svg class="w-6 h-6" fill="currentColor" [attr.viewBox]="social.viewBox">
+            <path [attr.d]="social.path"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>

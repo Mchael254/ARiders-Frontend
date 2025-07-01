@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { faBars, faUser } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-navigation',
@@ -7,14 +6,12 @@ import { faBars, faUser } from '@fortawesome/free-solid-svg-icons';
   styleUrls: ['./navigation.component.css']
 })
 export class NavigationComponent {
-  faBars = faBars; 
-  faUser = faUser;
+  isMobileMenuOpen: boolean = false;
 
-  isSidenavOpen = false;
-
-  toggleSidenav() {
-    this.isSidenavOpen = !this.isSidenavOpen;
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
+  isActive:boolean = true
 
 }

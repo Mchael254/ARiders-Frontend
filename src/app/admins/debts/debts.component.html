@@ -1,6 +1,6 @@
 <div class="main">
     <div class="container mx-auto px-4 py-8">
-        <!-- Filter Controls with Navigation -->
+        <!--Period selection -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
             <div class="flex flex-wrap items-end gap-4">
 
@@ -17,7 +17,8 @@
                 </div>
 
                 <button (click)="updateReport()"
-                    class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    class="px-4 py-2 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    style="background-color:#c9941d;">
                     Update Report
                 </button>
             </div>
@@ -136,7 +137,7 @@
             <!-- Current Month Debtors Table -->
             <div class="py-2 px-1 bg-white rounded-lg shadow-md">
 
-                <h1 class="text-2xl text-blue-400"> Current Month ({{ currentMonthName }})</h1>
+                <h1 class="text-2xl text-black font-bold"> Current Month ({{ currentMonthName }})</h1>
                 <!-- Summary Ribbon -->
                 <div
                     class="flex align-items-center justify-between mb-4 p-4 surface-100 bg-white border-round border border-gray-200">
@@ -154,7 +155,7 @@
                         </p-tag>
                     </div>
 
-                    <div class="flex justify-between items-center px-1 border border-gray-200">
+                    <div class="flex justify-between items-center px-1 border border-gray-200 rounded-lg py-2 px-3 " style="background-color:#c9941d;">
                         <p-button label="Export" icon="pi pi-file-export" severity="info"
                             (onClick)="exportFilteredDebtorsToPDF()" styleClass="p-button-sm">
                         </p-button>
@@ -254,8 +255,9 @@
                                             pTooltip="Send Reminder" tooltipPosition="top"></p-button>
                                         <p-button icon="pi pi-eye" severity="secondary"
                                             class="p-button-sm p-button-outlined" [rounded]="true" [text]="true"
-                                            pTooltip="View Details" tooltipPosition="top"></p-button>
+                                            pTooltip="View Details" tooltipPosition="top" (onClick)="viewDebt(member.member_id)"></p-button>
                                     </div>
+                                    
                                 </td>
                             </tr>
                         </ng-template>
@@ -275,6 +277,7 @@
                     </p-table>
                 </div>
             </div>
+            
 
 
         </div>

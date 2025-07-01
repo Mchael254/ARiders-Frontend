@@ -14,7 +14,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { AvatarModule } from 'primeng/avatar';
 import { TagModule } from 'primeng/tag';
-
+import { GalleriaModule } from 'primeng/galleria';
+import { CarouselModule } from 'primeng/carousel';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -50,6 +51,14 @@ import { DebtsComponent } from './admins/debts/debts.component';
 import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
 import { TooltipModule } from 'primeng/tooltip';
+import { MemberdebtComponent } from './admins/memberdebt/memberdebt.component';
+import { LandingComponent } from './landing/landing.component';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { HeroSectionComponent } from './hero-section/hero-section.component';
+import { AboutusComponent } from './aboutus/aboutus.component';
+import { WhatwedoComponent } from './whatwedo/whatwedo.component';
+import { TeamComponent } from './team/team.component';
+import { MissionComponent } from './mission/mission.component';
 
 
 
@@ -73,7 +82,15 @@ import { TooltipModule } from 'primeng/tooltip';
     AdminEventsComponent,
     ReportsComponent,
     PaymentComponent,
-    DebtsComponent
+    DebtsComponent,
+    MemberdebtComponent,
+    LandingComponent,
+    PageNotFoundComponent,
+    HeroSectionComponent,
+    AboutusComponent,
+    WhatwedoComponent,
+    TeamComponent,
+    MissionComponent
 
   ],
   imports: [
@@ -105,6 +122,8 @@ import { TooltipModule } from 'primeng/tooltip';
     NgChartsModule,
     MenuModule,
     TooltipModule,
+    GalleriaModule,
+    CarouselModule,
     EffectsModule.forRoot([AuthEffects]),
     StoreModule.forRoot(reducers, { metaReducers }),
 

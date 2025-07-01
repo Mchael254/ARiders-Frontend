@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { DebtAnalysis, DebtSummaryPayload, DebtSummaryResponse, Member } from 'src/app/interfaces/debts';
 import { DebtService } from 'src/app/services/debt.service';
 import * as pdfMake from 'pdfmake/build/pdfmake';
@@ -12,6 +12,7 @@ import { MenuItem } from 'primeng/api';
   styleUrls: ['./debts.component.css']
 })
 export class DebtsComponent {
+
   searchTerm: string = '';
   Math = Math;
   lookBackMonths = 3;
@@ -120,11 +121,8 @@ export class DebtsComponent {
         this.analysis = res.analysis;
         this.rawData = res.raw_data;
         this.loading = false;
-        console.log('Debt summary loaded:', {
-          totalMembers: this.rawData.length,
-          currentMonthDebtors: this.currentMonthDebtors.length,
-          collectionRate: this.collectionRate.toFixed(2) + '%'
-        });
+        console.log("this is debtAnalysis", this.analysis);
+
       },
       error: (err) => {
         console.error('Failed to fetch debt summary', err);
@@ -289,22 +287,6 @@ export class DebtsComponent {
     pdfMake.createPdf(docDefinition).download(`Debtors_${this.currentMonthName.replace(/\s+/g, '_')}.pdf`);
   }
 
-  menuItems: MenuItem[] = [
-    {
-      label: 'Edit',
-      icon: 'pi pi-pencil',
-      command: () => {
-        // handle edit
-      }
-    },
-    {
-      label: 'Delete',
-      icon: 'pi pi-trash',
-      command: () => {
-        // handle delete
-      }
-    }
-  ];
 
   getPages(): (number | string)[] {
     const pages: (number | string)[] = [];
@@ -349,9 +331,14 @@ export class DebtsComponent {
     { label: 'No Payment', value: 'no_payment', severity: 'danger' },
     { label: 'Partial', value: 'partial', severity: 'warning' },
     { label: 'Fully Paid', value: 'fully_paid', severity: 'success' }
-];
-  
+  ];
 
+  @Output() viewChange = new EventEmitter<string>();
+viewDebt(member_id: string) {
+  console.log(member_id);
+  this.debtService.setMemberId(member_id);
+  this.debtService.changeView('memberDebt'); // This will trigger the view change
+}
 
 
 
