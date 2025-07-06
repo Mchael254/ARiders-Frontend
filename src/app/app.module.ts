@@ -59,6 +59,7 @@ import { AboutusComponent } from './aboutus/aboutus.component';
 import { WhatwedoComponent } from './whatwedo/whatwedo.component';
 import { TeamComponent } from './team/team.component';
 import { MissionComponent } from './mission/mission.component';
+import { PartnersComponent } from './partners/partners.component';
 
 
 
@@ -90,7 +91,8 @@ import { MissionComponent } from './mission/mission.component';
     AboutusComponent,
     WhatwedoComponent,
     TeamComponent,
-    MissionComponent
+    MissionComponent,
+    PartnersComponent
 
   ],
   imports: [

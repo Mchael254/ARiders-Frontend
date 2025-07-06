@@ -16,18 +16,18 @@ export class WhatwedoComponent {
    
     {
       title: "Competitions",
-      image: 'assets/batProfile.jpg',
+      image: 'assets/mtb.JPG',
       description: "Participate in local and regional races"
     },
     {
       title: "Community Events",
-      image: 'assets/groupRides.jpg',
+      image: 'assets/all.JPG',
       description: "Charity rides and social gatherings"
     },
     {
-      title: "Skill Workshops",
-      image: 'assets/itt.jpg',
-      description: "Learn maintenance and advanced techniques"
+      title: "Races",
+      image: 'assets/raceStart.JPG',
+      description: "Compete in our races"
     }
   ];
 

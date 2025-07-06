@@ -23,6 +23,7 @@ const routes: Routes = [
 
   //landing components
   {path:'landing', component:LandingComponent},
+   {path:'home', component:HomeComponent},
   
 
   { path: 'signup', component: SignupComponent },

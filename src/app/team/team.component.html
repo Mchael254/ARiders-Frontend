@@ -1,22 +1,164 @@
-<div class="bg-white py-16 sm:py-24">
-  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+<section class="bg-black text-white py-16 px-4 lg:px-8">
+  <div class="max-w-7xl mx-auto">
     <!-- Header Section -->
-    <div class="mx-auto max-w-2xl text-center">
-      <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Our team</h2>
-      <p class="mt-6 text-lg leading-8 text-gray-600">
-        We're a dynamic group of individuals who are passionate about riding bicycles and exploring new areas and making
-        new friends everyday.
-      </p>
+    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-start mb-12">
+      <div class="lg:max-w-md">
+        <h2 class="text-4xl lg:text-5xl font-bold mb-4">
+          Meet the team
+        </h2>
+        <div class="w-16 h-1 bg-yellow-400 mb-6"></div>
+        <p class="text-gray-300 text-lg">
+          Meet our riders
+        </p>
+      </div>
+      
+      <!-- Teams Dropdown -->
+      <div class="mt-8 lg:mt-0 relative">
+        <h3 class="text-lg font-semibold mb-4">Teams</h3>
+        <div class="relative">
+          <button 
+            (click)="showTeamDropdown = !showTeamDropdown"
+            class="bg-gray-800 text-white px-4 py-2 rounded-md w-64 text-left flex justify-between items-center">
+            <span>{{ getSelectedTeamName() }}</span>
+            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" 
+                 xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+          
+          <!-- Dropdown menu -->
+          <div *ngIf="showTeamDropdown" 
+               class="absolute z-10 mt-1 w-64 bg-gray-800 rounded-md shadow-lg">
+            <ul class="py-1">
+              <li *ngFor="let team of teams">
+                <button 
+                  (click)="selectTeam(team.id)"
+                  class="block px-4 py-2 text-sm text-white hover:bg-gray-700 w-full text-left flex justify-between items-center">
+                  <div class="flex items-center">
+                    <span class="w-2 h-2 rounded-full bg-white mr-2"></span>
+                    <span>{{ team.name }}</span>
+                  </div>
+                  <span class="text-gray-400 text-xs">{{ team.count }}</span>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Team Grid -->
-    <div
-      class="mx-auto mt-16 grid max-w-2xl grid-cols-2 gap-x-8 gap-y-16 text-center lg:mx-0 lg:max-w-none lg:grid-cols-5">
-      <div *ngFor="let member of teamMembers" class="flex flex-col items-center">
-        <img class="mx-auto h-24 w-24 rounded-full" [src]="member.image" [alt]="member.name" />
-        <h3 class="mt-6 text-base font-semibold leading-7 tracking-tight text-gray-900">{{ member.name }}</h3>
-        <p class="text-sm leading-6 text-gray-600">{{ member.position }}</p>
+    <!-- Team Members - Mobile (1 per row) -->
+    <div class="lg:hidden relative min-h-[500px]">
+      <div *ngFor="let member of getMobileMembers()" class="mb-8">
+        <div class="group cursor-pointer">
+          <div class="relative overflow-hidden rounded-lg bg-gray-900">
+            <!-- Member Image -->
+            <div class="aspect-[3/4] relative">
+              <img 
+                [src]="member.image" 
+                [alt]="member.name"
+                class="w-full h-full object-contain object-center transition-transform duration-300 group-hover:scale-105">
+              
+              <!-- Overlay with member info -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div class="absolute bottom-4 left-4 right-4">
+                  <h3 class="text-white font-bold text-lg mb-1">{{ member.name }}</h3>
+                  <p class="text-yellow-400 text-sm uppercase tracking-wider">{{ member.role }}</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Vertical text label -->
+            <div class="absolute top-16 left-0 m-1 -rotate-90 origin-top-left text-2xs">
+              <div class="bg-yellow-400 text-black px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                {{ member.category }}
+              </div>
+            </div>
+          </div>
+          
+          <!-- Member info below image -->
+          <div class="mt-4">
+            <h3 class="text-white font-bold text-lg">{{ member.name }}</h3>
+            <p class="text-yellow-400 text-sm uppercase tracking-wider">{{ member.role }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Navigation Buttons (always visible) -->
+      <div *ngIf="filteredMembers.length > 1" class="flex justify-center mt-6 space-x-4">
+        <button 
+          (click)="prevMobileMember()"
+          [disabled]="mobileCurrentIndex === 0"
+          class="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-full transition-all disabled:opacity-50">
+          <i class="pi pi-angle-left" style="font-size: 2rem"></i>
+        </button>
+        <div class="flex items-center text-sm text-gray-300">
+          {{ mobileCurrentIndex + 1 }} / {{ filteredMembers.length }}
+        </div>
+        <button 
+          (click)="nextMobileMember()"
+          [disabled]="mobileCurrentIndex === filteredMembers.length - 1"
+          class="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-full transition-all disabled:opacity-50">
+          <i class="pi pi-angle-right" style="font-size: 2rem"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Team Members - Desktop (4 per row) -->
+    <div class="hidden lg:block relative">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div 
+          *ngFor="let member of getPaginatedMembers()" 
+          class="group cursor-pointer">
+          <div class="relative overflow-hidden rounded-lg bg-gray-900">
+            <!-- Member Image -->
+            <div class="aspect-[3/4] relative">
+              <img 
+                [src]="member.image" 
+                [alt]="member.name"
+                class="w-full h-full object-contain object-center transition-transform duration-300 group-hover:scale-105">
+              
+              <!-- Overlay with member info -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div class="absolute bottom-4 left-4 right-4">
+                  <h3 class="text-white font-bold text-lg mb-1">{{ member.name }}</h3>
+                  <p class="text-yellow-400 text-sm uppercase tracking-wider">{{ member.role }}</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Vertical text label -->
+            <div class="absolute top-16 left-0 m-1 -rotate-90 origin-top-left text-2xs">
+              <div class="bg-yellow-400 text-black px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                {{ member.category }}
+              </div>
+            </div>
+          </div>
+          
+          <!-- Member info below image -->
+          <div class="mt-4">
+            <h3 class="text-white font-bold text-lg">{{ member.name }}</h3>
+            <p class="text-yellow-400 text-sm uppercase tracking-wider">{{ member.role }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop Navigation Buttons -->
+      <div *ngIf="filteredMembers.length > itemsPerPage" class="flex justify-end mt-6 space-x-2">
+        <button 
+          (click)="prevPage()"
+          [disabled]="currentPage === 1"
+          class="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-full transition-all disabled:opacity-50">
+         <i class="pi pi-angle-left" style="font-size: 1rem"></i>
+        </button>
+        <button 
+          (click)="nextPage()"
+          [disabled]="currentPage * itemsPerPage >= filteredMembers.length"
+          class="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-full transition-all disabled:opacity-50">
+        <i class="pi pi-angle-right" style="font-size: 1rem"></i>
+        </button>
       </div>
     </div>
   </div>
-</div>
+</section>

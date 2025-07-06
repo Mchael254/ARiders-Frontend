@@ -30,40 +30,53 @@ export class HeroSectionComponent {
     }
   ];
 
+   nextSlide(): void {
+    this.currentSlide = (this.currentSlide + 1) % this.images.length;
+  }
+ currentSlide = 0;
+  prevSlide(): void {
+    this.currentSlide = (this.currentSlide - 1 + this.images.length) % this.images.length;
+  }
 
   constructor() {
     this.images = [
-      // {
-      //   previewImageSrc: 'assets/Jonas.png',
-      //   thumbnailImageSrc: 'assets/Jonas.png',
-      //   alt: 'Image 1',
-      //   title: 'Image 1'
-      // },
-      // {
-      //   previewImageSrc: 'assets/ariders.jpg',
-      //   thumbnailImageSrc: 'assets/ariders.jpg',
-      //   alt: 'Image 2',
-      //   title: 'Image 2'
-      // },
-      // {
-      //   previewImageSrc: 'assets/batProfile.jpg',
-      //   thumbnailImageSrc: 'assets/batProfile.jpg',
-      //   alt: 'Image 3',
-      //   title: 'Image 3'
-      // },
-      // {
-      //   previewImageSrc: 'assets/groupRides.jpg',
-      //   thumbnailImageSrc: 'assets/groupRides.jpg',
-      //   alt: 'Image 4',
-      //   title: 'Image 4'
-      // },
-      // {
-      //   previewImageSrc: 'assets/itt.jpg',
-      //   thumbnailImageSrc: 'assets/itt.jpg',
-      //   alt: 'Image 5',
-      //   title: 'Image 5'
-      // }
+      {
+        previewImageSrc: 'assets/mtb.JPG',
+        thumbnailImageSrc: 'assets/Jonas.png',
+        alt: 'Mtb',
+        title: 'Mountain Bike Gang'
+      },
+      {
+        previewImageSrc: 'assets/ariders.jpg',
+        thumbnailImageSrc: 'assets/ariders.jpg',
+        alt: 'Adventure Awaits',
+        title: 'A Riders'
+      },
+      {
+        previewImageSrc: 'assets/raceStart.JPG',
+        thumbnailImageSrc: 'assets/batProfile.jpg',
+        alt: 'A Riders 4th Edition',
+        title: 'A Riders 4th Edition'
+      },
+      {
+        previewImageSrc: 'assets/groupRides.jpg',
+        thumbnailImageSrc: 'assets/groupRides.jpg',
+        alt: 'Kaloleni',
+        title: 'Kaloleni'
+      },
+      {
+        previewImageSrc: 'assets/itt.jpg',
+        thumbnailImageSrc: 'assets/itt.jpg',
+        alt: 'Itt',
+        title: 'Individual Time Trials'
+      }
     ]
+  }
+
+   joinNow() {
+    // Here you could route to your registration page
+    console.log('Join Now clicked!');
+    // e.g., this.router.navigate(['/register']);
   }
 
  handleImageError(event: Event, item: any) {
@@ -84,6 +97,9 @@ export class HeroSectionComponent {
 
   ngOnInit(): void {
     this.preloadImages();
+     setInterval(() => {
+      this.nextSlide();
+    }, 10000);
   }
 
 

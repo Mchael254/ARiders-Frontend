@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
 
 interface TeamMember {
+  id: number;
   name: string;
-  position: string;
+  role: string;
+  category: string;
   image: string;
+  teamId: number;
 }
 
 @Component({
@@ -12,56 +15,144 @@ interface TeamMember {
   styleUrls: ['./team.component.css']
 })
 export class TeamComponent {
-  teamMembers: TeamMember[] = [
-    {
-      name: 'Michael Foster',
-      position: 'Chairperson',
-      image: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-    },
-    {
-      name: 'Dries Vincent',
-      position: 'Vice Chairperson',
-      image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-    },
-    {
-      name: 'Lindsay Walton',
-      position: 'Secretary',
-      image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-    },
-    {
-      name: 'Courtney Henry',
-      position: 'Treasurer',
-      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-    },
-    {
-      name: 'Tom Cook',
-      position: 'Activity Organiser',
-      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-    },
-    {
-      name: 'Whitney Francis',
-      position: 'Member',
-      image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-    },
-    {
-      name: 'Leonard Krasner',
-      position: 'Member',
-      image: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-    },
-    {
-      name: 'Floyd Miles',
-      position: 'Member',
-      image: 'https://images.unsplash.com/photo-1463453091185-61582044d556?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-    },
-    {
-      name: 'Emily Selman',
-      position: 'Member',
-      image: 'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-    },
-    {
-      name: 'Kristin Watson',
-      position: 'Member',
-      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-    }
+  selectedTeam: number = 1;
+  showTeamDropdown: boolean = false;
+  currentPage: number = 1;
+  itemsPerPage: number = 4; // 4 items per page (one row)
+  mobileCurrentIndex: number = 0; // Track current mobile member index
+  
+  teams = [
+    { id: 1, name: 'Development Team', count: 12 },
+    { id: 2, name: 'Women\'s Team', count: 8 },
+    { id: 3, name: 'Men\'s Team', count: 15 }
   ];
+
+  teamMembers: TeamMember[] = [
+     {
+      id: 1,
+      name: 'Pinto Niquez',
+      role: 'Cyclist',
+      category: 'CYCLING',
+      image: 'assets/mtb.JPG',
+      teamId: 1
+    },
+    {
+      id: 2,
+      name: 'Arap Lagat',
+      role: 'Cyclist',
+      category: 'CYCLING',
+      image: 'assets/champion.JPG',
+      teamId: 1
+    },
+    {
+      id: 3,
+      name: 'Antony Nazareth',
+      role: 'Cyclist',
+      category: 'CYCLING',
+      image: 'assets/all.JPG',
+      teamId: 1
+    },
+    {
+      id: 4,
+      name: 'Fexxie',
+      role: 'Photographer',
+      category: 'STAFF',
+      image: 'assets/photographer.JPG',
+      teamId: 1
+    },
+       {
+      id: 4,
+      name: 'Paulo',
+      role: 'Team Manager',
+      category: 'STAFF',
+      image: 'assets/manager.JPG',
+      teamId: 1
+    },
+    {
+      id: 5,
+      name: 'Patrick Stride',
+      role: 'Cyclist',
+      category: 'CYCLING',
+      image: 'assets/Jonas.png',
+      teamId: 2
+    },
+    {
+      id: 6,
+      name: 'Sarah Johnson',
+      role: 'Cyclist',
+      category: 'CYCLING',
+      image: 'assets/Jonas.png',
+      teamId: 2
+    },
+    {
+      id: 7,
+      name: 'Michael Brown',
+      role: 'Mechanic',
+      category: 'STAFF',
+      image: 'assets/Jonas.png',
+      teamId: 3
+    },
+    {
+      id: 8,
+      name: 'Emma Wilson',
+      role: 'Cyclist',
+      category: 'CYCLING',
+      image: 'assets/Jonas.png',
+      teamId: 2
+    },
+  ];
+
+  get filteredMembers(): TeamMember[] {
+    return this.teamMembers.filter(member => member.teamId === this.selectedTeam);
+  }
+
+  getPaginatedMembers(): TeamMember[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    return this.filteredMembers.slice(startIndex, startIndex + this.itemsPerPage);
+  }
+
+  getMobileMembers(): TeamMember[] {
+    // Return array with only the current mobile member
+    return this.filteredMembers.length > 0 
+      ? [this.filteredMembers[this.mobileCurrentIndex]] 
+      : [];
+  }
+
+  getSelectedTeamName(): string {
+    const team = this.teams.find(t => t.id === this.selectedTeam);
+    return team ? team.name : 'Select Team';
+  }
+
+  selectTeam(teamId: number): void {
+    this.selectedTeam = teamId;
+    this.showTeamDropdown = false;
+    this.currentPage = 1;
+    this.mobileCurrentIndex = 0; // Reset mobile index when changing teams
+  }
+
+  // Desktop pagination
+  nextPage(): void {
+    if (this.currentPage * this.itemsPerPage < this.filteredMembers.length) {
+      this.currentPage++;
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  // Mobile navigation
+  nextMobileMember(): void {
+    if (this.mobileCurrentIndex < this.filteredMembers.length - 1) {
+      this.mobileCurrentIndex++;
+    }
+  }
+
+  prevMobileMember(): void {
+    if (this.mobileCurrentIndex > 0) {
+      this.mobileCurrentIndex--;
+    }
+  }
 }

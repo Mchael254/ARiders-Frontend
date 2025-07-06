@@ -26,7 +26,7 @@
                         <div class="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-all duration-300">
                         </div>
                         <img [src]="activity.image" [alt]="activity.title"
-                            class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110">
+                            class="w-full h-full object-contain object-center transition-transform duration-700 group-hover:scale-110">
                         <div
                             class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end p-6">
                             <div
@@ -39,6 +39,8 @@
                 </div>
             </div>
         </div>
+
+        
 
         <!-- Mobile Grid -->
         <div class="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-6">
