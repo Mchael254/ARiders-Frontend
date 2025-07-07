@@ -19,7 +19,11 @@ export class MembersComponent {
   totalCount = 0;
   selectedRoleMemberId: string | null = null;
   pdfTitle: string = '';
+  displayedMembers: Member[] = [];
 
+  currentPage = 1;
+  pageSize = 10;
+  totalPages = 0;
 
   getRowClass(member: Member): string {
     return member.membership_status === 'inactive' ? 'inactive-row' : '';
@@ -45,6 +49,7 @@ export class MembersComponent {
       next: (res) => {
         this.members = res.data;
         this.totalCount = res.count;
+        this.calculatePagination();
       },
       error: (err) => {
         console.error('Error loading members', err);
@@ -52,21 +57,58 @@ export class MembersComponent {
     });
   }
 
-  //filter/search members
+  calculatePagination(): void {
+    this.totalPages = Math.ceil(this.members.length / this.pageSize) || 1;
+    this.updateDisplayedMembers();
+  }
+
+  updateDisplayedMembers(): void {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.displayedMembers = this.members.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.updateDisplayedMembers();
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updateDisplayedMembers();
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updateDisplayedMembers();
+    }
+  }
+
+  getShowingFrom(): number { return (this.currentPage - 1) * this.pageSize + 1; }
+  getShowingTo(): number { return Math.min(this.currentPage * this.pageSize, this.members.length); }
+
+
+
   filterGlobal(event: any): void {
     const value = event.target.value;
     this.memberService.getAllMembers(undefined, undefined, undefined, value).subscribe({
       next: (res) => {
         this.members = res.data;
         this.totalCount = res.count;
+        this.currentPage = 1;           
+        this.calculatePagination();    
       },
       error: (err) => {
-        this.response.showError('search failed', err)
+        this.response.showError('search failed', err);
         console.error('Search failed', err);
-
       },
     });
   }
+
 
   //select members
   isMemberSelected(member: any): boolean {
@@ -208,6 +250,48 @@ export class MembersComponent {
       this.response.showError('Could not load logo image');
     };
   }
+
+  // helpers for template binding
+  isSelected(member: Member): boolean {
+    return this.selectedMembers.some(m => m.id === member.id);
+  }
+
+  toggleSelection(member: Member): void {
+    if (this.isSelected(member)) {
+      this.selectedMembers = this.selectedMembers.filter(m => m.id !== member.id);
+    } else {
+      this.selectedMembers.push(member);
+    }
+  }
+
+  getStatusClasses(status: string): string {
+    switch (status) {
+      case 'active':
+        return 'text-green-600 font-semibold';
+      case 'inactive':
+        return 'text-gray-400 italic';
+      case 'suspended':
+        return 'text-red-500 font-semibold';
+      default:
+        return '';
+    }
+  }
+
+  isAllSelected(): boolean {
+    return this.members.length > 0 && this.selectedMembers.length === this.members.length;
+  }
+
+  toggleSelectAll(): void {
+    if (this.isAllSelected()) {
+      this.selectedMembers = [];
+    } else {
+      this.selectedMembers = [...this.members];
+    }
+  }
+
+
+
+
 
 
 

@@ -1,7 +1,6 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { select, Store } from '@ngrx/store';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Store } from '@ngrx/store';
 import { DebtService } from 'src/app/services/debt.service';
 import { AuthState } from 'src/app/store/auth/auth.reducer';
 
@@ -61,10 +60,12 @@ interface MemberDebtData {
   templateUrl: './memberdebt.component.html',
   styleUrls: ['./memberdebt.component.css']
 })
-export class MemberdebtComponent {
+export class MemberdebtComponent implements OnInit, OnChanges {
 
   profileId: string | null = null;
-  memberId: string | null = null;
+  @Input() memberId: string | null = null;
+  @Input() viewData: any = {};
+  @Output() backToDebts = new EventEmitter<void>();
 
   isLoading = true;
   error: string | null = null;
@@ -74,52 +75,56 @@ export class MemberdebtComponent {
 
   constructor(private debtService: DebtService, private fb: FormBuilder, private store: Store<{ auth: AuthState }>) {
     this.filterForm = this.fb.group({
-      lookBackMonths: [5], // Default value
-      reportDate: [new Date().toISOString().split('T')[0]] // Today's date as default
+      lookBackMonths: [6, [Validators.required, Validators.min(1), Validators.max(60)]],
+      reportDate: [new Date().toISOString().split('T')[0]] // Today's date in YYYY-MM-DD format
     });
   }
 
   ngOnInit(): void {
-    this.loadMemberDebtData();
-    this.debtService.memberId$.subscribe(memberId => {
-    if (memberId) {
-      console.log('Received member ID:', memberId);
-      this.profileId = memberId
-      console.log("new id>>", this.profileId);
-      
-      // Use the memberId here
+    if (this.memberId) {
+      this.loadMemberDebtData();
     }
-  });
-   
+  }
 
+  ngOnChanges(): void {
+    if (this.memberId) {
+      console.log('Loading debt data for member:', this.memberId);
+      this.loadMemberDebtData();
+    }
   }
 
   loadMemberDebtData(): void {
-    if (this.filterForm.invalid || !this.profileId) return;
-    if (this.filterForm.invalid) return;
+    if (!this.memberId) {
+      console.warn('No member ID provided');
+      return;
+    }
 
     this.isLoading = true;
     this.error = null;
 
-    const formValue = this.filterForm.value;
-    const memberId = this.profileId
+    // Extract parameters from filter form
+    const lookBackMonths = this.filterForm.get('lookBackMonths')?.value || 6; // Default to 6 months
+    const reportDate = this.filterForm.get('reportDate')?.value || new Date().toISOString().split('T')[0]; // Default to today
 
-    this.debtService.getMemberDebtSummary(
-      memberId,
-      formValue.lookBackMonths,
-      formValue.reportDate
-    ).subscribe({
+    // API call with correct parameters
+    this.debtService.getMemberDebtSummary(this.memberId, lookBackMonths, reportDate).subscribe({
       next: (response) => {
         this.data = response;
         this.isLoading = false;
       },
-      error: (err) => {
+      error: (error) => {
+        console.error('Error loading member debt data:', error);
         this.error = 'Failed to load member debt data';
         this.isLoading = false;
-        console.error(err);
       }
     });
   }
+
+  goBack(): void {
+    this.backToDebts.emit();
+  }
+
+
 
   getPaymentStatusClass(status: string): string {
     switch (status) {

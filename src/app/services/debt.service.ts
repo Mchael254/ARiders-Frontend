@@ -30,12 +30,6 @@ export class DebtService {
   private viewChangeSource = new Subject<string>();
   viewChange$ = this.viewChangeSource.asObservable();
 
-  changeView(view: string) {
-    this.viewChangeSource.next(view);
-  }
 
-  setMemberId(id: string) {
-    this.memberIdSubject.next(id);
-  }
 
 }

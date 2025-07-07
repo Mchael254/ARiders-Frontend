@@ -11,7 +11,7 @@
                 <li><a (click)="setView('admin-events')">Events </a></li>
                 <li><a (click)="setView('reports')">Reports</a></li>
                 <li><a (click)="setView('settings')">Settings</a></li>
-                <li><a (click)="setView('memberDebt')">memberDebt</a></li>
+                <!-- <li><a (click)="setView('memberDebt')">memberDebt</a></li> -->
 
 
                 <li><a (click)="logOut()">Logout</a></li>
@@ -54,28 +54,26 @@
             </div>
         </div>
 
+        <!-- Updated template section -->
         <div class="panel">
             <div *ngIf="currentView === 'dashboard'">
                 <p>dashboard</p>
             </div>
 
             <div *ngIf="currentView === 'members'">
-                <app-members></app-members>
+                <app-members (memberSelected)="setView('memberDebt', {memberId: $event})"></app-members>
             </div>
 
             <div class="events" *ngIf="currentView === 'contributions'">
                 <app-contributions></app-contributions>
-
             </div>
 
             <div class="events" *ngIf="currentView === 'debts'">
-                <app-debts ></app-debts>
-
+                <app-debts (viewMemberDebt)="setView('memberDebt', {memberId: $event})"></app-debts>
             </div>
 
             <div *ngIf="currentView === 'reports'">
                 <app-reports></app-reports>
-
             </div>
 
             <div *ngIf="currentView === 'admin-events'">
@@ -87,9 +85,10 @@
             </div>
 
             <div *ngIf="currentView === 'memberDebt'">
-                <app-memberdebt></app-memberdebt>
+                <app-memberdebt [memberId]="selectedMemberId" [viewData]="getViewData('memberDebt')"
+                    (backToDebts)="setView('debts')">
+                </app-memberdebt>
             </div>
-
         </div>
 
 

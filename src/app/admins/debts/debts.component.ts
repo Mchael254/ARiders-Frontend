@@ -24,6 +24,38 @@ export class DebtsComponent {
   rawData: Member[] = [];
   activeFilter: string = 'no_payment';
 
+  @Output() viewMemberDebt = new EventEmitter<string>();
+
+  currentPage = 1;
+  pageSize = 10;
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredDebtors.length / this.pageSize);
+  }
+
+  get paginatedDebtors(): any[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredDebtors.slice(start, start + this.pageSize);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+
 
   get currentMonthName(): string {
     return new Date(this.reportDate).toLocaleString('default', {
@@ -67,14 +99,14 @@ export class DebtsComponent {
     };
   }
 
-  get membersByRiskLevel(): Record<string, Member[]> {
-    return {
-      high_risk: this.rawData.filter(m => m.days_late > 60),
-      medium_risk: this.rawData.filter(m => m.days_late > 30 && m.days_late <= 60),
-      low_risk: this.rawData.filter(m => m.days_late > 0 && m.days_late <= 30),
-      current: this.rawData.filter(m => m.days_late === 0)
-    };
-  }
+get membersByRiskLevel(): Record<string, Member[]> {
+  return {
+    high_risk: this.rawData.filter(m => m.payment_status === 'no_payment'),
+    medium_risk: this.rawData.filter(m => m.payment_status === 'partial'),
+    low_risk: this.rawData.filter(m => m.payment_status === 'fully_paid'),
+    current: this.rawData.filter(m => m.current_month_debt === 0) // or whatever criteria you want for "current"
+  };
+}
 
   // Sorting and filtering utilities
   get sortedDebtorsByAmount(): Member[] {
@@ -227,18 +259,6 @@ export class DebtsComponent {
     }).format(value / 100);
   }
 
-  // Add to your component class
-  currentPage = 1;
-  itemsPerPage = 10;
-
-  get paginatedDebtors(): Member[] {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    return this.sortedDebtorsByAmount.slice(startIndex, startIndex + this.itemsPerPage);
-  }
-
-  get totalPages(): number {
-    return Math.ceil(this.currentMonthDebtors.length / this.itemsPerPage);
-  }
 
   goToPreviousPage(): void {
     if (this.currentPage > 1) {
@@ -334,11 +354,11 @@ export class DebtsComponent {
   ];
 
   @Output() viewChange = new EventEmitter<string>();
-viewDebt(member_id: string) {
-  console.log(member_id);
-  this.debtService.setMemberId(member_id);
-  this.debtService.changeView('memberDebt'); // This will trigger the view change
-}
+  viewDebt(memberId: string): void {
+    console.log('Viewing debt for member ID:', memberId);
+    // Emit the member ID to parent component
+    this.viewMemberDebt.emit(memberId);
+  }
 
 
 

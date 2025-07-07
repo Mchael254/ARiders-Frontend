@@ -16,6 +16,8 @@ import { AvatarModule } from 'primeng/avatar';
 import { TagModule } from 'primeng/tag';
 import { GalleriaModule } from 'primeng/galleria';
 import { CarouselModule } from 'primeng/carousel';
+import { TooltipModule } from 'primeng/tooltip';
+import { ChartModule } from 'primeng/chart';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -50,7 +52,6 @@ import { NgChartsModule } from 'ng2-charts';
 import { DebtsComponent } from './admins/debts/debts.component';
 import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
-import { TooltipModule } from 'primeng/tooltip';
 import { MemberdebtComponent } from './admins/memberdebt/memberdebt.component';
 import { LandingComponent } from './landing/landing.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
@@ -123,9 +124,10 @@ import { PartnersComponent } from './partners/partners.component';
     CardModule,
     NgChartsModule,
     MenuModule,
-    TooltipModule,
     GalleriaModule,
     CarouselModule,
+    TooltipModule,
+    ChartModule,
     EffectsModule.forRoot([AuthEffects]),
     StoreModule.forRoot(reducers, { metaReducers }),
 

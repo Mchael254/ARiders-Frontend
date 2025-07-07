@@ -12,15 +12,40 @@ export class AdminComponent {
   currentView = 'debts';
   faBars = faBars;
 
+  selectedMemberId: string | null = null;
+  viewData: any = {};
+
   constructor(private debtService: DebtService) { }
 
   toggleSideNav() {
     this.sideNavOpen = !this.sideNavOpen;
   }
 
-  setView(view: string): void {
+  setView(view: string, data?: any): void {
     this.currentView = view;
     this.sideNavOpen = false;
+    
+    // Store the data for the specific view
+    if (data) {
+      this.viewData[view] = data;
+      
+      // For memberDebt specifically, store the member ID
+      if (view === 'memberDebt' && data.memberId) {
+        this.selectedMemberId = data.memberId;
+      }
+    }
+  }
+
+  getViewData(view: string): any {
+    return this.viewData[view] || {};
+  }
+
+  // Method to clear view data when needed
+  clearViewData(view: string): void {
+    delete this.viewData[view];
+    if (view === 'memberDebt') {
+      this.selectedMemberId = null;
+    }
   }
 
   logOut() {

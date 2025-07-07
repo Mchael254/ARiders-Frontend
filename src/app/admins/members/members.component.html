@@ -1,135 +1,181 @@
 <div class="main">
-    <p-toast></p-toast>
-    <div class="sticky-toolbar">
-        <p-toolbar>
-            <ng-template pTemplate="start">
-                <p-button severity="danger" label="Delete" icon="pi pi-trash" (onClick)="deleteSelectedMembers()"
-                    [disabled]="!selectedMembers || !selectedMembers.length" size="small"></p-button>
-            </ng-template>
+    <div class="min-h-screen bg-gray-50 p-4">
+        <p-toast></p-toast>
 
-            <ng-template pTemplate="center">
-                <div class="search">
-                    <span class="p-input-icon-left">
-                        <i class="pi pi-search"></i>
-                        <input pInputText type="text" (input)="filterGlobal($event)" placeholder="Search members..."
-                            styleClass="p-inputtext-sm search-input" />
-                    </span>
-
-                    <p-button label="Clear" icon="pi pi-times" severity="secondary" size="small"
-                        (onClick)="clearSelection()" [disabled]="!selectedMembers.length">
-                    </p-button>
+        <!-- Sticky Toolbar -->
+        <div class="sticky top-0 z-10 bg-black text-[#c9941d] shadow-sm mb-4 p-4 rounded-lg transition-colors">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <!-- Left Section - Delete Button -->
+                <div>
+                    <button (click)="deleteSelectedMembers()" [disabled]="!selectedMembers.length"
+                        class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+                        <i class="pi pi-trash"></i>
+                        <span>Delete</span>
+                    </button>
                 </div>
-            </ng-template>
 
-            <ng-template pTemplate="end">
-                <div class="flex align-items-center gap-2">
-                    <span *ngIf="selectedMembers?.length" class="text-sm">
+                <!-- Center Section - Search -->
+                <div class="flex-1 max-w-2xl">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="pi pi-search text-gray-400"></i>
+                        </div>
+                        <input type="text" (input)="filterGlobal($event)" placeholder="Search members..."
+                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                        <button (click)="clearSelection()" [disabled]="!selectedMembers.length"
+                            class="absolute right-2 inset-y-0 flex items-center pr-2 text-gray-500 hover:text-gray-700 disabled:opacity-50">
+                            <i class="pi pi-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Section - Export -->
+                <div class="flex items-center gap-3">
+                    <span *ngIf="selectedMembers?.length" class="text-sm text-white">
                         {{ selectedMembers.length }} selected
                     </span>
 
-                    <!-- Show input only if there are selected members -->
-                    <input *ngIf="selectedMembers?.length" type="text" pInputText class="p-inputtext-sm"
-                        [(ngModel)]="pdfTitle" placeholder="Enter PDF title..." style="width: 200px;" />
+                    <input *ngIf="selectedMembers?.length" type="text" [(ngModel)]="pdfTitle" placeholder="PDF title..."
+                        class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 w-40 md:w-48">
 
-                    <!-- Export Button -->
-                    <p-button label="Export" icon="pi pi-upload" size="small" styleClass="export-button"
-                        (onClick)="exportSelectedMembersToPDF()" [disabled]="!selectedMembers.length">
-                    </p-button>
+                    <button (click)="exportSelectedMembersToPDF()" [disabled]="!selectedMembers.length"
+                        class="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
+                        <i class="pi pi-upload"></i>
+                        <span class="hidden sm:inline">Export</span>
+                    </button>
                 </div>
-            </ng-template>
+            </div>
+        </div>
 
-        </p-toolbar>
+        <!-- Members Grid -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <!-- Summary -->
+            <div class="p-4 border-b border-gray-200 text-sm text-gray-600">
+                Total members: {{ totalCount || members.length }}
+            </div>
+
+            <!-- Grid Header (visible on larger screens) -->
+            <div
+                class="hidden md:grid grid-cols-12 gap-4 p-4 bg-gray-50 border-b border-gray-200 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <div class="col-span-1">
+                    <input type="checkbox" [checked]="isAllSelected()" (change)="toggleSelectAll()"
+                        class="h-4 w-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
+                </div>
+                <div class="col-span-2">Name</div>
+                <div class="col-span-1">Image</div>
+                <div class="col-span-3">Email</div>
+                <div class="col-span-2">Role</div>
+                <div class="col-span-3">Status</div>
+            </div>
+
+
+            <!-- Members List -->
+            <div class="divide-y divide-gray-200">
+                <div *ngFor="let member of displayedMembers"
+                    [class.bg-gray-50]="member.membership_status === 'inactive'"
+                    class="p-4 hover:bg-gray-50 transition-colors">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-4 items-center">
+                        <!-- Checkbox -->
+                        <div class="col-span-1 flex items-center">
+                            <input type="checkbox" [checked]="isSelected(member)" (change)="toggleSelection(member)"
+                                class="h-4 w-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
+                        </div>
+
+                        <!-- Name -->
+                        <div class="col-span-2">
+                            <div class="font-medium text-gray-900">{{ member.first_name }} {{ member.last_name }}</div>
+                        </div>
+
+                        <!-- Profile Image -->
+                        <div class="col-span-1">
+                            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-200">
+                                <img [src]="member.profile_image || '../../../assets/ariders.jpg'"
+                                    alt="{{ member.first_name }}'s profile" class="w-full h-full object-cover">
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-span-3">
+                            <div class="text-sm text-gray-500 truncate">{{ member.email }}</div>
+                        </div>
+
+                        <!-- Role -->
+                        <div class="col-span-2">
+                            <div *ngIf="selectedRoleMemberId === member.id; else showRole" class="relative z-10">
+                                <select [(ngModel)]="member.role" (change)="updateRole(member)"
+                                    [disabled]="member.membership_status !== 'active'"
+                                    class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-md">
+                                    <option *ngFor="let role of roles" [value]="role.value">{{ role.label }}</option>
+                                </select>
+                            </div>
+                            <ng-template #showRole>
+                                <div class="flex items-center gap-2">
+                                    <span>{{ member.role }}</span>
+                                    <button *ngIf="member.membership_status === 'active'"
+                                        (click)="selectedRoleMemberId = member.id"
+                                        class="text-amber-600 hover:text-amber-800">
+                                        <i class="pi pi-pencil text-sm"></i>
+                                    </button>
+                                </div>
+                            </ng-template>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="col-span-3">
+                            <div class="flex items-center gap-3">
+                                <span [class]="getStatusClasses(member.membership_status)">
+                                    {{ member.membership_status }}
+                                </span>
+                                <button *ngIf="member.membership_status === 'inactive'" (click)="activateMember(member)"
+                                    class="px-3 py-1 text-xs bg-amber-100 text-amber-800 rounded-full hover:bg-amber-200 transition-colors">
+                                    Activate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!members?.length" class="p-8 text-center text-gray-500">
+                <i class="pi pi-users text-4xl text-gray-300 mb-2"></i>
+                <p>No members found</p>
+            </div>
+
+
+            <div
+                class="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3 bg-white border-t border-gray-200 gap-3">
+                <div>
+                    <p class="text-sm text-gray-700 text-center sm:text-left">
+                        Showing
+                        <span class="font-medium">{{ getShowingFrom() }}</span>
+                        to
+                        <span class="font-medium">{{ getShowingTo() }}</span>
+                        of
+                        <span class="font-medium">{{ members.length }}</span>
+                        results
+                    </p>
+                </div>
+                <nav class="flex justify-center sm:justify-end space-x-1" aria-label="Pagination">
+                    <button (click)="prevPage()" [disabled]="currentPage === 1"
+                        class="inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="pi pi-chevron-left"></i>
+                    </button>
+                    <ng-container *ngFor="let page of [].constructor(totalPages); let index = index">
+                        <button (click)="goToPage(index + 1)" [class.bg-amber-100]="currentPage === index + 1"
+                            class="inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            {{ index + 1 }}
+                        </button>
+                    </ng-container>
+                    <button (click)="nextPage()" [disabled]="currentPage === totalPages"
+                        class="inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="pi pi-chevron-right"></i>
+                    </button>
+                </nav>
+            </div>
+
+
+        </div>
     </div>
 
-    <div class="members">
-        <p-table #dt [value]="members" [rows]="10" [paginator]="true"
-            [globalFilterFields]="['first_name', 'last_name', 'email', 'role', 'membership_status']"
-            [tableStyle]="{ 'min-width': '60rem' }" [(selection)]="selectedMembers" [rowHover]="true" dataKey="id"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-            [showCurrentPageReport]="true" [scrollable]="true" scrollHeight="400px" [resizableColumns]="true"
-            styleClass="p-datatable-sm">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th style="width: 4rem">
-                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                    </th>
-                    <th pSortableColumn="first_name" style="min-width: 10rem">
-                        Name <p-sortIcon field="first_name"></p-sortIcon>
-                    </th>
-                    <th>
-                        Profile Image
-                    </th>
-                    <th pSortableColumn="email" style="min-width: 10rem">
-                        Email <p-sortIcon field="email"></p-sortIcon>
-                    </th>
-                    <th pSortableColumn="role" style="min-width: 5rem">
-                        Role <p-sortIcon field="role"></p-sortIcon>
-                    </th>
-                    <th style="min-width: 10rem">
-                        Membership Status
-                    </th>
-                    <!-- <th style="min-width: 6rem">
-                        Actions
-                    </th> -->
-                </tr>
-            </ng-template>
-
-            <ng-template pTemplate="body" let-member>
-                <tr [ngClass]="{'inactive-row': member.membership_status === 'inactive'}">
-                    <td>
-                        <p-tableCheckbox [value]="member"></p-tableCheckbox>
-                    </td>
-                    <td>
-                        {{ member.first_name }} {{ member.last_name }}
-                    </td>
-                    <td>
-                        <img *ngIf="member.profile_image; else noImage" [src]="member.profile_image"
-                            alt="{{ member.first_name }}'s profile" width="50" height="50"
-                            style="object-fit: cover; border-radius: 50%;" />
-                        <ng-template #noImage>
-                            <img src="../../../assets/ariders.jpg" alt="">
-                        </ng-template>
-                    </td>
-                    <td>
-                        {{ member.email }}
-                    </td>
-                    <td>
-                        <div *ngIf="selectedRoleMemberId === member.id; else showRole">
-                            <p-dropdown [options]="roles" [(ngModel)]="member.role" optionLabel="label"
-                                optionValue="value" appendTo="body" (onChange)="updateRole(member)" styleClass="z-5"
-                                [disabled]="member.membership_status !== 'active'">
-                            </p-dropdown>
-                        </div>
-                        <ng-template #showRole>
-                            {{ member.role }}
-                            <button *ngIf="member.membership_status === 'active'"
-                                (click)="selectedRoleMemberId = member.id"
-                                class="p-button p-button-text p-button-sm p-button-secondary tiny-edit-btn">
-                                <i class="pi pi-pencil"></i>
-                            </button>
-                        </ng-template>
-                    </td>
-
-                    <td>
-                        <div class="flex align-items-center gap-2">
-                            <span
-                                [ngClass]="{ 'active-status': member.membership_status === 'active', 'inactive-status': member.membership_status !== 'active' }">
-                                {{ member.membership_status }}
-                            </span>
-                            <p-button *ngIf="member.membership_status === 'inactive'" label="Activate"
-                                styleClass="tiny-orange-button" (onClick)="activateMember(member)">
-                            </p-button>
-                        </div>
-                    </td>
-
-                </tr>
-            </ng-template>
-
-            <ng-template pTemplate="summary">
-                <div class="flex align-items-center justify-content-between">
-                    In total there are {{ totalCount || members.length }} members.
-                </div>
-            </ng-template>
-        </p-table>
-    </div>
 </div>

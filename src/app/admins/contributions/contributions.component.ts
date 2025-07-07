@@ -235,7 +235,7 @@ export class ContributionsComponent {
   //CHARTS
   private updateChartData(): void {
     this.updateLineChart();
-    this.updateContributorTrendBarChart();
+    this.updateContributorTrendLineChart();
     this.updateQuarterlyComparisonBarChart();
     this.updateQuarterlyMonthlyPerformanceBarChart();
   }
@@ -284,24 +284,45 @@ export class ContributionsComponent {
     }
   }
 
-  private updateContributorTrendBarChart(): void {
+  private updateContributorTrendLineChart(): void {
     const contributorTrendData = this.analysisData.charts.contributorTrend;
 
     if (contributorTrendData && contributorTrendData.length > 0) {
-      this.contributorTrendBarData = {
+      this.contributorTrendLineData = {
         labels: contributorTrendData.map((item: any) => item.month || item.period),
         datasets: [
           {
-            data: contributorTrendData.map((item: any) => item.active_contributors || item.contributors),
-            label: 'Active Contributors',
-            backgroundColor: 'rgba(54, 162, 235, 0.8)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
+            data: contributorTrendData.map((item: any) => item.partial_contributors || 0),
+            label: 'Partial Contributors',
+            borderColor: 'rgba(255, 206, 86, 1)',
+            backgroundColor: 'rgba(255, 206, 86, 0.2)',
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: 'rgba(255, 206, 86, 1)'
+          },
+          {
+            data: contributorTrendData.map((item: any) => item.full_contributors || 0),
+            label: 'Full Contributors',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: 'rgba(75, 192, 192, 1)'
+          },
+          {
+            data: contributorTrendData.map((item: any) => item.zero_contributors || 0),
+            label: 'No Contribution',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: 'rgba(255, 99, 132, 1)'
           }
         ]
       };
     }
   }
+
 
   //quarterly comparison
   private updateQuarterlyComparisonBarChart(): void {
@@ -414,13 +435,13 @@ export class ContributionsComponent {
     };
 
     // Clear bar charts
-    this.contributorTrendBarData = { labels: [], datasets: [] };
+    this.contributorTrendLineData = { labels: [], datasets: [] };
     this.quarterlyComparisonBarData = { labels: [], datasets: [] };
     this.quarterlyMonthlyPerformanceBarData = { labels: [], datasets: [] };
   }
 
   // Bar Chart Data Properties
-  public contributorTrendBarData: ChartConfiguration<'bar'>['data'] = {
+  public contributorTrendLineData: ChartConfiguration<'line'>['data'] = {
     labels: [],
     datasets: []
   };

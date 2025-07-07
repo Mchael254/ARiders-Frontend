@@ -427,16 +427,17 @@
           </div>
         </div>
 
-        <!-- Contributor Trend Bar Chart -->
+        <!-- Contributor Trend Line Chart -->
         <div class="chart-container mb-6"
-          *ngIf="contributorTrendBarData.labels && contributorTrendBarData.labels.length > 0">
+          *ngIf="contributorTrendLineData.labels && contributorTrendLineData.labels.length > 0">
           <h3 class="text-lg font-semibold mb-4">Contributor Trend</h3>
           <div class="bg-white p-4 rounded-lg shadow">
-            <canvas baseChart [data]="contributorTrendBarData" [options]="contributorTrendBarOptions"
-              [legend]="barChartLegend" type="bar">
+            <canvas baseChart [data]="contributorTrendLineData" 
+              [legend]="lineChartLegend" type="line">
             </canvas>
           </div>
         </div>
+
 
         <!-- Quarterly Comparison Bar Chart -->
         <div class="chart-container mb-6"
