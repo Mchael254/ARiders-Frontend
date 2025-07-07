@@ -20,15 +20,15 @@ export class TeamComponent {
   currentPage: number = 1;
   itemsPerPage: number = 4; // 4 items per page (one row)
   mobileCurrentIndex: number = 0; // Track current mobile member index
-  
+
   teams = [
     { id: 1, name: 'Development Team', count: 12 },
-    { id: 2, name: 'Women\'s Team', count: 8 },
+    // { id: 2, name: 'Women\'s Team', count: 8 },
     { id: 3, name: 'Men\'s Team', count: 15 }
   ];
 
   teamMembers: TeamMember[] = [
-     {
+    {
       id: 1,
       name: 'Pinto Niquez',
       role: 'Cyclist',
@@ -60,7 +60,7 @@ export class TeamComponent {
       image: 'assets/photographer.JPG',
       teamId: 1
     },
-       {
+    {
       id: 4,
       name: 'Paulo',
       role: 'Team Manager',
@@ -87,9 +87,9 @@ export class TeamComponent {
     {
       id: 7,
       name: 'Michael Brown',
-      role: 'Mechanic',
-      category: 'STAFF',
-      image: 'assets/Jonas.png',
+      role: 'Cyclist',
+      category: 'CYCLING',
+      image: 'assets/champion.JPG',
       teamId: 3
     },
     {
@@ -113,8 +113,8 @@ export class TeamComponent {
 
   getMobileMembers(): TeamMember[] {
     // Return array with only the current mobile member
-    return this.filteredMembers.length > 0 
-      ? [this.filteredMembers[this.mobileCurrentIndex]] 
+    return this.filteredMembers.length > 0
+      ? [this.filteredMembers[this.mobileCurrentIndex]]
       : [];
   }
 

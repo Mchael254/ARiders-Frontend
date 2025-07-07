@@ -19,49 +19,43 @@ export class PartnersComponent {
   partners: Partner[] = [
     {
       id: 1,
-      name: 'Gear+',
+      name: 'Ariders',
       category: 'Equipment',
       logo: 'assets/ariders.jpg'
     },
     {
       id: 2,
-      name: 'Velocity',
+      name: 'Ariders',
       category: 'Wheels',
       logo: 'assets/ariders.jpg'
     },
     {
       id: 3,
-      name: 'PeakFuel',
+      name: 'Ariders',
       category: 'Nutrition',
       logo: 'assets/ariders.jpg'
     },
     {
-      id: 4,
-      name: 'AeroTech',
-      category: 'Aerodynamics',
-      logo: 'assets/ariders.jpg'
-    },
-    {
       id: 5,
-      name: 'TrailBlaze',
+      name: 'Ariders',
       category: 'Apparel',
       logo: 'assets/ariders.jpg'
     },
     {
       id: 6,
-      name: 'HydraFlow',
+      name: 'Ariders',
       category: 'Hydration',
       logo: 'assets/ariders.jpg'
     },
     {
       id: 7,
-      name: 'CarbonPro',
+      name: 'Ariders',
       category: 'Frames',
       logo: 'assets/ariders.jpg'
     },
     {
       id: 8,
-      name: 'SwiftRide',
+      name: 'Ariders',
       category: 'Components',
       logo: 'assets/ariders.jpg'
     }

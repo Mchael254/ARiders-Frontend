@@ -18,7 +18,7 @@
         <div class="marquee-track flex" [style.animation-duration]="animationDuration">
           <div *ngFor="let partner of partners; let i = index" 
                class="flex flex-col items-center mx-8 flex-shrink-0 group">
-            <div class="w-32 h-32 rounded-full bg-black border-2 border-gray-200 flex items-center justify-center p-6 mb-4 transition-all duration-300 group-hover:border-blue-500 group-hover:shadow-md">
+            <div class="w-32 h-32 rounded-full bg-black border-2 border-gray-200 flex items-center justify-center p-6 mb-4 transition-all duration-300 group-hover:border-yellow-700 group-hover:shadow-md">
               <img [src]="partner.logo" [alt]="partner.name" class="w-full h-full rounded-full object-contain opacity-80 group-hover:opacity-100 transition-opacity">
             </div>
             <h3 class="text-lg font-medium text-gray-800 text-center">{{partner.name}}</h3>
@@ -27,7 +27,7 @@
           <!-- Duplicate for seamless looping -->
           <div *ngFor="let partner of partners; let i = index" 
                class="flex flex-col items-center mx-8 flex-shrink-0 group">
-            <div class="w-32 h-32 rounded-full bg-black border-2 border-gray-200 flex items-center justify-center p-6 mb-4 transition-all duration-300 group-hover:border-blue-500 group-hover:shadow-md">
+            <div class="w-32 h-32 rounded-full bg-black border-2 border-gray-200 flex items-center justify-center p-6 mb-4 transition-all duration-300 group-hover:border-yellow-700 group-hover:shadow-md">
               <img [src]="partner.logo" [alt]="partner.name" class="w-full rounded-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity">
             </div>
             <h3 class="text-lg font-medium text-gray-800 text-center">{{partner.name}}</h3>
