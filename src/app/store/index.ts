@@ -3,19 +3,21 @@ import { localStorageSync } from 'ngrx-store-localstorage';
 
 import * as fromAuth from './auth/auth.reducer';
 import { AES, enc } from 'crypto-js';
+import { panelReducer, PanelState } from './panel/reducer';
 
 export interface AppState {
   auth: fromAuth.AuthState;
+  panel: PanelState;
 }
 
 export const reducers: ActionReducerMap<AppState> = {
   auth: fromAuth.authReducer,
+  panel: panelReducer
 };
 
-// Static encryption key (match your service)
+
 const encryptionKey = '9iun09jkpo39f3-dk&%#21gfhYYhjUP0(*@!RYEH5500%';
 
-// 🔐 Standalone encrypt/decrypt (static because DI doesn't work here)
 function encrypt(data: any): string {
   return AES.encrypt(JSON.stringify(data), encryptionKey).toString();
 }

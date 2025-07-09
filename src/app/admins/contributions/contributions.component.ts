@@ -86,7 +86,6 @@ export class ContributionsComponent {
 
 
   constructor(private contributionService: ContributionService) {
-    // Set default dates - current year start to today
     const today = new Date();
     this.endDate = this.formatDate(today);
 

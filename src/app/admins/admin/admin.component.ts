@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { DebtService } from 'src/app/services/debt.service';
+import { Store } from '@ngrx/store';
+import { selectCurrentView, selectSelectedMemberId, selectViewData } from 'src/app/store/panel/selectors';
+import { setPanelView } from 'src/app/store/panel/actions';
 
 @Component({
   selector: 'app-admin',
@@ -8,54 +11,28 @@ import { DebtService } from 'src/app/services/debt.service';
   styleUrls: ['./admin.component.css']
 })
 export class AdminComponent {
-  sideNavOpen: boolean = false;
-  currentView = 'debts';
+  currentView$ = this.store.select(selectCurrentView);
+  selectedMemberId$ = this.store.select(selectSelectedMemberId);
+  viewData$ = this.store.select(selectViewData);
+
+  sideNavOpen = false;
   faBars = faBars;
 
-  selectedMemberId: string | null = null;
-  viewData: any = {};
-
-  constructor(private debtService: DebtService) { }
+  constructor(private store: Store) {}
 
   toggleSideNav() {
     this.sideNavOpen = !this.sideNavOpen;
   }
 
-  setView(view: string, data?: any): void {
-    this.currentView = view;
+  setView(view: string, data?: any) {
+    this.store.dispatch(setPanelView({ view, data }));
     this.sideNavOpen = false;
-    
-    // Store the data for the specific view
-    if (data) {
-      this.viewData[view] = data;
-      
-      // For memberDebt specifically, store the member ID
-      if (view === 'memberDebt' && data.memberId) {
-        this.selectedMemberId = data.memberId;
-      }
-    }
   }
 
-  getViewData(view: string): any {
-    return this.viewData[view] || {};
-  }
+  ngOnInit() {}
 
-  // Method to clear view data when needed
-  clearViewData(view: string): void {
-    delete this.viewData[view];
-    if (view === 'memberDebt') {
-      this.selectedMemberId = null;
-    }
-  }
+  logOut(){
 
-  logOut() {
-
-  }
-
-  ngOninit(){
-    this.debtService.viewChange$.subscribe(view => {
-    this.setView('debts');
-  });
   }
 
 

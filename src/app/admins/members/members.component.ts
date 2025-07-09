@@ -14,12 +14,14 @@ import { ResponsesService } from 'src/app/services/responses.service';
 })
 export class MembersComponent {
   members: Member[] = [];
+  loading = false;
   member: any
   selectedMembers: Member[] = [];
   totalCount = 0;
   selectedRoleMemberId: string | null = null;
   pdfTitle: string = '';
   displayedMembers: Member[] = [];
+  noData:boolean = false
 
   currentPage = 1;
   pageSize = 10;
@@ -45,11 +47,17 @@ export class MembersComponent {
   }
 
   fetchMembers(): void {
+    this.loading = true;
     this.memberService.getAllMembers().subscribe({
       next: (res) => {
+        this.loading = false;
         this.members = res.data;
         this.totalCount = res.count;
         this.calculatePagination();
+
+        if(!this.members){
+          this.noData = true
+        }
       },
       error: (err) => {
         console.error('Error loading members', err);

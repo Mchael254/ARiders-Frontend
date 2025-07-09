@@ -129,7 +129,9 @@ import { PartnersComponent } from './partners/partners.component';
     TooltipModule,
     ChartModule,
     EffectsModule.forRoot([AuthEffects]),
-    StoreModule.forRoot(reducers, { metaReducers }),
+    StoreModule.forRoot(reducers, { metaReducers },
+      
+    ),
 
   ],
   providers: [

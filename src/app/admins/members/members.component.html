@@ -47,6 +47,22 @@
             </div>
         </div>
 
+        <!-- Loading State -->
+        <div *ngIf="loading" class="flex flex-col items-center justify-center py-12 bg-white rounded-xl shadow-sm">
+            <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-amber-500 mb-4"></div>
+            <p class="text-gray-600">Loading members...</p>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="noData" class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+            <div class="flex">
+                <div class="mr-2">
+                    <i class="pi pi-times" style="color:red"></i>
+                </div>
+                <p class="text-red-500">Cannot fetch members currently, check your internet connection and reload</p>
+            </div>
+        </div>
+
         <!-- Members Grid -->
         <div class="bg-white rounded-lg shadow overflow-hidden">
             <!-- Summary -->
