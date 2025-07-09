@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
+import { environment } from 'src/environments/environment.development';
 
 interface ContributionMetric {
   metric: string;
@@ -31,11 +32,11 @@ interface ContributionAnalytics {
 export class ContributionService {
 
   constructor(private http: HttpClient) { }
-
-  baseContributionUrl = ' http://localhost:5300/api/contributions';
+  baseUrl = environment.apiUrl
+  baseContributionUrl = ` ${this.baseUrl}/api/contributions`
 
   getGeneralContribution(periodData: any): Observable<any> {
-    const url = `http://localhost:5300/api/contributions/grandContributionSummary`;
+    const url = ` ${this.baseContributionUrl}/grandContributionSummary`;
     const headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });
