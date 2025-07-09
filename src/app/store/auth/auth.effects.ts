@@ -10,10 +10,12 @@ import { updateUserProfileFailure, updateUserProfileSection, updateUserProfileSu
 import { HttpClient } from '@angular/common/http';
 import { ResponsesService } from 'src/app/services/utilities/responses.service';
 import { LocalStorageService } from 'src/app/services/utilities/local-storage.service';
+import { environment } from 'src/environments/environment.development';
 
 
 @Injectable()
 export class AuthEffects {
+  baseUrl = environment.apiUrl
   constructor(
     private actions$: Actions,
     private authService: AuthService,
@@ -122,7 +124,7 @@ export class AuthEffects {
       ofType(updateUserProfileSection),
       tap(() => this.responsesService.showSpinner()),
       switchMap(({ section, data, userId }) =>
-        this.http.put('http://localhost:5300/api/user/update-user-profile', { section, data, userId }).pipe(
+        this.http.put(`${this.baseUrl}/api/user/update-user-profile`, { section, data, userId }).pipe(
           tap((response: any) => {
             console.log('Update Response:', response);
             this.responsesService.hideSpinner();
