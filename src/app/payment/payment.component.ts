@@ -2,9 +2,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
-import { ResponsesService } from 'src/app/services/responses.service';
-import { SocketService } from 'src/app/services/socket.service';
-import { PaymentService } from 'src/app/services/payment.service';
+import { ResponsesService } from 'src/app/services/utilities/responses.service';
+import { SocketService } from 'src/app/services/utilities/socket.service';
+import { PaymentService } from 'src/app/services/payment/payment.service';
 
 @Component({
   selector: 'app-payment',

@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Member } from '../interfaces/members';
+import { Member } from '../../interfaces/members';
 
 @Injectable({
   providedIn: 'root'
@@ -35,7 +35,7 @@ export class MembersService {
     );
   }
 
-  // PATCH: update member role or status
+  // update member role or status
   updateMemberRoleStatus(id: string, data: { role?: string; membership_status?: string }) {
     return this.http.patch(`${this.baseApiUrl}/members/${id}`, data).toPromise();
   }

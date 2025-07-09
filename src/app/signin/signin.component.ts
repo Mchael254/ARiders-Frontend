@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { ResponsesService } from '../services/responses.service';
+import { ResponsesService } from '../services/utilities/responses.service';
 import { Router } from '@angular/router';
 import { combineLatest, filter } from 'rxjs';
 import { loginForm } from '../interfaces/authInterface';
@@ -19,7 +19,7 @@ export class SigninComponent {
     private response: ResponsesService,
     private router: Router,
     private store: Store
-  ) {}
+  ) { }
 
   signinForm = this.fb.group({
     email: ['', [Validators.required, Validators.pattern(/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i)]],
@@ -35,7 +35,7 @@ export class SigninComponent {
       this.store.select(selectAuthRole),
       this.store.select(selectAuthError)
     ])
-      .pipe(filter(([auth, role, error]) => auth || !!error)) 
+      .pipe(filter(([auth, role, error]) => auth || !!error))
       .subscribe(([authenticated, role, error]) => {
         this.loadingLine = false;
 
@@ -50,7 +50,7 @@ export class SigninComponent {
         }
 
         if (error) {
-          this.response.showError(error); 
+          this.response.showError(error);
         }
       });
   }
@@ -61,7 +61,7 @@ export class SigninComponent {
 
     if (password === '' || email === '' || password.length < 8) {
       this.response.showWarning('Check fields ⚠️');
-      
+
       return false;
     }
 

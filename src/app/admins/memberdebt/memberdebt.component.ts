@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { DebtService } from 'src/app/services/debt.service';
+import { DebtService } from 'src/app/services/debt/debt.service';
 import { AuthState } from 'src/app/store/auth/auth.reducer';
 
 interface MonthlyReport {
@@ -123,8 +123,6 @@ export class MemberdebtComponent implements OnInit, OnChanges {
   goBack(): void {
     this.backToDebts.emit();
   }
-
-
 
   getPaymentStatusClass(status: string): string {
     switch (status) {

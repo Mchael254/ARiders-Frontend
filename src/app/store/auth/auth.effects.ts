@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../services/auth/auth.service';
 import * as AuthActions from './auth.actions';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { LocalStorageService } from '../../services/local-storage.service';
 import { Router } from '@angular/router';
 import { AuthSession } from './auth.Model';
 import { updateUserProfileFailure, updateUserProfileSection, updateUserProfileSuccess } from './auth.actions';
 import { HttpClient } from '@angular/common/http';
-import { ResponsesService } from 'src/app/services/responses.service';
+import { ResponsesService } from 'src/app/services/utilities/responses.service';
+import { LocalStorageService } from 'src/app/services/utilities/local-storage.service';
 
 
 @Injectable()
@@ -46,12 +46,12 @@ export class AuthEffects {
               city: profile.city,
               county: profile.county,
               phone_number: profile.phone_number,
-              emergency_phone:profile.emergency_phone,
-              work_phone:profile.work_phone,
+              emergency_phone: profile.emergency_phone,
+              work_phone: profile.work_phone,
               first_name: profile.first_name,
               last_name: profile.last_name,
               middle_name: profile.middle_name,
-              gender:profile.gender,
+              gender: profile.gender,
               membership_status: profile.membership_status
             };
 
@@ -63,8 +63,8 @@ export class AuthEffects {
               city: profile.city,
               county: profile.county,
               phone_number: profile.phone_number,
-              emergency_phone:profile.emergency_phone,
-              work_phone:profile.work_phone,
+              emergency_phone: profile.emergency_phone,
+              work_phone: profile.work_phone,
               first_name: profile.first_name,
               last_name: profile.last_name,
               middle_name: profile.middle_name,
@@ -122,7 +122,7 @@ export class AuthEffects {
       ofType(updateUserProfileSection),
       tap(() => this.responsesService.showSpinner()),
       switchMap(({ section, data, userId }) =>
-        this.http.put('http://localhost:5300/user/update-user-profile', { section, data, userId }).pipe(
+        this.http.put('http://localhost:5300/api/user/update-user-profile', { section, data, userId }).pipe(
           tap((response: any) => {
             console.log('Update Response:', response);
             this.responsesService.hideSpinner();
@@ -137,7 +137,7 @@ export class AuthEffects {
             if (!response || Object.keys(response).length === 0) {
               return updateUserProfileFailure({ error: 'No changes detected' });
             }
-            return updateUserProfileSuccess({ updatedData: response }); 
+            return updateUserProfileSuccess({ updatedData: response });
             // response is the updated member object
           }),
           catchError((error) => {

@@ -53,18 +53,26 @@
             <p class="text-gray-600">Loading members...</p>
         </div>
 
-        <!-- Error State -->
-        <div *ngIf="noData" class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
-            <div class="flex">
-                <div class="mr-2">
-                    <i class="pi pi-times" style="color:red"></i>
-                </div>
-                <p class="text-red-500">Cannot fetch members currently, check your internet connection and reload</p>
+        <!-- No Data State -->
+        <div *ngIf="noData && !loading" class="p-8 text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100 mb-4">
+                <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-1">No members found</h3>
+            <p class="text-gray-500">There are no members to display at the moment.</p>
+            <div class="mt-6">
+                <button (click)="fetchMembers()"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-700 hover:bg-yellow-500">
+                     <span aria-hidden="true" class="mr-2">↻</span> Retry
+                </button>
             </div>
         </div>
 
         <!-- Members Grid -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div  *ngIf="!noData && !loading && members?.length" class="bg-white rounded-lg shadow overflow-hidden">
             <!-- Summary -->
             <div class="p-4 border-b border-gray-200 text-sm text-gray-600">
                 Total members: {{ totalCount || members.length }}

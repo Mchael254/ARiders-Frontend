@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
-import { DebtService } from 'src/app/services/debt.service';
 import { Store } from '@ngrx/store';
-import { selectCurrentView, selectSelectedMemberId, selectViewData } from 'src/app/store/panel/selectors';
-import { setPanelView } from 'src/app/store/panel/actions';
+import { Observable } from 'rxjs';
+import { AppState } from 'src/app/store';
+
+import * as AdminPanelActions from '../../store/panel/admin/actions';
+import { selectAdminCurrentView, selectAdminSelectedMemberId, selectAdminViewData } from 'src/app/store/panel/admin/selectors';
 
 @Component({
   selector: 'app-admin',
@@ -11,27 +13,27 @@ import { setPanelView } from 'src/app/store/panel/actions';
   styleUrls: ['./admin.component.css']
 })
 export class AdminComponent {
-  currentView$ = this.store.select(selectCurrentView);
-  selectedMemberId$ = this.store.select(selectSelectedMemberId);
-  viewData$ = this.store.select(selectViewData);
+  currentView$: Observable<string> = this.store.select(selectAdminCurrentView);
+  selectedMemberId$: Observable<string | null> = this.store.select(selectAdminSelectedMemberId);
+  viewData$: Observable<{ [key: string]: any }> = this.store.select(selectAdminViewData);
 
   sideNavOpen = false;
   faBars = faBars;
 
-  constructor(private store: Store) {}
+  constructor(private store: Store<AppState>) { }
 
   toggleSideNav() {
     this.sideNavOpen = !this.sideNavOpen;
   }
 
-  setView(view: string, data?: any) {
-    this.store.dispatch(setPanelView({ view, data }));
+  setView(view: string, data?: any): void {
+    this.store.dispatch(AdminPanelActions.setAdminPanelView({ view, data }));
     this.sideNavOpen = false;
   }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
-  logOut(){
+  logOut() {
 
   }
 

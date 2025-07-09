@@ -1,68 +1,178 @@
-<div class="main">
-  <div class="navigation">
-    <h4>A Riders</h4>
-    <div class="navLinks">
-      <ul>
-        <li><a (click)="setView('dashboard')">Dashboard</a></li>
-        <li><a (click)="setView('profile')">Profile</a></li>
-        <li><a (click)="setView('events')">Events</a></li>
-        <li><a (click)="setView('rides')">Rides</a></li>
-        <li><a (click)="setView('bio')">Bio</a></li>
-        <li><a (click)="logout()">Logout</a></li>
-      </ul>
+<div class="flex min-h-screen bg-gray-100">
+  <!-- Sidebar Navigation - Fixed and scrollable -->
+  <aside class="hidden md:block fixed h-full z-30">
+    <div class="flex flex-col w-64 bg-black text-white h-full overflow-y-auto">
+      <div class="flex items-center justify-center h-16 px-4 border-b border-gray-500">
+        <h2 class="text-xl font-bold">A Riders</h2>
+      </div>
+      <nav class="flex-1 px-4 py-4 overflow-y-auto">
+        <ul class="space-y-2">
+          <li>
+            <a (click)="setView('dashboard')" 
+               class="flex cursor-pointer items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
+               [class.bg-yellow-600]="(currentView$ | async) === 'dashboard'">
+              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+              </svg>
+              Dashboard
+            </a>
+          </li>
+          <li>
+            <a (click)="setView('profile')" 
+               class="flex  cursor-pointer items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
+               [class.bg-yellow-600]="(currentView$ | async) === 'profile'">
+              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+              Profile
+            </a>
+          </li>
+          <li>
+            <a (click)="setView('events')" 
+               class="flex cursor-pointer items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
+               [class.bg-yellow-600]="(currentView$ | async) === 'events'">
+              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              Events
+            </a>
+          </li>
+          <li>
+            <a (click)="setView('rides')" 
+               class="flex cursor-pointer items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
+               [class.bg-yellow-600]="(currentView$ | async) === 'rides'">
+              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path>
+              </svg>
+              Rides
+            </a>
+          </li>
+          <li>
+            <a (click)="setView('bio')" 
+               class="flex cursor-pointer items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
+               [class.bg-yellow-600]="(currentView$ | async) === 'bio'">
+              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+              Bio
+            </a>
+          </li>
+          <li class="mt-8 pt-4 border-t border-gray-500">
+            <a (click)="logOut()" 
+               class="flex cursor-pointer items-center px-4 py-3 text-white rounded-lg transition-colors duration-200 hover:bg-gray-800">
+              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+              </svg>
+              Logout
+            </a>
+          </li>
+        </ul>
+      </nav>
     </div>
-  </div>
+  </aside>
 
-  <div class="viewPanel">
-    <div class="viewBar">
-      <div class="account">
-        <!-- <p>{{ userEmail }}</p> -->
-        <img src="../../assets/ariders.jpg" alt="Profile Picture" />
+  <!-- Main Content Area - Adjusted for sidebar -->
+  <div class="flex flex-col flex-1 md:ml-64">
+    <!-- Top Navigation Bar -->
+    <header class="flex items-center justify-between px-3 py-2 bg-white shadow-sm">
+      <div class="flex items-center">
+        <button (click)="toggleSideNav()" class="mr-4 text-gray-500 md:hidden">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+        <h1 class="text-xl font-semibold text-gray-800 capitalize">{{ currentView$ | async }}</h1>
+      </div>
+      <div class="flex items-center">
+        <img src="../../assets/ariders.jpg" alt="Profile Picture" class="w-10 h-10 rounded-full object-cover" />
+      </div>
+    </header>
+
+    <!-- Content Panel -->
+    <main class="flex-1 overflow-y-auto p-2 bg-gray-50">
+      <div *ngIf="(currentView$ | async) === 'dashboard'" class="bg-white rounded-lg shadow p-3 w-100">
+        <p>dashboard content</p>
       </div>
 
-      <div class="panelActions">
-        <p>{{ currentView }}</p>
+      <div *ngIf="(currentView$ | async) === 'profile'" class="bg-white rounded-lg shadow p-6">
+        <app-membership></app-membership>
       </div>
 
-      <div class="side">
-        <div class="viewBarLinks">
-          <a (click)="toggleSideNav()"><fa-icon [icon]="faBars"></fa-icon></a>
-        </div>
-
-        <div class="sidePanel" [ngClass]="{ sidePanelOpen: sideNavOpen }">
-          <div class="sidePanelContent">
-            <h4>A riders</h4>
-            <div class="closeSideNav" (click)="toggleSideNav()">Close</div>
-            <ul>
-              <li><a (click)="setView('dashboard')">Dashboard</a></li>
-              <li><a (click)="setView('profile')">Profile</a></li>
-              <li><a (click)="setView('events')">Events</a></li>
-              <li><a (click)="setView('rides')">Rides</a></li>
-              <li><a (click)="setView('bio')">Bio</a></li>
-              <li><a (click)="logout()">Logout</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div *ngIf="currentView === 'dashboard'">
-        <p>dashboard</p>
+      <div *ngIf="(currentView$ | async) === 'events'" class="bg-white rounded-lg shadow p-6">
+        <!-- Events content will go here -->
       </div>
 
-      <div *ngIf="currentView === 'profile'">
-       <app-membership></app-membership>
+      <div *ngIf="(currentView$ | async) === 'rides'" class="bg-white rounded-lg shadow p-6">
+        <!-- Rides content will go here -->
       </div>
 
-      <div class="events" *ngIf="currentView === 'events'"></div>
-
-      <div *ngIf="currentView === 'rides'"></div>
-
-      <div *ngIf="currentView === 'bio'">
+      <div *ngIf="(currentView$ | async) === 'bio'" class="bg-white rounded-lg shadow flex justify-center rounded-lg shadow py-2 px-3"
+      style="height: 88vh;">
         <app-bio></app-bio>
       </div>
-      
+    </main>
+  </div>
+
+  <!-- Mobile Side Panel -->
+  <div class="fixed inset-0 z-40 flex md:hidden" *ngIf="sideNavOpen">
+    <!-- Overlay -->
+    <div class="fixed inset-0 bg-gray-600 bg-opacity-75" (click)="toggleSideNav()"></div>
+    
+    <!-- Panel -->
+    <div class="relative flex flex-col w-full max-w-xs bg-gray-900 text-white">
+      <div class="flex items-center justify-between h-16 px-4 border-b border-gray-800">
+        <h3 class="text-lg font-medium">A Riders</h3>
+        <button (click)="toggleSideNav()" class="text-gray-400 hover:text-white">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <nav class="flex-1 px-4 py-4 overflow-y-auto">
+        <ul class="space-y-2">
+          <li>
+            <a (click)="setView('dashboard')" 
+               class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
+               [class.bg-blue-600]="(currentView$ | async) === 'dashboard'">
+              Dashboard
+            </a>
+          </li>
+          <li>
+            <a (click)="setView('profile')" 
+               class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
+               [class.bg-blue-600]="(currentView$ | async) === 'profile'">
+              Profile
+            </a>
+          </li>
+          <li>
+            <a (click)="setView('events')" 
+               class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
+               [class.bg-blue-600]="(currentView$ | async) === 'events'">
+              Events
+            </a>
+          </li>
+          <li>
+            <a (click)="setView('rides')" 
+               class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
+               [class.bg-blue-600]="(currentView$ | async) === 'rides'">
+              Rides
+            </a>
+          </li>
+          <li>
+            <a (click)="setView('bio')" 
+               class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
+               [class.bg-blue-600]="(currentView$ | async) === 'bio'">
+              Bio
+            </a>
+          </li>
+          <li class="mt-8 pt-4 border-t border-gray-800">
+            <a (click)="logOut()" 
+               class="flex items-center px-4 py-3 text-red-400 rounded-lg transition-colors duration-200 hover:bg-gray-800">
+              Logout
+            </a>
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
 </div>

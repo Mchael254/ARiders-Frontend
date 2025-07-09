@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { LocalStorageService } from './services/local-storage.service';
 import { Router } from '@angular/router';
 import { selectAuthState } from './store/auth/auth.selector';
 import * as AuthActions from './store/auth/auth.actions';
 import { filter } from 'rxjs';
+import { LocalStorageService } from './services/utilities/local-storage.service';
 
 @Component({
   selector: 'app-root',
@@ -18,7 +18,7 @@ export class AppComponent {
 
     this.store.select(selectAuthState)
       .pipe(
-        filter(state => !state.loading) // Wait until loading finishes
+        filter(state => !state.loading) 
       )
       .subscribe(state => {
         const noSession = !state.isAuthenticated && !!state.error && state.error === 'No active session found';

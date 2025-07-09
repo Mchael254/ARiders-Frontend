@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { DebtSummaryPayload } from '../interfaces/debts';
+import { DebtSummaryPayload } from 'src/app/interfaces/debts';
+
 
 @Injectable({
   providedIn: 'root'

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { ResponsesService } from '../services/responses.service';
-import { AuthService } from '../services/auth.service';
+import { ResponsesService } from '../services/utilities/responses.service';
+import { AuthService } from '../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { signupForm } from '../interfaces/authInterface';
 

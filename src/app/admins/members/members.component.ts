@@ -4,8 +4,8 @@ import autoTable from 'jspdf-autotable';
 import { MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { Member } from 'src/app/interfaces/members';
-import { MembersService } from 'src/app/services/members.service';
-import { ResponsesService } from 'src/app/services/responses.service';
+import { MembersService } from 'src/app/services/members/members.service';
+import { ResponsesService } from 'src/app/services/utilities/responses.service';
 
 @Component({
   selector: 'app-members',
@@ -14,14 +14,14 @@ import { ResponsesService } from 'src/app/services/responses.service';
 })
 export class MembersComponent {
   members: Member[] = [];
-  loading = false;
+  loading: boolean = false;
   member: any
   selectedMembers: Member[] = [];
   totalCount = 0;
   selectedRoleMemberId: string | null = null;
   pdfTitle: string = '';
   displayedMembers: Member[] = [];
-  noData:boolean = false
+  noData: boolean = false
 
   currentPage = 1;
   pageSize = 10;
@@ -48,6 +48,7 @@ export class MembersComponent {
 
   fetchMembers(): void {
     this.loading = true;
+    this.noData = false;
     this.memberService.getAllMembers().subscribe({
       next: (res) => {
         this.loading = false;
@@ -55,12 +56,13 @@ export class MembersComponent {
         this.totalCount = res.count;
         this.calculatePagination();
 
-        if(!this.members){
-          this.noData = true
-        }
+        this.noData = this.members.length === 0;
       },
       error: (err) => {
         console.error('Error loading members', err);
+        this.loading = false;
+        this.noData = true;
+        this.members = [];
       },
     });
   }
@@ -107,8 +109,8 @@ export class MembersComponent {
       next: (res) => {
         this.members = res.data;
         this.totalCount = res.count;
-        this.currentPage = 1;           
-        this.calculatePagination();    
+        this.currentPage = 1;
+        this.calculatePagination();
       },
       error: (err) => {
         this.response.showError('search failed', err);

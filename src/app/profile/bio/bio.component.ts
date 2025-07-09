@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Actions } from '@ngrx/effects';
 import { select, Store } from '@ngrx/store';
 import { Observable, Subject, takeUntil } from 'rxjs';
-import { ResponsesService } from 'src/app/services/responses.service';
+import { ResponsesService } from 'src/app/services/utilities/responses.service';
 import { updateUserProfileSection } from 'src/app/store/auth/auth.actions';
 import { AuthState } from 'src/app/store/auth/auth.reducer';
 
@@ -16,6 +16,7 @@ import { AuthState } from 'src/app/store/auth/auth.reducer';
 export class BioComponent implements OnInit {
   profile$: Observable<AuthState>;
   private destroy$ = new Subject<void>();
+  
 
   basicForm!: FormGroup;
   addressForm!: FormGroup;
@@ -75,8 +76,6 @@ export class BioComponent implements OnInit {
       .subscribe((state) => {
         this.profileId = state.user?.id || null;
       });
-
-
   }
 
   resetForm(section: 'basic' | 'address' | 'contact') {

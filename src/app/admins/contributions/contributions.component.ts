@@ -3,8 +3,8 @@ import { Component } from '@angular/core';
 import { faArrowDown, faArrowUp, faBullseye, faCalendarAlt, faCalendarCheck, faChartBar, faChartLine, faCoins, faCrown, faPercent, faShieldAlt, faStar, faTrophy, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { AnalysisResponse } from 'src/app/interfaces/contribution';
-import { ContributionService } from 'src/app/services/contribution.service';
-import { ResponsesService } from 'src/app/services/responses.service';
+import { ContributionService } from 'src/app/services/contribution/contribution.service';
+import { ResponsesService } from 'src/app/services/utilities/responses.service';
 
 
 @Component({

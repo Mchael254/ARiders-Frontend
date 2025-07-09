@@ -4,8 +4,8 @@ import { faPen } from '@fortawesome/free-solid-svg-icons';
 import { select, Store } from '@ngrx/store';
 import { Observable, Subject, takeUntil } from 'rxjs';
 
-import { ResponsesService } from 'src/app/services/responses.service';
-import { UserService } from 'src/app/services/user.service';
+import { ResponsesService } from 'src/app/services/utilities/responses.service';
+import { UserService } from 'src/app/services/members/user.service';
 import { updateProfileImage } from 'src/app/store/auth/auth.actions';
 import { AuthState } from 'src/app/store/auth/auth.reducer';
 
@@ -89,7 +89,7 @@ export class MembershipComponent {
           this.selectedFile = null;
           this.fileInputRef.nativeElement.value = '';
           this.response.hideSpinner();
-          
+
         },
       });
   }

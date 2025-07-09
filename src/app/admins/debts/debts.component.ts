@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { DebtAnalysis, DebtSummaryPayload, DebtSummaryResponse, Member } from 'src/app/interfaces/debts';
-import { DebtService } from 'src/app/services/debt.service';
 import * as pdfMake from 'pdfmake/build/pdfmake';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import { MenuItem } from 'primeng/api';
+import { DebtService } from 'src/app/services/debt/debt.service';
 (pdfMake as any).vfs = (pdfFonts as any).vfs;
 
 @Component({

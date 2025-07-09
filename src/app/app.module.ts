@@ -25,7 +25,6 @@ import { SigninComponent } from './signin/signin.component';
 import { SignupComponent } from './signup/signup.component';
 import { FooterComponent } from './footer/footer.component';
 import { NavigationComponent } from './navigation/navigation.component';
-import { HomeComponent } from './home/home.component';
 import { AdminComponent } from './admins/admin/admin.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DashboardComponent } from './profile/dashboard/dashboard.component';
@@ -72,7 +71,6 @@ import { PartnersComponent } from './partners/partners.component';
     SignupComponent,
     FooterComponent,
     NavigationComponent,
-    HomeComponent,
     AdminComponent,
     DashboardComponent,
     BioComponent,

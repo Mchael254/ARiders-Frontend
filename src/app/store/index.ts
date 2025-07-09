@@ -3,16 +3,23 @@ import { localStorageSync } from 'ngrx-store-localstorage';
 
 import * as fromAuth from './auth/auth.reducer';
 import { AES, enc } from 'crypto-js';
-import { panelReducer, PanelState } from './panel/reducer';
+
+import { adminPanelReducer, AdminPanelState } from './panel/admin/reducer';
+import { memberPanelReducer, MemberPanelState } from './panel/member/reducer';
+
 
 export interface AppState {
   auth: fromAuth.AuthState;
-  panel: PanelState;
+  adminPanel: AdminPanelState;
+  memberPanel: MemberPanelState;
+
 }
 
 export const reducers: ActionReducerMap<AppState> = {
   auth: fromAuth.authReducer,
-  panel: panelReducer
+  adminPanel: adminPanelReducer,
+  memberPanel: memberPanelReducer
+
 };
 
 
