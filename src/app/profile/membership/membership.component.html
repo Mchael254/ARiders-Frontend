@@ -1,43 +1,29 @@
-<div class="main" *ngIf="profile$ | async as profile">
-  <div class="membership">
-    <div class="membershipDetails">
-      <div class="image-container" style="position: relative;">
+<div class="bg-gray-50 py-8 px-4 sm:px-6 lg:px-8" style="height:84vh; width:75vw;overflow-y:auto"
+  *ngIf="profile$ | async as profile">
+  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+    <!-- Profile Header -->
+    <div class="bg-amber-600 p-6 text-white">
+      <h1 class="text-2xl font-bold">My Profile</h1>
+    </div>
 
-        <img [src]="previewImage || profile.profile_image || '../../assets/batProfile.jpg'" alt="Profile Image" />
-        <button *ngIf="profileBtn && !previewImage" style="background-color: white" class="edit-icon"
-          (click)="fileInput.click()">
-          <fa-icon [icon]="faPen"></fa-icon>
-        </button>
+    <!-- Profile Content -->
+    <div class="p-6 md:p-8">
+      <div class="flex flex-col md:flex-row gap-8">
+        <!-- Left Column - Profile Image and Details -->
+        <div class="flex-1">
+          
 
-        <div *ngIf="previewImage" style="position: absolute; top: 8px; left: 8px">
-          <button (click)="cancelImageChange()" class="cancel-btn" style="margin-right: 6px">
-            Cancel
-          </button>
-          <button (click)="uploadImage(profileId ?? '')" class="save-btn" style="background-color:#c9941d; color: white">
-            Save
-          </button>
         </div>
 
-        <!-- 👇 File input -->
-        <input type="file" #fileInput accept="image/*" style="display: none" (change)="onImageSelected($event)" />
+        <!-- Right Column - Payment Only -->
+        <div class="flex-1">
+          <!-- Payment Component -->
+          <div class="border border-gray-200 rounded-lg p-6 h-full">
+            <h3 class="text-lg font-medium text-gray-700 mb-4">Payment Information</h3>
+            <app-payment></app-payment>
+          </div>
+        </div>
       </div>
-
-      <div class="details">
-        <p><strong>Name:</strong> {{ profile.first_name }} <span>{{profile.last_name}}</span></p>
-        <p><strong>Email:</strong> {{ profile.user?.email }}</p>
-
-      </div>
-
     </div>
-
-    <div class="membershipStatus">
-      <h4>Membership Status: <span style="color: green">{{profile.membership_status}}</span></h4>
-    </div>
-  </div>
-
-  <div class="payment">
-    <app-payment>
-      
-    </app-payment>
   </div>
 </div>

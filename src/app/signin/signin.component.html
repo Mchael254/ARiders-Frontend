@@ -1,45 +1,124 @@
-<div class="main">
-    <div class="logo">
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="flex justify-center">
+            <!-- Logo container with orange circle background -->
+            <div
+                class="w-32 h-32 bg-amber-500 rounded-full flex items-center justify-center overflow-hidden p-0 shadow-md">
+                <img class="h-35 w-auto rounded-full" src="../../assets/ariders.jpg" alt="ariders" />
+            </div>
+        </div>
 
-    </div>
+        <div class="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <h2 class="text-center text-3xl font-extrabold text-gray-900 mb-2">
+                Welcome back
+            </h2>
 
-    <div class="signinContainer">
-        <p style="color: #d2d4c8;">Welcome back</p>
-        <p class="line" *ngIf="loadingLine"></p>
-        <div class="formContainer">
-            <form class="signUpForm" [formGroup]="signinForm" (ngSubmit)="onSignIn()">
+            <p class="text-center text-sm text-gray-600 mb-6">
+                Sign in to your account
+            </p>
 
+            <p class="line h-1 bg-amber-500 rounded-full mb-6" *ngIf="loadingLine"></p>
 
-                <input type="email" placeholder="Email" formControlName="email"
-                    [class.invalid]="signinForm.get('email')?.invalid && (signinForm.get('email')?.touched)">
-                <p class="error"
-                    *ngIf="signinForm.get('email')?.touched && signinForm.get('email')?.hasError('required')">
-                    Email name is required.
-                </p>
-                <p class="error"
-                    *ngIf="signinForm.get('email')?.touched && signinForm.get('email')?.hasError('pattern')">
-                    Invlid email format
-                </p>
+            <form class="space-y-6" #siginForm="ngForm" [formGroup]="signinForm" (ngSubmit)="onSignIn()">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
+                    <input id="email" type="email" placeholder="Email" formControlName="email" pInputText
+                        style="font-size: medium;"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
+                        [class.border-red-300]="signinForm.get('email')?.invalid && (signinForm.get('email')?.touched)">
 
-                <input type="password" placeholder="Password" formControlName="password"
-                    [class.invalid]="signinForm.get('password')?.invalid && (signinForm.get('password')?.touched)">
-                <p class="error"
-                    *ngIf="signinForm.get('password')?.touched && signinForm.get('password')?.hasError('required')">
-                    Password is required
-                </p>
-                <p class="error"
-                    *ngIf="signinForm.get('password')?.touched && signinForm.get('password')?.hasError('minlength')">
-                    Password must be atleast 8 characters
-                </p>
+                    <p class="mt-2 text-sm text-red-600"
+                        *ngIf="signinForm.get('email')?.touched && signinForm.get('email')?.hasError('required')">
+                        Email is required.
+                    </p>
+                    <p class="mt-2 text-sm text-red-600"
+                        *ngIf="signinForm.get('email')?.touched && signinForm.get('email')?.hasError('pattern')">
+                        Invalid email format
+                    </p>
+                </div>
 
-                <button type="submit" data-cy="signin-btn" class="signin-btn" value="Submit">Sign in</button>
-                <div style="font-size: small; margin-top: 5px;margin-bottom: 10px; text-align: center;">
-                    <span>Already have an account? </span>
-                    <a routerLink="/signup" style="margin-left: 4px;">Sign up</a>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+
+                    <div class="relative mt-1 rounded-md shadow-sm">
+                        <p-password id="password" [(ngModel)]="passwordValue" formControlName="password"
+                            [toggleMask]="true" [feedback]="false" [style]="{width: '100%'}"
+                            inputStyleClass="w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 sm:text-sm"
+                            [inputStyle]="{'font-size': 'medium', 'padding-right': '2.5rem'}"
+                            [class.border-red-300]="signinForm.get('password')?.invalid && (signinForm.get('password')?.touched)">
+                        </p-password>
+                    </div>
+
+                    <p class="mt-2 text-sm text-red-600"
+                        *ngIf="signinForm.get('password')?.touched && signinForm.get('password')?.hasError('required')">
+                        Password is required
+                    </p>
+
+                </div>
+
+                <div>
+                    <button type="submit" [disabled]="siginForm.invalid" data-cy="signin-btn"
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#a27929] hover:bg-[#8c6d3f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8c6d3f] disabled:opacity-50 disabled:cursor-not-allowed">
+                        Sign in
+                    </button>
+                </div>
+
+                <div class="text-sm text-center">
+                    <span class="text-gray-600">Don't have an account? </span>
+                    <a routerLink="/signup"
+                        class="font-medium text-[#a27929] hover:text-[#8c6d3f] transition-all duration-300 ml-1 hover:font-bold hover:text-lg">
+                        Sign up
+                    </a>
                 </div>
             </form>
 
-        </div>
+            <!-- forgot password -->
+            <div class="text-sm text-center">
+                <p-button label="Forgot password?" (click)="showDialog()"
+                    styleClass="p-button-link !text-[#a17b28] hover:!text-[#8c6d3f] font-medium transition-all duration-300 ml-1 hover:font-bold hover:text-lg" [text]="true">
+                </p-button>
+            </div>
 
+            <!-- Fixed Forgot Password Dialog -->
+            <p-dialog header="Recover your password" [(visible)]="visible" [modal]="true" [style]="{width: '450px'}"
+                [breakpoints]="{'960px': '75vw', '640px': '90vw'}" [draggable]="false" [resizable]="false"
+                styleClass="shadow-lg rounded-lg">
+
+                <div class="flex flex-col gap-4" [formGroup]="forgotPasswordForm">
+                    <p>You will receive an email to recover your password.</p>
+
+                    <div class="field">
+                        <label for="forgotEmail" class="block text-base font-medium text-gray-700 mb-1">Email</label>
+                        <input id="forgotEmail" type="email" formControlName="email"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                            [class.border-red-300]="forgotPasswordForm.get('email')?.invalid && forgotPasswordForm.get('email')?.touched"
+                            style="font-size: medium;" placeholder="Your email address" />
+
+                        <!-- Validation Error Messages -->
+                        <p class="mt-2 text-sm text-red-600"
+                            *ngIf="forgotPasswordForm.get('email')?.touched && forgotPasswordForm.get('email')?.hasError('required')">
+                            Email is required.
+                        </p>
+                        <p class="mt-2 text-sm text-red-600"
+                            *ngIf="forgotPasswordForm.get('email')?.touched && forgotPasswordForm.get('email')?.hasError('pattern')">
+                            Invalid email format
+                        </p>
+                    </div>
+                </div>
+
+                <ng-template pTemplate="footer">
+                    <div class="flex justify-end gap-6 m-2">
+                        <p-button label="Cancel" (click)="closeDialog()"
+                            class="p-2 bg-gray-200 hover:bg-gray-400 rounded-lg">
+                        </p-button>
+                        <button label="Submit" (click)="onForgotPasswordSubmit()"
+                            [disabled]="forgotPasswordForm.invalid"
+                            class="bg-[#8c6d3f] font-bold text-white p-2 rounded-lg hover:!bg-[#a27929] !border-[#a27929] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8c6d3f] disabled:opacity-50 disabled:cursor-not-allowed">
+                            Submit
+                        </button>
+                    </div>
+                </ng-template>
+            </p-dialog>
+        </div>
     </div>
 </div>

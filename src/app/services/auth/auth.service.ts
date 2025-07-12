@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { from, map, Observable, switchMap, tap } from 'rxjs';
 import { environment } from 'src/environments/environment.development';
@@ -12,7 +11,7 @@ export class AuthService {
   supabaseKey = environment.supabaseKey;
 
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(private http: HttpClient) {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey)
   }
 
@@ -37,30 +36,52 @@ export class AuthService {
   login(loginData: { email: string; password: string }): Observable<any> {
     return from(this.supabase.auth.signInWithPassword(loginData)).pipe(
       switchMap(response => {
-        const userId = response.data?.user?.id;
-        if (!userId) {
-          throw new Error('Login failed or user ID missing.');
+        if (response.error) {
+          throw response.error;
         }
 
-        // Fetch profile from members table
+        const userId = response.data?.user?.id;
+        if (!userId) {
+          throw new Error('Login succeeded but user ID missing.');
+        }
+
         return from(
           this.supabase.from('members').select('*').eq('id', userId).single()
         ).pipe(
-          map(profileRes => ({
-            session: response.data.session,
-            user: response.data.user,
-            profile: profileRes.data,
-            error: response.error || profileRes.error
-          }))
+          map(profileRes => {
+            if (profileRes.error) {
+              throw profileRes.error;
+            }
+
+            return {
+              session: response.data.session,
+              user: response.data.user,
+              profile: profileRes.data,
+              error: null 
+            };
+          })
         );
       })
     );
   }
 
 
-
   logout() {
-   
+
+  }
+
+  sendPasswordReset(email: string): Observable<any> {
+    return from(
+      this.supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${environment.frontendUrl}/resetPassword`
+      })
+    );
+  }
+
+  resetPassword(password: string): Observable<any> {
+    return from(
+      this.supabase.auth.updateUser({ password })
+    );
   }
 
 }

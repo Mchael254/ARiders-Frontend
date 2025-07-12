@@ -94,7 +94,8 @@
         <p>dashboard content</p>
       </div>
 
-      <div *ngIf="(currentView$ | async) === 'profile'" class="bg-white rounded-lg shadow p-6">
+      <div *ngIf="(currentView$ | async) === 'profile'" class="bg-white  rounded-lg shadow p-6 flex justify-center items-center" 
+        style="height: 88vh;">
         <app-membership></app-membership>
       </div>
 
@@ -107,7 +108,7 @@
       </div>
 
       <div *ngIf="(currentView$ | async) === 'bio'" class="bg-white rounded-lg shadow flex justify-center rounded-lg shadow py-2 px-3"
-      style="height: 88vh;">
+        style="height: 88vh;">
         <app-bio></app-bio>
       </div>
     </main>

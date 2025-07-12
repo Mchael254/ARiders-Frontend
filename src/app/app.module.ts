@@ -1,4 +1,4 @@
-import { NgModule, isDevMode } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -18,6 +18,8 @@ import { GalleriaModule } from 'primeng/galleria';
 import { CarouselModule } from 'primeng/carousel';
 import { TooltipModule } from 'primeng/tooltip';
 import { ChartModule } from 'primeng/chart';
+import { NgxSpinnerComponent, NgxSpinnerModule } from 'ngx-spinner';
+
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -34,9 +36,7 @@ import { MembershipComponent } from './profile/membership/membership.component';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { authReducer } from './store/auth/auth.reducer';
 import { AuthEffects } from './store/auth/auth.effects';
-import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { metaReducers, reducers } from './store';
 import { SpinnerComponent } from './shared/spinner/spinner.component';
 import { CalendarModule } from 'primeng/calendar';
@@ -60,7 +60,9 @@ import { WhatwedoComponent } from './whatwedo/whatwedo.component';
 import { TeamComponent } from './team/team.component';
 import { MissionComponent } from './mission/mission.component';
 import { PartnersComponent } from './partners/partners.component';
-
+import { ResetPasswordComponent } from './profile/reset-password/reset-password.component';
+import { ToastrModule } from 'ngx-toastr';
+import { PasswordModule } from 'primeng/password';
 
 
 
@@ -91,7 +93,8 @@ import { PartnersComponent } from './partners/partners.component';
     WhatwedoComponent,
     TeamComponent,
     MissionComponent,
-    PartnersComponent
+    PartnersComponent,
+    ResetPasswordComponent,
 
   ],
   imports: [
@@ -104,7 +107,6 @@ import { PartnersComponent } from './partners/partners.component';
     BrowserAnimationsModule,
     ToastModule,
     ProgressSpinnerModule,
-    ProgressSpinnerModule,
     CalendarModule,
     DropdownModule,
     TableModule,
@@ -115,20 +117,28 @@ import { PartnersComponent } from './partners/partners.component';
     InputNumberModule,
     ConfirmDialogModule,
     SelectButtonModule,
-    TableModule,
     ButtonModule,
     TagModule,
     AvatarModule,
-    CardModule,
     NgChartsModule,
     MenuModule,
     GalleriaModule,
     CarouselModule,
     TooltipModule,
     ChartModule,
+    NgxSpinnerModule,
+    NgxSpinnerComponent,
+    PasswordModule,
+    
+    NgxSpinnerModule.forRoot({ type: 'ball-clip-rotate-multiple' }),
+    ToastrModule.forRoot({
+      timeOut: 3000,
+      positionClass: 'toast-top-right',
+      preventDuplicates: true
+    }),
     EffectsModule.forRoot([AuthEffects]),
     StoreModule.forRoot(reducers, { metaReducers },
-      
+
     ),
 
   ],

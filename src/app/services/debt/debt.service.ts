@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { DebtSummaryPayload } from 'src/app/interfaces/debts';
+import { environment } from 'src/environments/environment.development';
 
 
 @Injectable({
@@ -9,7 +10,7 @@ import { DebtSummaryPayload } from 'src/app/interfaces/debts';
 })
 export class DebtService {
 
-  private readonly BASE_URL = 'http://localhost:5300/api/contributions';
+  private readonly BASE_URL = `${environment.apiUrl}/api/contributions`;
 
   constructor(private http: HttpClient) { }
 

@@ -16,6 +16,7 @@ export interface User {
   profile_image?: string;
   membership_status?: string;
   dob?: string;
+  rider_type_id: string;
 }
 
 export interface SupabaseSession {
@@ -43,13 +44,14 @@ export interface AuthSession {
   county?: string;
   phone_number: string;
   emergency_phone?: string;
-  work_phone?:string;
+  work_phone?: string;
   first_name: string;
   last_name: string;
   middle_name: string;
-  gender:string;
+  gender: string;
   membership_status?: string;
   dob?: string;
+  rider_type_id: string | null;
 }
 
 export interface AppUser {
@@ -61,11 +63,12 @@ export interface AppUser {
   county?: string;
   phone_number?: string;
   emergency_phone?: string;
-  work_phone?:string;
+  work_phone?: string;
   first_name?: string;
   middle_name?: string;
   last_name?: string;
-  gender?:string;
+  gender?: string;
   membership_status?: string;
   dob?: string;
+  rider_type_id: string;
 }

@@ -10,17 +10,24 @@ export interface AuthState {
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
+  rider_type_id?: string | null;
+  riderTypes: { id: string; type_name: string }[];
+  updateRiderTypeLoading: boolean;
+  updateRiderTypeSuccess: boolean;
+  updateRiderTypeError: string | null;
+  profileUpdating?: boolean;
+
 
   profile_image?: string;
   city?: string;
   county?: string;
   phone_number?: string;
-  emergency_phone?:string;
-  work_phone?:string;
+  emergency_phone?: string;
+  work_phone?: string;
   first_name?: string;
   last_name?: string;
   middle_name?: string;
-  gender?:string;
+  gender?: string;
   membership_status?: string;
   emergency_number?: string;
   dob?: string;
@@ -32,7 +39,14 @@ export const initialState: AuthState = {
   role: null,
   isAuthenticated: false,
   loading: false,
-  error: null
+  error: null,
+
+  riderTypes: [],
+  updateRiderTypeLoading: false,
+  updateRiderTypeSuccess: false,
+  updateRiderTypeError: null,
+  profileUpdating: false,
+
 };
 
 export const authReducer = createReducer(
@@ -44,7 +58,7 @@ export const authReducer = createReducer(
     error: null
   })),
 
-  on(AuthActions.loginSuccess, (state, { user, token, role, profile_image, city, county, phone_number, emergency_phone, work_phone, first_name, last_name, middle_name, gender, membership_status,dob }) => ({
+  on(AuthActions.loginSuccess, (state, { user, token, role, profile_image, city, county, phone_number, emergency_phone, work_phone, first_name, last_name, middle_name, gender, membership_status, dob }) => ({
     ...state,
     user,
     token,
@@ -107,17 +121,63 @@ export const authReducer = createReducer(
 
 
 
-  // update user profile
-  on(AuthActions.updateUserProfileSuccess, (state, { updatedData }) => ({
+  // update user profile,
+  on(AuthActions.updateUserProfileSection, (state) => ({
     ...state,
-    ...updatedData
+    profileUpdating: true
   })),
 
+  on(AuthActions.updateUserProfileSuccess, (state, { updatedData }) => ({
+    ...state,
+    user: {
+      ...state.user,
+      ...updatedData
+    },
+    profileUpdating: false
+  })),
 
   on(AuthActions.updateUserProfileFailure, (state, { error }) => ({
     ...state,
-    error
-  }))
+    error,
+    profileUpdating: false
+  })),
+
+
+  //load rider category
+  on(AuthActions.loadRiderTypesSuccess, (state, { riderTypes }) => ({
+    ...state,
+    riderTypes
+  })),
+
+
+  //update ride category
+  on(AuthActions.updateRiderType, (state) => ({
+    ...state,
+    updateRiderTypeLoading: true,
+    updateRiderTypeSuccess: false,
+    updateRiderTypeError: null
+  })),
+
+  on(AuthActions.updateRiderTypeSuccess, (state, { riderTypeId }) => ({
+    ...state,
+    user: state.user ? { ...state.user, rider_type_id: riderTypeId } : null,
+    updateRiderTypeLoading: false,
+    updateRiderTypeSuccess: true
+  })),
+
+  on(AuthActions.updateRiderTypeFailure, (state, { error }) => ({
+    ...state,
+    updateRiderTypeLoading: false,
+    updateRiderTypeSuccess: false,
+    updateRiderTypeError: error
+  })),
+
+  on(AuthActions.clearUpdateRiderTypeStatus, (state) => ({
+    ...state,
+    updateRiderTypeSuccess: false,
+    updateRiderTypeError: null
+  })),
+
 
 
 

@@ -2,12 +2,13 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Member } from '../../interfaces/members';
+import { environment } from 'src/environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MembersService {
-  private baseApiUrl = 'http://localhost:5300/api/members';
+  private baseApiUrl = `${environment.apiUrl}/api/members`;
 
   constructor(private http: HttpClient) { }
 

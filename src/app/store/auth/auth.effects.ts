@@ -11,6 +11,8 @@ import { HttpClient } from '@angular/common/http';
 import { ResponsesService } from 'src/app/services/utilities/responses.service';
 import { LocalStorageService } from 'src/app/services/utilities/local-storage.service';
 import { environment } from 'src/environments/environment.development';
+import { UserService } from 'src/app/services/members/user.service';
+import { ToastrService } from 'ngx-toastr';
 
 
 @Injectable()
@@ -22,7 +24,9 @@ export class AuthEffects {
     private storage: LocalStorageService,
     private router: Router,
     private http: HttpClient,
-    private responsesService: ResponsesService
+    private responsesService: ResponsesService,
+    private userService: UserService,
+    private toastr: ToastrService,
   ) { }
 
   login$ = createEffect(() =>
@@ -36,8 +40,6 @@ export class AuthEffects {
             }
 
             const token = session.access_token;
-
-            // console.log('[AuthEffect] Profile data:', profile);
 
             // Save user in storage as a whole object
             const authUser = {
@@ -54,7 +56,8 @@ export class AuthEffects {
               last_name: profile.last_name,
               middle_name: profile.middle_name,
               gender: profile.gender,
-              membership_status: profile.membership_status
+              membership_status: profile.membership_status,
+              rider_type_id: profile.rider_type_id
             };
 
             return AuthActions.loginSuccess({
@@ -71,12 +74,25 @@ export class AuthEffects {
               last_name: profile.last_name,
               middle_name: profile.middle_name,
               gender: profile.gender,
-              membership_status: profile.membership_status
+              membership_status: profile.membership_status,
+              rider_type_id: profile.rider_type_id
             });
           }),
-          catchError((err) =>
-            of(AuthActions.loginFailure({ error: err.message || 'Login failed' }))
-          )
+          catchError((err) => {
+            console.error('Login error:', err);
+
+            let message = 'Login failed';
+            if (err.message) {
+              message = err.message;
+            } else if (err.error && err.error.message) {
+              message = err.error.message;
+            } else if (typeof err === 'string') {
+              message = err;
+            }
+
+            return of(AuthActions.loginFailure({ error: message }));
+          })
+
         )
       )
     )
@@ -119,20 +135,21 @@ export class AuthEffects {
     { dispatch: false },
   );
 
+  //update profile details
   updateProfile$ = createEffect(() =>
     this.actions$.pipe(
       ofType(updateUserProfileSection),
-      tap(() => this.responsesService.showSpinner()),
+      // tap(() => this.responsesService.showSpinner()),
       switchMap(({ section, data, userId }) =>
         this.http.put(`${this.baseUrl}/api/user/update-user-profile`, { section, data, userId }).pipe(
           tap((response: any) => {
             console.log('Update Response:', response);
-            this.responsesService.hideSpinner();
 
             if (!response || Object.keys(response).length === 0) {
-              this.responsesService.showWarning('No changes detected');
+              this.toastr.warning('No changes detected');
             } else {
-              this.responsesService.showSuccess(`${section} updated successfully`);
+              this.toastr.success(`${section} updated successfully`);
+
             }
           }),
           map((response: any) => {
@@ -140,11 +157,10 @@ export class AuthEffects {
               return updateUserProfileFailure({ error: 'No changes detected' });
             }
             return updateUserProfileSuccess({ updatedData: response });
-            // response is the updated member object
+
           }),
           catchError((error) => {
-            this.responsesService.hideSpinner();
-            this.responsesService.showError(error.message);
+            this.toastr.error(error.message);
             return of(updateUserProfileFailure({ error: error.message }));
           })
         )
@@ -152,6 +168,34 @@ export class AuthEffects {
 
     )
   );
+
+  //load rider category
+  loadRiderTypes$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.loadRiderTypes),
+      switchMap(() =>
+        this.userService.getRiderTypes().pipe(
+          map(riderTypes => AuthActions.loadRiderTypesSuccess({ riderTypes })),
+          catchError(error => of(AuthActions.loadRiderTypesFailure({ error })))
+        )
+      )
+    )
+  );
+
+  // update ride category
+  updateRiderType$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.updateRiderType),
+      switchMap(({ memberId, riderTypeId }) =>
+        this.userService.updateRiderType(memberId, riderTypeId).pipe(
+          map(() => AuthActions.updateRiderTypeSuccess({ riderTypeId })),
+          catchError(error => of(AuthActions.updateRiderTypeFailure({ error })))
+        )
+      )
+    )
+  );
+
+
 
 
 

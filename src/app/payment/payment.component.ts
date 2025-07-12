@@ -100,4 +100,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.socketSub?.unsubscribe();
   }
+
+  testSpinner(){
+    
+  }
 }

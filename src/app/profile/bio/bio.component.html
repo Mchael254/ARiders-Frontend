@@ -1,26 +1,65 @@
 <div class="bg-gray-50 px-4 py-1 md:p-8" style="height: 85vh;overflow-y:auto" *ngIf="profile$ | async as profile">
     <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 ">
         <!-- Profile Header -->
-        <div class="lg:col-span-3 bg-gray-800 rounded-xl shadow-sm p-3">
+        <div class="lg:col-span-3 bg-yellow-600 rounded-xl shadow-md p-6">
             <div class="flex flex-col md:flex-row items-center gap-6">
-                <div class="relative">
-                    <img [src]="profile.profile_image || '../../assets/batProfile.jpg'" alt="Profile Image"
-                        class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-indigo-100 shadow-md" />
+                <!-- Profile Image Column -->
+                <div class="flex flex-col items-center md:items-start gap-4">
+                    <div class="relative w-fit">
+                        <img [src]="previewImage || profile.profile_image || '../../assets/batProfile.jpg'"
+                            alt="Profile Image"
+                            class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-amber-100 shadow-sm" />
+
+                        <!-- Edit Button -->
+                        <button *ngIf="profileBtn && !previewImage"
+                            class="absolute -bottom-2 -right-2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors border-2 border-amber-100"
+                            (click)="fileInput.click()">
+                            <fa-icon [icon]="faPen" class="text-amber-600 text-sm"></fa-icon>
+                        </button>
+
+                        <!-- Cancel/Save Buttons -->
+                        <div *ngIf="previewImage" class="absolute -bottom-2 left-0 right-0 flex justify-center gap-2">
+                            <button (click)="cancelImageChange()"
+                                class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-1 rounded-full text-sm font-medium transition-colors">
+                                Cancel
+                            </button>
+                            <button (click)="uploadImage(profileId ?? '')"
+                                class="bg-amber-800 hover:bg-amber-900 text-white px-4 py-1 rounded-full text-sm font-medium transition-colors">
+                                Save
+                            </button>
+                        </div>
+
+                        <input type="file" #fileInput accept="image/*" class="hidden"
+                            (change)="onImageSelected($event)" />
+                    </div>
                 </div>
-                <div class="text-center md:text-left">
+
+                <!-- Profile Info Column -->
+                <div class="flex-1 text-center md:text-left">
                     <h1
-                        class="text-3xl font-bold text-white flex flex-wrap justify-center md:justify-start items-baseline gap-2">
+                        class="text-2xl md:text-3xl font-bold text-white flex flex-wrap justify-center md:justify-start items-baseline gap-2">
                         <span>{{ profile.first_name }}</span>
                         <span>{{ profile.last_name }}</span>
                     </h1>
-                    <div
-                        class="mt-2 px-4 py-1 bg-indigo-100 text-indigo-800 rounded-full inline-block text-sm font-semibold">
-                        {{ profile.role }}
+                    <div class="mt-2 bg-white/20 text-white px-3 py-1 rounded-full inline-block text-sm font-semibold">
+                        {{ profile.role | titlecase }}
+                    </div>
+
+                    <!-- Membership Info Cards -->
+                    <div class="flex flex-col sm:flex-row gap-3 mt-4">
+                        <div class="bg-amber-700/20 border border-amber-100/20 rounded-lg p-3 flex-1 max-w-xs">
+                            <h3 class="text-xs font-medium text-amber-100 mb-1">Membership Status</h3>
+                            <p class="text-lg font-semibold text-white">{{ profile.membership_status }}</p>
+                        </div>
+
+                        <div class="bg-amber-700/20 border border-amber-100/20 rounded-lg p-3 flex-1 max-w-xs">
+                            <h3 class="text-xs font-medium text-amber-100 mb-1">Membership Type</h3>
+                            <p class="text-lg font-semibold text-white">Premium</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
         <!-- BASIC INFO -->
         <div class="bg-white rounded-xl shadow-sm p-6">
             <h4 class="text-lg font-semibold text-gray-800 mb-4">Basic Information</h4>
@@ -29,19 +68,19 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
                     <input formControlName="first_name"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-700 focus:border-yellow-700" />
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
                     <input formControlName="last_name"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-yellow-700" />
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Middle Name</label>
                     <input formControlName="middle_name"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-yellow-700" />
                 </div>
 
                 <div>
@@ -78,6 +117,55 @@
             </form>
         </div>
 
+        <!-- CONTACT INFO -->
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <h4 class="text-lg font-semibold text-gray-800 mb-4">Contact Information</h4>
+
+            <form [formGroup]="contactForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <input formControlName="phone_number" maxlength="10"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-700 focus:border-yellow-700" />
+                    <div *ngIf="contactForm.get('phone_number')?.invalid && contactForm.get('phone_number')?.touched">
+                        <small class="text-sm text-red-600">Contact must be exactly 10 digits.</small>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Number</label>
+                    <input type="text" formControlName="emergency_phone" maxlength="10" placeholder="Emergency Contact"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-700 focus:border-yellow-700" />
+                    <div
+                        *ngIf="contactForm.get('emergency_phone')?.invalid && contactForm.get('emergency_phone')?.touched">
+                        <small class="text-sm text-red-600">Contact must be exactly 10 digits.</small>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Work Number</label>
+                    <input type="text" formControlName="work_phone" maxlength="10" placeholder="Work Contact"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-700 focus:border-yellow-700" />
+                    <div *ngIf="contactForm.get('work_phone')?.invalid && contactForm.get('work_phone')?.touched">
+                        <small class="text-sm text-red-600">Contact must be exactly 10 digits.</small>
+                    </div>
+                </div>
+
+
+                <div *ngIf="contactForm.dirty" class="flex justify-end space-x-3 pt-2">
+                    <button
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors text-sm font-medium"
+                        (click)="resetForm('contact')" type="button">
+                        Cancel
+                    </button>
+                    <button
+                        class="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors text-sm font-medium"
+                        (click)="saveContact(profileId ?? '')" type="button">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+
         <!-- ADDRESS INFO -->
         <div class="bg-white rounded-xl shadow-sm p-6">
             <h4 class="text-lg font-semibold text-gray-800 mb-4">Address</h4>
@@ -86,13 +174,13 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
                     <input formControlName="city"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-700 focus:border-yellow-700" />
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">County</label>
                     <input formControlName="county"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-700 focus:border-yellow-700" />
                 </div>
 
                 <div *ngIf="addressForm.dirty" class="flex justify-end space-x-3 pt-2">
@@ -110,52 +198,121 @@
             </form>
         </div>
 
-        <!-- CONTACT INFO -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <h4 class="text-lg font-semibold text-gray-800 mb-4">Contact Information</h4>
-
-            <form [formGroup]="contactForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                    <input formControlName="phone_number" maxlength="10"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
-                    <div *ngIf="contactForm.get('phone_number')?.invalid && contactForm.get('phone_number')?.touched">
-                        <small class="text-sm text-red-600">Contact must be exactly 10 digits.</small>
+        <!-- SETTINGS  -->
+        <div class="lg:col-span-3 space-y-6">
+            <!-- Security & Account Horizontal Group -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Security Settings -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6">Security Settings</h2>
+                    <div class="space-y-4">
+                        <!-- Password -->
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-800">Password</h4>
+                                <p class="text-sm text-gray-500 mt-1">Last changed 30 days ago</p>
+                            </div>
+                            <button (click)="requestPasswordReset(email ?? '')"
+                                class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+                                Change Password
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Number</label>
-                    <input type="text" formControlName="emergency_phone" maxlength="10" placeholder="Emergency Contact"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
-                    <div
-                        *ngIf="contactForm.get('emergency_phone')?.invalid && contactForm.get('emergency_phone')?.touched">
-                        <small class="text-sm text-red-600">Contact must be exactly 10 digits.</small>
+                <!-- Account Settings -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6">Account Actions</h2>
+                    <div class="space-y-4">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-800">Delete Account</h4>
+                                <p class="text-sm text-gray-500 mt-1">Account deleted can never be recovered</p>
+                            </div>
+                            <button
+                                class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+                                Delete Account
+                            </button>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Work Number</label>
-                    <input type="text" formControlName="work_phone" maxlength="10" placeholder="Work Contact"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
-                    <div *ngIf="contactForm.get('work_phone')?.invalid && contactForm.get('work_phone')?.touched">
-                        <small class="text-sm text-red-600">Contact must be exactly 10 digits.</small>
+            <!-- Preferences Horizontal Layout -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Preferences</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Rider Type -->
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-medium text-gray-800 mb-2">Cycling categories</h4>
+                        <p class="text-sm text-gray-500 mb-3">Select your primary cycling discipline</p>
+                        <div class="flex flex-wrap gap-2">
+
+                            <ng-container *ngIf="(riderTypes$ | async) as types">
+
+                                <div *ngIf="clickedRiderType && successMessageVisible" class="text-green-600">Updated
+                                    successfully!</div>
+                                <div *ngIf="clickedRiderType && (updateRiderTypeError$ | async) as err"
+                                    class="text-red-600">{{ err }}</div>
+
+                                <button *ngFor="let type of types" class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors border
+                                    {{ (selectedRiderType$ | async) === type.id ? 
+                                        'bg-amber-600 text-white border-amber-600' : 
+                                        'bg-white text-gray-700 border-gray-300 hover:border-amber-500' }}"
+                                    (click)="selectRiderType(type)">
+                                    {{ type.type_name }}
+                                </button>
+                            </ng-container>
+
+                        </div>
                     </div>
-                </div>
 
-                <div *ngIf="contactForm.dirty" class="flex justify-end space-x-3 pt-2">
-                    <button
-                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors text-sm font-medium"
-                        (click)="resetForm('contact')" type="button">
-                        Cancel
-                    </button>
-                    <button
-                        class="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors text-sm font-medium"
-                        (click)="saveContact(profileId ?? '')" type="button">
-                        Save Changes
-                    </button>
+                    <!-- Theme -->
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-medium text-gray-800 mb-2">Theme</h4>
+                        <p class="text-sm text-gray-500 mb-3">Choose your visual appearance</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button *ngFor="let theme of ['Light', 'Dark']" class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors border
+                                {{ selectedTheme === theme ? 
+                                   'bg-amber-600 text-white border-amber-600' : 
+                                   'bg-white text-gray-700 border-gray-300 hover:border-amber-500' }}"
+                                (click)="selectTheme(theme)">
+                                {{ theme }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Measurement Units -->
+                    <!-- <div class="p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-medium text-gray-800 mb-2">Units</h4>
+                        <p class="text-sm text-gray-500 mb-3">Select preferred measurement system</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button *ngFor="let unit of ['Metric', 'Imperial']" class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors border
+                                {{ selectedUnit === unit ? 
+                                   'bg-amber-600 text-white border-amber-600' : 
+                                   'bg-white text-gray-700 border-gray-300 hover:border-amber-500' }}"
+                                (click)="selectUnit(unit)">
+                                {{ unit }}
+                            </button>
+                        </div>
+                    </div> -->
+
+                    <!-- Notifications -->
+                    <!-- <div class="p-4 bg-gray-50 rounded-lg">
+                        <h4 class="font-medium text-gray-800 mb-2">Notifications</h4>
+                        <p class="text-sm text-gray-500 mb-3">Manage your notification preferences</p>
+                        <button
+                            class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
+                            (click)="openNotificationSettings()">
+                            Configure
+                        </button>
+                    </div> -->
                 </div>
-            </form>
+            </div>
         </div>
+
+
     </div>
 </div>
