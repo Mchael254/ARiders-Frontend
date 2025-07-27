@@ -4,14 +4,15 @@
   (swiperight)="prevSlide()">
   
   <!-- Image Slider Section -->
-  <div class="w-full lg:w-[60%] h-full">
+  <div class="w-full lg:w-[60%] h-full relative">
     <div *ngIf="images.length > 0" class="h-full">
       <div class="relative h-full">
         <div class="absolute inset-0 flex items-center justify-center">
           <div class="slider-container relative w-full h-full flex items-center justify-center">
             <div *ngFor="let image of images; let i = index"
               class="slide absolute inset-0 transition-all duration-1000 ease-in-out flex items-center justify-center"
-              [class.left-0]="currentSlide === i" [class.left-full]="currentSlide < i"
+              [class.left-0]="currentSlide === i" 
+              [class.left-full]="currentSlide < i"
               [class.-left-full]="currentSlide > i">
               
               <div class="relative w-full h-full max-w-full max-h-full rounded-2xl overflow-hidden group">
@@ -39,6 +40,17 @@
           class="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition-all hidden md:flex">
           <i class="pi pi-angle-right" style="font-size: 2rem"></i>
         </button>
+
+        <!-- Bottom-right nav on mobile -->
+        <div class="absolute bottom-4 right-4 flex space-x-2 md:hidden z-10">
+          <button (click)="prevSlide()" class="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all">
+            <i class="pi pi-angle-left" style="font-size: 1.5rem"></i>
+          </button>
+          <button (click)="nextSlide()" class="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all">
+            <i class="pi pi-angle-right" style="font-size: 1.5rem"></i>
+          </button>
+        </div>
+
       </div>
     </div>
   </div>
@@ -51,8 +63,8 @@
         Explore new heights with A Riders. Join us for breathtaking trails,
         aerial views, and a community that rides together.
       </p>
-      <button (click)="joinNow()"
-        class="bg-[#c9941d] hover:bg-black text-white font-semibold py-3 px-8 rounded-full shadow-lg transition-all hover:scale-105">
+      <button routerLink="/signin"
+        class="bg-[#d4a72c] hover:bg-black text-white font-semibold py-3 px-8 rounded-full shadow-lg transition-all hover:scale-105">
         Join the Ride
       </button>
     </div>

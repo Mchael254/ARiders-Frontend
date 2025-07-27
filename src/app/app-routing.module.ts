@@ -16,6 +16,7 @@ import { PaymentComponent } from './payment/payment.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { LandingComponent } from './landing/landing.component';
 import { ResetPasswordComponent } from './profile/reset-password/reset-password.component';
+import { MembershippComponent } from './membershipp/membershipp.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/landing', pathMatch: 'full' },
@@ -33,6 +34,8 @@ const routes: Routes = [
   { path: 'membership', component: MembershipComponent },
   { path: 'bio', component: BioComponent },
   {path:'resetPassword', component:ResetPasswordComponent},
+  {path:'payment', component:PaymentComponent},
+
 
   // shared
   { path: 'spinner', component: SpinnerComponent },
@@ -44,6 +47,8 @@ const routes: Routes = [
   { path: 'admin-events', component: AdminEventsComponent },
   { path: 'contributions', component: ContributionsComponent },
   {path: 'members', component:MembersComponent},
+  {path: 'membershipp', component:MembershippComponent},
+
 
   //payment
   {path: 'payment', component:PaymentComponent},

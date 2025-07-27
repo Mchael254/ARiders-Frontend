@@ -8,7 +8,7 @@ export interface MemberPanelState {
 }
 
 export const initialState: MemberPanelState = {
-  currentView: 'bio',
+  currentView: 'profile',
   selectedMemberId: null,
   viewData: {}
 };

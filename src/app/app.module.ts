@@ -63,6 +63,8 @@ import { PartnersComponent } from './partners/partners.component';
 import { ResetPasswordComponent } from './profile/reset-password/reset-password.component';
 import { ToastrModule } from 'ngx-toastr';
 import { PasswordModule } from 'primeng/password';
+import { AccordionModule } from 'primeng/accordion';
+import { MembershippComponent } from './membershipp/membershipp.component';
 
 
 
@@ -95,6 +97,7 @@ import { PasswordModule } from 'primeng/password';
     MissionComponent,
     PartnersComponent,
     ResetPasswordComponent,
+    MembershippComponent,
 
   ],
   imports: [
@@ -129,12 +132,13 @@ import { PasswordModule } from 'primeng/password';
     NgxSpinnerModule,
     NgxSpinnerComponent,
     PasswordModule,
-    
+    AccordionModule,
+
     NgxSpinnerModule.forRoot({ type: 'ball-clip-rotate-multiple' }),
     ToastrModule.forRoot({
       timeOut: 3000,
       positionClass: 'toast-top-right',
-      preventDuplicates: true
+      preventDuplicates: true,
     }),
     EffectsModule.forRoot([AuthEffects]),
     StoreModule.forRoot(reducers, { metaReducers },

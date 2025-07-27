@@ -1,54 +1,71 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
+import { io, Socket } from 'socket.io-client';
 
 @Injectable({ providedIn: 'root' })
 export class SocketService implements OnDestroy {
-  private socket: WebSocket;
+  private socket: Socket;
   private messageSubject = new Subject<any>();
 
   constructor() {
-    this.socket = new WebSocket('ws://localhost:5300/ws');
+    this.socket = io('wss://mpesa-dogr.onrender.com', {
+      transports: ['websocket'],
+      reconnectionAttempts: 5,
+      timeout: 10000,
+    });
 
-    this.socket.onopen = () => {
-      console.log('✅ WebSocket connection opened');
-    };
-
-    this.socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      this.messageSubject.next(data);
-    };
-
-    this.socket.onerror = (error) => {
-      console.error('⚠️ WebSocket error:', error);
-    };
-
-    this.socket.onclose = () => {
-      console.log('❌ WebSocket connection closed');
-    };
+    this.registerSocketEvents();
   }
 
-  // Public observable to subscribe to messages
+  private registerSocketEvents(): void {
+    this.socket.on('connect', () => {
+      console.log('✅ Socket.IO connected');
+    });
+
+    this.socket.on('disconnect', (reason) => {
+      console.warn('❌ Socket.IO disconnected:', reason);
+    });
+
+    this.socket.on('connect_error', (error) => {
+      console.error('⚠️ Socket.IO connection error:', error);
+    });
+
+    this.socket.on('reconnect_attempt', (attempt) => {
+      console.log(`🔄 Attempting to reconnect... (#${attempt})`);
+    });
+
+    this.socket.on('paymentStatus', (data) => {
+      console.log('📨 Payment status received:', data);
+      this.messageSubject.next(data);
+    });
+  }
+
+  // ✅ NEW METHOD: Join a specific room for payment tracking
+  public joinPaymentRoom(orderId: string): void {
+    if (this.socket?.connected) {
+      this.socket.emit('join', orderId);
+      console.log(`🏠 Joined payment room: ${orderId}`);
+    }
+  }
+
+  // ✅ NEW METHOD: Leave a specific room
+  public leavePaymentRoom(orderId: string): void {
+    if (this.socket?.connected) {
+      this.socket.emit('leave', orderId);
+      console.log(`🚪 Left payment room: ${orderId}`);
+    }
+  }
+
   public onMessage(): Observable<any> {
     return this.messageSubject.asObservable();
   }
 
-  // Send a message (optional if you want client to emit)
-  public send(data: any): void {
-    if (this.socket.readyState === WebSocket.OPEN) {
-      this.socket.send(JSON.stringify(data));
-    } else {
-      console.warn('WebSocket is not open yet.');
-    }
-  }
-
-  // Close the socket
   public disconnect(): void {
-    if (this.socket) {
-      this.socket.close();
+    if (this.socket?.connected) {
+      this.socket.disconnect();
     }
   }
 
-  // Angular lifecycle hook
   ngOnDestroy(): void {
     this.disconnect();
     this.messageSubject.complete();

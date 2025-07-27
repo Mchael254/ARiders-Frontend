@@ -1,41 +1,52 @@
 <nav class="bg-black fixed top-0 left-0 right-0 z-50">
   <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
     <div class="relative flex h-16 items-center justify-between">
-      <!-- Logo (always left) -->
+      <!-- Logo -->
       <div class="flex shrink-0 items-center">
         <img class="h-8 w-auto rounded-full" src="../../assets/ariders.jpg" alt="ariders" />
       </div>
-       <p class="text-white ml-2">A RIDERS</p>
-      <!-- Desktop Navigation (center-aligned) -->
+      <p class="text-white ml-2">A RIDERS</p>
+      
+      <!-- Desktop Navigation -->
       <div class="hidden sm:flex sm:items-center sm:justify-center sm:flex-1">
         <div class="flex space-x-4">
-          <a routerLink="/home" routerLinkActive="active"
-             class="nav rounded-md px-3 py-2 text-sm font-medium text-yellow-400 hover:bg-white hover:text-black">Home</a>
-          <a routerLink="/shop" routerLinkActive="active"
-             class="nav rounded-md px-3 py-2 text-sm font-medium text-yellow-400 hover:bg-white hover:text-black">Shop</a>
-          <a routerLink="/events" routerLinkActive="active"
-             class="nav rounded-md px-3 py-2 text-sm font-medium text-yellow-400 hover:bg-white hover:text-black">Events</a>
+          <a routerLink="/landing" 
+            class="nav rounded-md px-3 py-2 text-sm text-[#d4a72c] font-bold hover:bg-white hover:text-black">
+            <i class="pi pi-home mr-2"></i>Home
+          </a>
+          <a routerLink="/landing"
+            class="nav rounded-md px-3 py-2 text-sm font-bold text-[#d4a72c] hover:bg-white hover:text-black">
+            <i class="pi pi-shopping-cart mr-2"></i>Shop
+          </a>
+          <a routerLink="/landing" 
+            class="nav rounded-md px-3 py-2 text-sm font-bold text-[#d4a72c] hover:bg-white hover:text-black">
+            <i class="pi pi-calendar mr-2"></i>Events
+          </a>
+          <a routerLink="/landing" 
+            class="nav rounded-md px-3 py-2 text-sm font-bold text-[#d4a72c] hover:bg-white hover:text-black">
+            <i class="pi pi-heart mr-2"></i>Donate
+          </a>
         </div>
       </div>
 
-      <!-- Support Link (desktop - far right) / (mobile - middle) -->
+      <!--Get started -->
       <div class="flex items-center">
-        <!-- Support Link (visible on mobile) -->
-        <a routerLink="/support" routerLinkActive="active"
-           class="sm:hidden nav rounded-md px-3 py-2 text-sm font-medium text-yellow-400 hover:bg-white hover:text-black">Support</a>
-
-        <!-- Support Link (visible on desktop) -->
-        <a routerLink="/support" routerLinkActive="active"
-           class="hidden sm:block nav rounded-md px-3 py-2 text-sm font-medium text-yellow-400 hover:bg-white hover:text-black">Support</a>
-
-        <!-- Mobile Menu Button (always far right) -->
+        <div class="hidden lg:block card flex justify-center text-base font-bold text-[#d4a72c]"
+          (click)="menu.toggle($event)">
+          <span class="rounded-md px-3 py-2 text-sm text-[#d4a72c] font-bold">Get started</span>
+          <p-menu #menu [model]="items" [popup]="true" />
+          <p-button icon="pi pi-user" class="p-button-lg hover:bg-white hover:text-black rounded-md px-3 py-2" />
+        </div>
+        
+        <!-- Mobile Menu Button -->
         <div class="sm:hidden ml-2">
           <button type="button"
-                  class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset z-50"
-                  aria-controls="mobile-menu" aria-expanded="false" (click)="toggleMobileMenu()">
+            class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset z-50"
+            aria-controls="mobile-menu" aria-expanded="false" (click)="toggleMobileMenu()">
             <span class="absolute -inset-0.5"></span>
             <span class="sr-only">Open main menu</span>
-            <svg class="block size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+            <svg class="block size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+              aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
             </svg>
           </button>
@@ -44,16 +55,32 @@
     </div>
   </div>
 
-  <!-- Mobile menu -->
-  <div *ngIf="isMobileMenuOpen" class="absolute right-0 top-16 w-64 bg-gray-800 shadow-lg rounded-md z-40 sm:hidden" id="mobile-menu">
+  <!-- Mobile menu with PrimeNG icons -->
+  <div *ngIf="isMobileMenuOpen" class="absolute right-0 top-16 w-64 bg-gray-800 shadow-lg rounded-md z-40 sm:hidden"
+    id="mobile-menu">
     <div class="space-y-1 px-4 pt-4 pb-3">
-      <a href="/home" class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-gray-300" aria-current="page">Home</a>
-      <a href="/shop" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Shop</a>
-      <a href="/events" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Events</a>
-      <a href="/notifications" class="block px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Notifications</a>
-      <a href="/profile" class="block px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Profile</a>
-      <a href="/settings" class="block px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Settings</a>
-      <a href="/signout" class="block px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Sign out</a>
+      <a routerLink="/dashboard" class="flex items-center rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-gray-300"
+        aria-current="page">
+        <i class="pi pi-home mr-2"></i>Home
+      </a>
+      <a routerLink="/landing" class="flex items-center rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+        <i class="pi pi-shopping-cart mr-2"></i>Shop
+      </a>
+      <a routerLink="/landing" class="flex items-center rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+        <i class="pi pi-calendar mr-2"></i>Events
+      </a>
+      <a routerLink="/landing" class="flex items-center px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+        <i class="pi pi-bell mr-2"></i>Notifications
+      </a>
+      <a routerLink="/landing" class="flex items-center px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+        <i class="pi pi-user mr-2"></i>Profile
+      </a>
+      <a routerLink="/landing" class="flex items-center px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+        <i class="pi pi-cog mr-2"></i>Settings
+      </a>
+      <a (click)="logOut()" class="flex items-center px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">
+        <i class="pi pi-sign-out mr-2"></i>Sign out
+      </a>
     </div>
   </div>
 </nav>

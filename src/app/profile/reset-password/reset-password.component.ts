@@ -36,7 +36,7 @@ export class ResetPasswordComponent {
         this.loading = false;
         this.spinner.hide();
         if (error) {
-          this.toastr.error('Failed to update password');
+          this.handleSupabaseAuthError(error);
         } else {
           this.toastr.success('Password updated successfully');
           this.router.navigate(['/dashboard']);
@@ -48,6 +48,20 @@ export class ResetPasswordComponent {
       }
     });
   }
+
+  handleSupabaseAuthError(error: any) {
+    const msg = error?.message || '';
+
+    if (msg.includes('Auth session missing')) {
+      this.toastr.error('Link has expired. Please try again.');
+    } else if (msg.includes('JWT expired')) {
+      this.toastr.error('Your session token has expired. Please sign in again.');
+    } else {
+      this.toastr.error(msg || 'Failed to complete the action. Please try again.');
+    }
+  }
+
+
 
 }
 

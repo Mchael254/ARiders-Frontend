@@ -3,6 +3,7 @@ import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { AppState } from 'src/app/store';
+import * as AuthActions from '../../store/auth/auth.actions';
 
 import * as AdminPanelActions from '../../store/panel/admin/actions';
 import { selectAdminCurrentView, selectAdminSelectedMemberId, selectAdminViewData } from 'src/app/store/panel/admin/selectors';
@@ -34,9 +35,10 @@ export class AdminComponent {
   ngOnInit() { }
 
   logOut() {
-
+    if (confirm('Are you sure you want to logout?')) {
+      this.store.dispatch(AuthActions.logout());
+    }
   }
-
 
 
 }

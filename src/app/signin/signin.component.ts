@@ -137,7 +137,7 @@ export class SigninComponent {
         if (error) {
           this.toastr.error('Failed to send password reset email');
         } else {
-          this.toastr.success('Password reset email sent');
+          this.toastr.success(`Password reset email sent to ${email}`);
           this.closeDialog()
         }
       },
@@ -148,7 +148,6 @@ export class SigninComponent {
     });
   }
 
-  // Getter for easy access to forgot password email control
   get forgotPasswordEmail() {
     return this.forgotPasswordForm.get('email');
   }

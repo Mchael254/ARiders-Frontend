@@ -117,12 +117,13 @@ export class AuthEffects {
   logout$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.logout),
-      tap(() => {
-        this.authService.logout();
-        this.storage.removeItem('auth_session');
-      }),
-      map(() => AuthActions.logoutSuccess()),
-      catchError(() => of(AuthActions.logoutFailure())),
+      switchMap(() =>
+        this.authService.logout().pipe(
+          tap(() => this.storage.removeItem('auth_session')),
+          map(() => AuthActions.logoutSuccess()),
+          catchError(() => of(AuthActions.logoutFailure()))
+        )
+      )
     )
   );
 

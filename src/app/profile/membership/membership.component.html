@@ -1,29 +1,312 @@
-<div class="bg-gray-50 py-8 px-4 sm:px-6 lg:px-8" style="height:84vh; width:75vw;overflow-y:auto"
-  *ngIf="profile$ | async as profile">
-  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
-    <!-- Profile Header -->
-    <div class="bg-amber-600 p-6 text-white">
-      <h1 class="text-2xl font-bold">My Profile</h1>
+<div class="bg-[#f8f9fa] px-4 py-1 md:p-8" style="height: 85vh;overflow-y:auto" *ngIf="profile$ | async as profile">
+
+  <!-- Header Section -->
+  <div class="mb-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+      <button (click)="refreshDebtSummary()" [disabled]="loading"
+        class="mt-4 md:mt-0 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" [class.animate-spin]="loading">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+          </path>
+        </svg>
+        {{ loading ? 'Refreshing...' : 'Refresh' }}
+      </button>
     </div>
+  </div>
 
-    <!-- Profile Content -->
-    <div class="p-6 md:p-8">
-      <div class="flex flex-col md:flex-row gap-8">
-        <!-- Left Column - Profile Image and Details -->
-        <div class="flex-1">
-          
 
+
+  <!-- Loading State -->
+  <div *ngIf="loading && !debtSummary" class="flex items-center justify-center py-12">
+    <div class="flex items-center gap-3 text-gray-600">
+      <svg class="animate-spin w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+        </path>
+      </svg>
+      <span>Loading debt summary...</span>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+    <div class="flex items-center gap-3">
+      <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span class="text-red-700">{{ error }}</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="debtSummary && !loading">
+    <!-- Member Information Section -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
+        Member Information
+      </h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div>
+          <p class="text-sm font-medium text-gray-600 mb-1">Full Name</p>
+          <p class="text-gray-900">{{ debtSummary.member_info.full_name }}</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-600 mb-1">Email</p>
+          <p class="text-gray-900">{{ debtSummary.member_info.email }}</p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-600 mb-1">Member Since</p>
+          <p class="text-gray-900">{{ debtSummary.member_info.created_at | date:'mediumDate' }}</p>
         </div>
 
-        <!-- Right Column - Payment Only -->
-        <div class="flex-1">
-          <!-- Payment Component -->
-          <div class="border border-gray-200 rounded-lg p-6 h-full">
-            <h3 class="text-lg font-medium text-gray-700 mb-4">Payment Information</h3>
-            <app-payment></app-payment>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
+      <!-- Total Debt Card -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <p class="text-sm font-medium text-gray-600 mb-1">Total Debt</p>
+            <p class="text-2xl font-bold text-red-600">${{ getLatestRunningDebt() | number:'1.2-2' }}</p>
+          </div>
+          <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
+              </path>
+            </svg>
+          </div>
+        </div>
+        <!-- Pay Now Button -->
+        <button *ngIf="debtSummary.summary.total_debt > 0" (click)="openPaymentModal()"
+          class="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+          </svg>
+          Pay Now
+        </button>
+        <app-payment [(visible)]="showPaymentModal"></app-payment>
+      </div>
+
+      <!-- Total Paid Card -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 mb-1">Total Paid</p>
+            <p class="text-2xl font-bold text-green-600">${{ debtSummary.summary.total_paid | number:'1.2-2' }}</p>
+          </div>
+          <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
           </div>
         </div>
       </div>
+
+      <!-- Payment Completion Card -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 mb-1">Payment Completion</p>
+            <p class="text-2xl font-bold text-blue-600">{{ (debtSummary.summary.payment_completion * 100) |
+              number:'1.1-1' }}%</p>
+          </div>
+          <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+              </path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
     </div>
+
+
+
+    <!-- Report Parameters -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+      <h4 class="text-sm font-semibold text-blue-900 mb-2">Report Parameters</h4>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div>
+          <span class="text-blue-700 font-medium">Report Date:</span>
+          <span class="text-blue-900 ml-2">{{ debtSummary.report_parameters.report_date | date:'mediumDate' }}</span>
+        </div>
+        <div>
+          <span class="text-blue-700 font-medium">Lookback Months:</span>
+          <span class="text-blue-900 ml-2">{{ debtSummary.report_parameters.lookback_months }}</span>
+        </div>
+        <div>
+          <span class="text-blue-700 font-medium">Periods Applicable:</span>
+          <span class="text-blue-900 ml-2">{{ debtSummary.summary.applicable_periods }} of {{
+            debtSummary.summary.total_periods }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Reports Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+            </path>
+          </svg>
+          Monthly Payment Reports
+        </h3>
+      </div>
+
+      <!-- Desktop Table -->
+      <div class="hidden lg:block overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Period</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expected</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paid</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Days Overdue
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Running Debt
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let report of debtSummary.monthly_reports; trackBy: trackByMonth"
+              [class.bg-red-50]="report.is_overdue">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">{{ report.month_year }}</div>
+                <div class="text-xs text-gray-500">{{ report.month_start | date:'shortDate' }} - {{ report.month_end |
+                  date:'shortDate' }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ report.formatted_expected_amount }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ report.formatted_amount_paid }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"
+                [class.text-red-600]="report.monthly_balance > 0" [class.text-green-600]="report.monthly_balance === 0">
+                ${{ report.monthly_balance | number:'1.2-2' }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  [class.bg-red-100]="report.payment_status === 'partial_payment'"
+                  [class.text-red-800]="report.payment_status === 'partial_payment'"
+                  [class.bg-green-100]="report.payment_status === 'paid'"
+                  [class.text-green-800]="report.payment_status === 'paid'"
+                  [class.bg-yellow-100]="report.payment_status === 'pending'"
+                  [class.text-yellow-800]="report.payment_status === 'pending'">
+                  {{ report.payment_status | titlecase }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm" [class.text-red-600]="report.is_overdue"
+                [class.font-medium]="report.is_overdue">
+                {{ report.days_overdue }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-600">
+                ${{ report.running_debt | number:'1.2-2' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div class="lg:hidden space-y-4">
+        <div *ngFor="let report of debtSummary.monthly_reports; trackBy: trackByMonth"
+          class="bg-white rounded-lg shadow-sm border border-gray-200 p-5" [class.bg-red-50]="report.is_overdue"
+          [class.border-red-200]="report.is_overdue">
+
+          <!-- Header with month and status -->
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h4 class="text-lg font-semibold text-gray-900">{{ report.month_year }}</h4>
+              <p class="text-xs text-gray-500 mt-1">
+                {{ report.month_start | date:'shortDate' }} - {{ report.month_end | date:'shortDate' }}
+              </p>
+            </div>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+              [class.bg-red-100]="report.payment_status === 'partial_payment'"
+              [class.text-red-800]="report.payment_status === 'partial_payment'"
+              [class.bg-green-100]="report.payment_status === 'paid'"
+              [class.text-green-800]="report.payment_status === 'paid'"
+              [class.bg-yellow-100]="report.payment_status === 'pending'"
+              [class.text-yellow-800]="report.payment_status === 'pending'">
+              {{ report.payment_status | titlecase }}
+            </span>
+          </div>
+
+          <!-- Financial metrics grid -->
+          <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+            <div class="bg-gray-50 p-3 rounded-lg">
+              <p class="text-gray-600 text-xs font-medium mb-1">Expected</p>
+              <p class="font-medium text-gray-900">{{ report.formatted_expected_amount }}</p>
+            </div>
+
+            <div class="bg-gray-50 p-3 rounded-lg">
+              <p class="text-gray-600 text-xs font-medium mb-1">Paid</p>
+              <p class="font-medium text-gray-900">{{ report.formatted_amount_paid }}</p>
+            </div>
+
+            <div class="bg-gray-50 p-3 rounded-lg">
+              <p class="text-gray-600 text-xs font-medium mb-1">Balance</p>
+              <p class="font-medium" [class.text-red-600]="report.monthly_balance > 0"
+                [class.text-green-600]="report.monthly_balance === 0">
+                ${{ report.monthly_balance | number:'1.2-2' }}
+              </p>
+            </div>
+
+            <div class="bg-gray-50 p-3 rounded-lg">
+              <p class="text-gray-600 text-xs font-medium mb-1">Days Overdue</p>
+              <p class="font-medium" [class.text-red-600]="report.is_overdue">
+                {{ report.days_overdue || '0' }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Running debt and action -->
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <div class="flex justify-between items-center">
+              <div>
+                <p class="text-gray-600 text-xs font-medium mb-1">Running Debt</p>
+                <p class="font-medium text-red-600 text-lg">
+                  ${{ report.running_debt | number:'1.2-2' }}
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
   </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!debtSummary && !loading && !error" class="text-center py-12">
+    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+      </path>
+    </svg>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">No Data Available</h3>
+    <p class="text-gray-600">Unable to load debt summary at this time.</p>
+  </div>
+
 </div>

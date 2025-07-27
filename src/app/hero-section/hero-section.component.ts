@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 interface GalleryImage {
   previewImageSrc: string;
@@ -30,15 +31,15 @@ export class HeroSectionComponent {
     }
   ];
 
-   nextSlide(): void {
+  nextSlide(): void {
     this.currentSlide = (this.currentSlide + 1) % this.images.length;
   }
- currentSlide = 0;
+  currentSlide = 0;
   prevSlide(): void {
     this.currentSlide = (this.currentSlide - 1 + this.images.length) % this.images.length;
   }
 
-  constructor() {
+  constructor(private router: Router) {
     this.images = [
       {
         previewImageSrc: 'assets/mtb.JPG',
@@ -73,19 +74,14 @@ export class HeroSectionComponent {
     ]
   }
 
-   joinNow() {
-    // Here you could route to your registration page
-    console.log('Join Now clicked!');
-    // e.g., this.router.navigate(['/register']);
-  }
 
- handleImageError(event: Event, item: any) {
-  const imgElement = event.target as HTMLImageElement;
-  imgElement.src = 'assets/Jonas.png';
-  imgElement.alt = 'Image failed to load';
-  item.previewImageSrc = 'assets/Jonas.png';
-  item.thumbnailImageSrc = 'assets/Jonas.png';
-}
+  handleImageError(event: Event, item: any) {
+    const imgElement = event.target as HTMLImageElement;
+    imgElement.src = 'assets/Jonas.png';
+    imgElement.alt = 'Image failed to load';
+    item.previewImageSrc = 'assets/Jonas.png';
+    item.thumbnailImageSrc = 'assets/Jonas.png';
+  }
 
 
   preloadImages() {
@@ -97,7 +93,7 @@ export class HeroSectionComponent {
 
   ngOnInit(): void {
     this.preloadImages();
-     setInterval(() => {
+    setInterval(() => {
       this.nextSlide();
     }, 10000);
   }

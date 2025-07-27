@@ -1,6 +1,7 @@
 export const environment = {
-    // apiUrl: 'https://a-riders-backend.onrender.com',
-    apiUrl: 'http://localhost:5300',
+    apiUrl: 'https://a-riders-backend.onrender.com',
+    localUrl: 'http://localhost:5300',
+    paymentUrl:'https://mpesa-dogr.onrender.com',
     frontendUrl: 'http://localhost:4200',
     production: false,
     supabaseUrl: 'https://aidnxywieovjglfrcwty.supabase.co',

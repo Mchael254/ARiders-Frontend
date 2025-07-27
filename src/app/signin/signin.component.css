@@ -1,0 +1,18 @@
+.line {
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #c9941d, #d6c49b, #d3c9bb);
+    background-size: 200% 100%;
+    animation: slide-line 2s linear infinite;
+    border-radius: 2px;
+    margin: 10px;
+}
+@keyframes slide-line {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}

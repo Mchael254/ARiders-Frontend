@@ -30,7 +30,7 @@ export class AppComponent implements OnInit {
 
         if (noSession || isLoggedOut) {
           this.localStorage.clear();
-          this.router.navigate(['/signin']);
+          this.router.navigate(['/landing']);
         }
       });
 

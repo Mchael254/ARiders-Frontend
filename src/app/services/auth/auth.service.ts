@@ -57,7 +57,7 @@ export class AuthService {
               session: response.data.session,
               user: response.data.user,
               profile: profileRes.data,
-              error: null 
+              error: null
             };
           })
         );
@@ -65,9 +65,8 @@ export class AuthService {
     );
   }
 
-
   logout() {
-
+    return from(this.supabase.auth.signOut());
   }
 
   sendPasswordReset(email: string): Observable<any> {

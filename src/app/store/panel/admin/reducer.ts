@@ -8,7 +8,7 @@ export interface AdminPanelState {
 }
 
 export const initialState: AdminPanelState = {
-  currentView: 'debts',
+  currentView: 'contributions',
   selectedMemberId: null,
   viewData: {}
 };

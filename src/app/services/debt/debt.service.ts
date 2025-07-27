@@ -10,7 +10,7 @@ import { environment } from 'src/environments/environment.development';
 })
 export class DebtService {
 
-  private readonly BASE_URL = `${environment.apiUrl}/api/contributions`;
+  private readonly BASE_URL = `${environment.localUrl}/api/debts`;
 
   constructor(private http: HttpClient) { }
 
@@ -26,11 +26,7 @@ export class DebtService {
     });
   }
 
-  private memberIdSubject = new BehaviorSubject<string>('');
-  memberId$ = this.memberIdSubject.asObservable();
-
-  private viewChangeSource = new Subject<string>();
-  viewChange$ = this.viewChangeSource.asObservable();
+ 
 
 
 

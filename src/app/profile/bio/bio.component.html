@@ -1,30 +1,30 @@
-<div class="bg-gray-50 px-4 py-1 md:p-8" style="height: 85vh;overflow-y:auto" *ngIf="profile$ | async as profile">
+<div class="bg-[#f8f9fa] px-4 py-1 md:p-8" style="height: 85vh;overflow-y:auto" *ngIf="profile$ | async as profile">
     <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 ">
-        <!-- Profile Header -->
-        <div class="lg:col-span-3 bg-yellow-600 rounded-xl shadow-md p-6">
+        <!-- Profile Header - Updated with richer golden tones -->
+        <div class="lg:col-span-3 bg-[#d4a72c] rounded-xl shadow-md p-6">
             <div class="flex flex-col md:flex-row items-center gap-6">
                 <!-- Profile Image Column -->
                 <div class="flex flex-col items-center md:items-start gap-4">
                     <div class="relative w-fit">
                         <img [src]="previewImage || profile.profile_image || '../../assets/batProfile.jpg'"
                             alt="Profile Image"
-                            class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-amber-100 shadow-sm" />
+                            class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-[#e8c15e] shadow-sm" />
 
                         <!-- Edit Button -->
                         <button *ngIf="profileBtn && !previewImage"
-                            class="absolute -bottom-2 -right-2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors border-2 border-amber-100"
+                            class="absolute -bottom-2 -right-2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors border-2 border-[#e8c15e]"
                             (click)="fileInput.click()">
-                            <fa-icon [icon]="faPen" class="text-amber-600 text-sm"></fa-icon>
+                            <fa-icon [icon]="faPen" class="text-[#b38d25] text-sm"></fa-icon>
                         </button>
 
                         <!-- Cancel/Save Buttons -->
                         <div *ngIf="previewImage" class="absolute -bottom-2 left-0 right-0 flex justify-center gap-2">
                             <button (click)="cancelImageChange()"
-                                class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-1 rounded-full text-sm font-medium transition-colors">
+                                class="bg-[#6c757d] hover:bg-[#5a6268] text-white px-4 py-1 rounded-full text-sm font-medium transition-colors">
                                 Cancel
                             </button>
                             <button (click)="uploadImage(profileId ?? '')"
-                                class="bg-amber-800 hover:bg-amber-900 text-white px-4 py-1 rounded-full text-sm font-medium transition-colors">
+                                class="bg-[#2c3e50] hover:bg-[#1a252f] text-white px-4 py-1 rounded-full text-sm font-medium transition-colors">
                                 Save
                             </button>
                         </div>
@@ -45,14 +45,14 @@
                         {{ profile.role | titlecase }}
                     </div>
 
-                    <!-- Membership Info Cards -->
+                    <!-- Membership Info Cards - Updated with new accent colors -->
                     <div class="flex flex-col sm:flex-row gap-3 mt-4">
-                        <div class="bg-amber-700/20 border border-amber-100/20 rounded-lg p-3 flex-1 max-w-xs">
+                        <div class="bg-[#2c3e50]/20 border border-[#e8c15e]/30 rounded-lg p-3 flex-1 max-w-xs">
                             <h3 class="text-xs font-medium text-amber-100 mb-1">Membership Status</h3>
                             <p class="text-lg font-semibold text-white">{{ profile.membership_status }}</p>
                         </div>
 
-                        <div class="bg-amber-700/20 border border-amber-100/20 rounded-lg p-3 flex-1 max-w-xs">
+                        <div class="bg-[#2c3e50]/20 border border-[#e8c15e]/30 rounded-lg p-3 flex-1 max-w-xs">
                             <h3 class="text-xs font-medium text-amber-100 mb-1">Membership Type</h3>
                             <p class="text-lg font-semibold text-white">Premium</p>
                         </div>
@@ -60,15 +60,16 @@
                 </div>
             </div>
         </div>
-        <!-- BASIC INFO -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <h4 class="text-lg font-semibold text-gray-800 mb-4">Basic Information</h4>
+
+        <!-- BASIC INFO - Updated card styling -->
+        <div class="bg-white rounded-xl shadow-sm border border-[#e9ecef] p-6">
+            <h4 class="text-lg font-semibold text-[#212529] mb-4">Basic Information</h4>
 
             <form [formGroup]="basicForm" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                    <label class="block text-sm font-medium text-[#495057] mb-1">First Name</label>
                     <input formControlName="first_name"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-700 focus:border-yellow-700" />
+                        class="w-full px-3 py-2 border border-[#e9ecef] rounded-md shadow-sm focus:outline-none focus:ring-[#d4a72c] focus:border-[#d4a72c]" />
                 </div>
 
                 <div>
@@ -104,12 +105,12 @@
 
                 <div *ngIf="basicForm.dirty" class="flex justify-end space-x-3 pt-2">
                     <button
-                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors text-sm font-medium"
+                        class="px-4 py-2 bg-[#6c757d] text-white rounded-md hover:bg-[#5a6268] transition-colors text-sm font-medium"
                         (click)="resetForm('basic')" type="button">
                         Cancel
                     </button>
                     <button
-                        class="px-4 py-2 bg-yellow-600 text-white rounded-md hoverbg-yellow-700 transition-colors text-sm font-medium"
+                        class="px-4 py-2 bg-[#d4a72c] hover:bg-[#b38d25] text-white rounded-md transition-colors text-sm font-medium"
                         (click)="saveBasic(profileId ?? '')" type="button">
                         Save Changes
                     </button>
@@ -117,9 +118,9 @@
             </form>
         </div>
 
-        <!-- CONTACT INFO -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <h4 class="text-lg font-semibold text-gray-800 mb-4">Contact Information</h4>
+        <!-- CONTACT INFO - Consistent with Basic Info styling -->
+        <div class="bg-white rounded-xl shadow-sm border border-[#e9ecef] p-6">
+            <h4 class="text-lg font-semibold text-[#212529] mb-4">Contact Information</h4>
 
             <form [formGroup]="contactForm" class="space-y-4">
                 <div>
@@ -153,22 +154,24 @@
 
                 <div *ngIf="contactForm.dirty" class="flex justify-end space-x-3 pt-2">
                     <button
-                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors text-sm font-medium"
-                        (click)="resetForm('contact')" type="button">
+                        class="px-4 py-2 bg-[#6c757d] text-white rounded-md hover:bg-[#5a6268] transition-colors text-sm font-medium"
+                        (click)="resetForm('basic')" type="button">
                         Cancel
                     </button>
                     <button
-                        class="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors text-sm font-medium"
-                        (click)="saveContact(profileId ?? '')" type="button">
+                        class="px-4 py-2 bg-[#d4a72c] hover:bg-[#b38d25] text-white rounded-md transition-colors text-sm font-medium"
+                        (click)="saveBasic(profileId ?? '')" type="button">
                         Save Changes
                     </button>
                 </div>
             </form>
+
+
         </div>
 
-        <!-- ADDRESS INFO -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <h4 class="text-lg font-semibold text-gray-800 mb-4">Address</h4>
+        <!-- ADDRESS INFO - Consistent with other cards -->
+        <div class="bg-white rounded-xl shadow-sm border border-[#e9ecef] p-6">
+            <h4 class="text-lg font-semibold text-[#212529] mb-4">Address</h4>
 
             <form [formGroup]="addressForm" class="space-y-4">
                 <div>
@@ -185,36 +188,35 @@
 
                 <div *ngIf="addressForm.dirty" class="flex justify-end space-x-3 pt-2">
                     <button
-                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors text-sm font-medium"
-                        (click)="resetForm('address')" type="button">
+                        class="px-4 py-2 bg-[#6c757d] text-white rounded-md hover:bg-[#5a6268] transition-colors text-sm font-medium"
+                        (click)="resetForm('basic')" type="button">
                         Cancel
                     </button>
                     <button
-                        class="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors text-sm font-medium"
-                        (click)="saveAddress(profileId ?? '')" type="button">
+                        class="px-4 py-2 bg-[#d4a72c] hover:bg-[#b38d25] text-white rounded-md transition-colors text-sm font-medium"
+                        (click)="saveBasic(profileId ?? '')" type="button">
                         Save Changes
                     </button>
                 </div>
             </form>
+
         </div>
 
-        <!-- SETTINGS  -->
+        <!-- SETTINGS SECTION - Updated with new palette -->
         <div class="lg:col-span-3 space-y-6">
-            <!-- Security & Account Horizontal Group -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Security Settings -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-6">Security Settings</h2>
+                <div class="bg-white rounded-xl shadow-sm border border-[#e9ecef] p-6">
+                    <h2 class="text-xl font-bold text-[#212529] mb-6">Security Settings</h2>
                     <div class="space-y-4">
-                        <!-- Password -->
                         <div
-                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg">
+                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-[#f8f9fa] rounded-lg">
                             <div class="flex-1">
-                                <h4 class="font-medium text-gray-800">Password</h4>
-                                <p class="text-sm text-gray-500 mt-1">Last changed 30 days ago</p>
+                                <h4 class="font-medium text-[#212529]">Password</h4>
+                                <p class="text-sm text-[#6c757d] mt-1">Last changed 30 days ago</p>
                             </div>
                             <button (click)="requestPasswordReset(email ?? '')"
-                                class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+                                class="bg-[#17a2b8] hover:bg-[#138496] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
                                 Change Password
                             </button>
                         </div>
@@ -222,17 +224,17 @@
                 </div>
 
                 <!-- Account Settings -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-6">Account Actions</h2>
+                <div class="bg-white rounded-xl shadow-sm border border-[#e9ecef] p-6">
+                    <h2 class="text-xl font-bold text-[#212529] mb-6">Account Actions</h2>
                     <div class="space-y-4">
                         <div
-                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg">
+                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-[#f8f9fa] rounded-lg">
                             <div class="flex-1">
-                                <h4 class="font-medium text-gray-800">Delete Account</h4>
-                                <p class="text-sm text-gray-500 mt-1">Account deleted can never be recovered</p>
+                                <h4 class="font-medium text-[#212529]">Delete Account</h4>
+                                <p class="text-sm text-[#6c757d] mt-1">Account deleted can never be recovered</p>
                             </div>
                             <button
-                                class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+                                class="bg-[#dc3545] hover:bg-[#c82333] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
                                 Delete Account
                             </button>
                         </div>
@@ -240,79 +242,48 @@
                 </div>
             </div>
 
-            <!-- Preferences Horizontal Layout -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-6">Preferences</h2>
+            <!-- Preferences Section -->
+            <div class="bg-white rounded-xl shadow-sm border border-[#e9ecef] p-6">
+                <h2 class="text-xl font-bold text-[#212529] mb-6">Preferences</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Rider Type -->
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <h4 class="font-medium text-gray-800 mb-2">Cycling categories</h4>
-                        <p class="text-sm text-gray-500 mb-3">Select your primary cycling discipline</p>
+                    <div class="p-4 bg-[#f8f9fa] rounded-lg">
+                        <h4 class="font-medium text-[#212529] mb-2">Cycling categories</h4>
+                        <p class="text-sm text-[#6c757d] mb-3">Select your primary cycling discipline</p>
                         <div class="flex flex-wrap gap-2">
-
                             <ng-container *ngIf="(riderTypes$ | async) as types">
-
-                                <div *ngIf="clickedRiderType && successMessageVisible" class="text-green-600">Updated
+                                <div *ngIf="clickedRiderType && successMessageVisible" class="text-[#28a745]">Updated
                                     successfully!</div>
                                 <div *ngIf="clickedRiderType && (updateRiderTypeError$ | async) as err"
-                                    class="text-red-600">{{ err }}</div>
+                                    class="text-[#dc3545]">{{ err }}</div>
 
                                 <button *ngFor="let type of types" class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors border
                                     {{ (selectedRiderType$ | async) === type.id ? 
-                                        'bg-amber-600 text-white border-amber-600' : 
-                                        'bg-white text-gray-700 border-gray-300 hover:border-amber-500' }}"
+                                        'bg-[#d4a72c] text-white border-[#d4a72c]' : 
+                                        'bg-white text-[#495057] border-[#e9ecef] hover:border-[#d4a72c]' }}"
                                     (click)="selectRiderType(type)">
                                     {{ type.type_name }}
                                 </button>
                             </ng-container>
-
                         </div>
                     </div>
 
-                    <!-- Theme -->
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <h4 class="font-medium text-gray-800 mb-2">Theme</h4>
-                        <p class="text-sm text-gray-500 mb-3">Choose your visual appearance</p>
+                    <!-- Theme Selector -->
+                    <div class="p-4 bg-[#f8f9fa] rounded-lg">
+                        <h4 class="font-medium text-[#212529] mb-2">Theme</h4>
+                        <p class="text-sm text-[#6c757d] mb-3">Choose your visual appearance</p>
                         <div class="flex flex-wrap gap-2">
                             <button *ngFor="let theme of ['Light', 'Dark']" class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors border
                                 {{ selectedTheme === theme ? 
-                                   'bg-amber-600 text-white border-amber-600' : 
-                                   'bg-white text-gray-700 border-gray-300 hover:border-amber-500' }}"
+                                   'bg-[#d4a72c] text-white border-[#d4a72c]' : 
+                                   'bg-white text-[#495057] border-[#e9ecef] hover:border-[#d4a72c]' }}"
                                 (click)="selectTheme(theme)">
                                 {{ theme }}
                             </button>
                         </div>
                     </div>
-
-                    <!-- Measurement Units -->
-                    <!-- <div class="p-4 bg-gray-50 rounded-lg">
-                        <h4 class="font-medium text-gray-800 mb-2">Units</h4>
-                        <p class="text-sm text-gray-500 mb-3">Select preferred measurement system</p>
-                        <div class="flex flex-wrap gap-2">
-                            <button *ngFor="let unit of ['Metric', 'Imperial']" class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors border
-                                {{ selectedUnit === unit ? 
-                                   'bg-amber-600 text-white border-amber-600' : 
-                                   'bg-white text-gray-700 border-gray-300 hover:border-amber-500' }}"
-                                (click)="selectUnit(unit)">
-                                {{ unit }}
-                            </button>
-                        </div>
-                    </div> -->
-
-                    <!-- Notifications -->
-                    <!-- <div class="p-4 bg-gray-50 rounded-lg">
-                        <h4 class="font-medium text-gray-800 mb-2">Notifications</h4>
-                        <p class="text-sm text-gray-500 mb-3">Manage your notification preferences</p>
-                        <button
-                            class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap"
-                            (click)="openNotificationSettings()">
-                            Configure
-                        </button>
-                    </div> -->
                 </div>
             </div>
         </div>
-
-
     </div>
 </div>

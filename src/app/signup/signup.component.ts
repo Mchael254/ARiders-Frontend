@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { ResponsesService } from '../services/utilities/responses.service';
 import { AuthService } from '../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { signupForm } from '../interfaces/authInterface';
+import { ToastrService } from 'ngx-toastr';
+import { MailMessageService } from '../services/email/mail-message.service';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-signup',
@@ -12,8 +14,10 @@ import { signupForm } from '../interfaces/authInterface';
 })
 export class SignupComponent {
   constructor(private fb: FormBuilder,
-    private response: ResponsesService,
     private auth: AuthService,
+    private toastr: ToastrService,
+    private emailService: MailMessageService,
+    private spinner: NgxSpinnerService,
     private router: Router) { }
 
   signupForm = this.fb.group({
@@ -45,7 +49,7 @@ export class SignupComponent {
     const confirmPassword = this.signupForm.get('confirmPassword')?.value;
 
     if (password !== confirmPassword) {
-      this.response.showError('Passwords do not match ⚠️');
+      this.toastr.error('Passwords do not match ⚠️');
       this.loadingLine = false;
       return false;
     }
@@ -59,41 +63,60 @@ export class SignupComponent {
   }
 
   onSignUp() {
-    this.allFieldsValidator()
-
-    if (!this.signupForm.valid) {
-      return;
-    }
-
-    if (!this.passwordMatch()) {
-      return;
-    }
-
-    const form = this.signupForm.getRawValue() as signupForm
-    console.log(form);
+    this.loadingLine = true;
+    const form = this.signupForm.getRawValue() as signupForm;
     const userData = {
       first_name: form.firstName,
       last_name: form.lastName,
       email: form.email,
       password: form.password,
       phone_number: form.phoneNumber
-    }
+    };
 
-    this.auth.register(userData).subscribe({
-      next: (result) => {
-        this.response.showSuccess(result.message);
+    // First validate form after 3 seconds
+    setTimeout(() => {
+      this.allFieldsValidator();
 
-        this.router.navigate(['/signin']);
-      },
-      error: (err) => {
-        const errorMessage = err?.error?.message || err?.error?.error || 'An unexpected error occurred';
-        this.response.showError(errorMessage);
-        console.error('Registration error:', err);
-        this.loadingLine = false
+      if (!this.signupForm.valid) {
+        this.loadingLine = false;
+        return;
       }
 
-    })
+      if (!this.passwordMatch()) {
+        this.loadingLine = false;
+        return;
+      }
 
+      this.loadingLine = false;
+      this.spinner.show();
+
+      this.auth.register(userData).subscribe({
+        next: async (result) => {
+          this.toastr.success(result.message);
+          this.spinner.hide();
+          this.router.navigate(['/signin']);
+
+          // Load template
+          const templateHtml = await this.emailService.generateWelcomeEmail(form.firstName);
+
+          this.emailService.sendWelcomeEmail({
+            first_name: form.firstName,
+            email: form.email,
+            templateHtml
+          }).subscribe({
+            next: () => console.log('Welcome email sent!'),
+            error: (err: any) => console.error('Error sending welcome email:', err)
+          });
+        },
+        error: (err) => {
+          const errorMessage = err?.error?.message || err?.error?.error || 'An unexpected error occurred';
+          this.toastr.error(errorMessage);
+          console.error('Registration error:', err);
+          this.loadingLine = false;
+          this.spinner.hide();
+        }
+      });
+    }, 3000);
   }
 
 }

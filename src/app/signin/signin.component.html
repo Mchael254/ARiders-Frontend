@@ -3,7 +3,7 @@
         <div class="flex justify-center">
             <!-- Logo container with orange circle background -->
             <div
-                class="w-32 h-32 bg-amber-500 rounded-full flex items-center justify-center overflow-hidden p-0 shadow-md">
+                class="w-32 h-32 bg-gray-50 rounded-full flex items-center justify-center overflow-hidden p-0 shadow-md">
                 <img class="h-35 w-auto rounded-full" src="../../assets/ariders.jpg" alt="ariders" />
             </div>
         </div>
@@ -17,7 +17,7 @@
                 Sign in to your account
             </p>
 
-            <p class="line h-1 bg-amber-500 rounded-full mb-6" *ngIf="loadingLine"></p>
+            <p class="line" *ngIf="loadingLine"></p>
 
             <form class="space-y-6" #siginForm="ngForm" [formGroup]="signinForm" (ngSubmit)="onSignIn()">
                 <div>
@@ -74,12 +74,13 @@
 
             <!-- forgot password -->
             <div class="text-sm text-center">
+                <span routerLink="/landing" class="underline text-[#a27929] mr-3 cursor-pointer hover:underline">Home</span>
                 <p-button label="Forgot password?" (click)="showDialog()"
                     styleClass="p-button-link !text-[#a17b28] hover:!text-[#8c6d3f] font-medium transition-all duration-300 ml-1 hover:font-bold hover:text-lg" [text]="true">
                 </p-button>
             </div>
 
-            <!-- Fixed Forgot Password Dialog -->
+            <!-- Forgot Password Dialog -->
             <p-dialog header="Recover your password" [(visible)]="visible" [modal]="true" [style]="{width: '450px'}"
                 [breakpoints]="{'960px': '75vw', '640px': '90vw'}" [draggable]="false" [resizable]="false"
                 styleClass="shadow-lg rounded-lg">
