@@ -15,26 +15,21 @@ import { MembersComponent } from './admins/members/members.component';
 import { PaymentComponent } from './payment/payment.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { LandingComponent } from './landing/landing.component';
-import { ResetPasswordComponent } from './profile/reset-password/reset-password.component';
-import { MembershippComponent } from './membershipp/membershipp.component';
+import { authGuard } from './guards/auth/auth.guard';
+
 
 const routes: Routes = [
   { path: '', redirectTo: '/landing', pathMatch: 'full' },
   { path: 'landing', component: LandingComponent },
 
-  //landing components
-  {path:'landing', component:LandingComponent},
-  
-
   { path: 'signup', component: SignupComponent },
   { path: 'signin', component: SigninComponent },
 
   // member
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'membership', component: MembershipComponent },
-  { path: 'bio', component: BioComponent },
-  {path:'resetPassword', component:ResetPasswordComponent},
-  {path:'payment', component:PaymentComponent},
+  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+  { path: 'membership', component: MembershipComponent, canActivate: [authGuard] },
+  { path: 'bio', component: BioComponent, canActivate: [authGuard] },
+  { path: 'payment', component: PaymentComponent, canActivate: [authGuard] },
 
 
   // shared
@@ -42,18 +37,12 @@ const routes: Routes = [
   { path: 'footer', component: FooterComponent },
 
   //admin
-  { path: 'admin', component: AdminComponent },
-  { path: 'settings', component: SettingsComponent },
-  { path: 'admin-events', component: AdminEventsComponent },
-  { path: 'contributions', component: ContributionsComponent },
-  {path: 'members', component:MembersComponent},
-  {path: 'membershipp', component:MembershippComponent},
-
+  { path: 'admin', component: AdminComponent, canActivate: [authGuard]},
 
   //payment
-  {path: 'payment', component:PaymentComponent},
+  { path: 'payment', component: PaymentComponent },
 
-  {path: '**', component:PageNotFoundComponent }
+  { path: '**', component: PageNotFoundComponent }
 
 ];
 

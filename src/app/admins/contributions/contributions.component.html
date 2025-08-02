@@ -1,174 +1,52 @@
 <div class="main">
-  <div class="container mx-auto px-4 py-8 bg-gray-50">
-    <!-- Loading State -->
-    <div *ngIf="loading" class="flex flex-col items-center justify-center py-12 bg-white rounded-xl shadow-sm">
-      <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-amber-500 mb-4"></div>
-      <p class="text-gray-600">Loading contribution summary...</p>
-    </div>
+  <div class="bg-gray-50">
+    <div class="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
 
-    <!-- Error state -->
-    <div *ngIf="error && !loading" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
-      <p class="font-bold">Error</p>
-      <p>{{ error }}</p>
-    </div>
 
-    <!-- Data display -->
-    <div *ngIf="data && !loading">
-      <!-- Header and Date Controls -->
-      <div
-        class="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 gap-4 bg-white p-5 shadow rounded-lg">
-        <div>
-          <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Contribution Analysis</h1>
-          <p class="text-gray-600" *ngIf="data">
-            Report generated on {{ data.summary.reportDate | date }} for {{ data.summary.reportPeriod }}
-          </p>
-        </div>
+      <!-- Loading State -->
+      <ngx-spinner bdColor="rgba(255,255,255,0.8)" size="medium" color="#f59e0b" type="ball-clip-rotate-multiple"
+        [fullScreen]="true">
+        <p class="text-gray-600 mt-4">Loading contribution summary...</p>
+      </ngx-spinner>
 
-        <form [formGroup]="rangeForm" (ngSubmit)="loadData()" class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-          <div>
-            <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-            <input type="date" id="startDate" formControlName="startDate" (change)="loadData()"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              [min]="minDate | date:'yyyy-MM-dd'" [max]="rangeForm.value.endDate || (maxDate | date:'yyyy-MM-dd')">
-          </div>
-          <div>
-            <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-            <input type="date" id="endDate" formControlName="endDate" (change)="loadData()"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              [min]="rangeForm.value.startDate || (minDate | date:'yyyy-MM-dd')" [max]="maxDate | date:'yyyy-MM-dd'">
-          </div>
-        </form>
+      <!-- Error state -->
+      <div *ngIf="error && !loading" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+        <p class="font-bold">Error</p>
+        <p>{{ error }}</p>
       </div>
 
-      <div>
-        <!-- Current Month Card -->
-        <div class="bg-white rounded-lg shadow p-6 mb-3" *ngIf="currentMonthAnalysis">
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center">
-              <fa-icon [icon]="faCalendarCheck" class="text-blue-500 mr-3 text-xl"></fa-icon>
-              <h3 class="text-lg font-semibold text-gray-700">Current Month</h3>
-            </div>
-            <!-- Risk Level Badge -->
-            <span [ngClass]="getRiskLevelBadgeClass(currentMonthAnalysis.insights.riskLevel)"
-              class="px-3 py-1 rounded-full text-xs font-medium">
-              {{ currentMonthAnalysis.insights.riskLevel }} Risk
-            </span>
+
+      <!-- data area -->
+
+
+
+      <!-- Main Content -->
+      <div *ngIf="data" class="space-y-6">
+        <!-- Header and Date Controls -->
+        <div
+          class="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 gap-4 bg-white p-5 shadow rounded-lg">
+          <div>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Contribution Analysis</h1>
+            <p class="text-gray-600" *ngIf="data">
+              Report generated on {{ data.summary.reportDate | date }} for {{ data.summary.reportPeriod }}
+            </p>
           </div>
 
-          <!-- Month Name and Status -->
-          <p class="text-2xl font-bold text-gray-800 mb-1">{{ currentMonthAnalysis.monthName }}</p>
-          <p class="text-sm text-gray-600 mb-4">{{ currentMonthAnalysis.status }}</p>
-
-          <!-- Main Metrics Grid -->
-          <div class="grid grid-cols-2 gap-4 mb-4" *ngIf="currentMonthAnalysis.data">
-            <!-- Collected Amount -->
-            <div class="bg-green-50 p-4 rounded-lg">
-              <div class="flex items-center mb-2">
-                <fa-icon [icon]="faCoins" class="text-green-600 mr-2"></fa-icon>
-                <span class="text-sm font-medium text-green-700">Collected</span>
-              </div>
-              <p class="text-xl font-bold text-green-800">{{ currentMonthAnalysis.data.collected }}</p>
+          <form [formGroup]="rangeForm" (ngSubmit)="loadData()"
+            class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+            <div>
+              <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+              <input type="date" id="startDate" formControlName="startDate" (change)="loadData()"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                [min]="minDate | date:'yyyy-MM-dd'" [max]="rangeForm.value.endDate || (maxDate | date:'yyyy-MM-dd')">
             </div>
-
-            <!-- Collection Rate -->
-            <div [ngClass]="getCollectionRateCardClass(currentMonthAnalysis.data.collection_rate)"
-              class="p-4 rounded-lg">
-              <div class="flex items-center mb-2">
-                <fa-icon [icon]="faPercent"
-                  [ngClass]="getCollectionRateIconClass(currentMonthAnalysis.data.collection_rate)"
-                  class="mr-2"></fa-icon>
-                <span class="text-sm font-medium"
-                  [ngClass]="getCollectionRateTextClass(currentMonthAnalysis.data.collection_rate)">Rate</span>
-              </div>
-              <p class="text-xl font-bold"
-                [ngClass]="getCollectionRateTextClass(currentMonthAnalysis.data.collection_rate)">
-                {{ currentMonthAnalysis.data.collection_rate }}
-              </p>
+            <div>
+              <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+              <input type="date" id="endDate" formControlName="endDate" (change)="loadData()"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                [min]="rangeForm.value.startDate || (minDate | date:'yyyy-MM-dd')" [max]="maxDate | date:'yyyy-MM-dd'">
             </div>
-
-            <!-- Contributors -->
-            <div class="bg-blue-50 p-4 rounded-lg">
-              <div class="flex items-center mb-2">
-                <fa-icon [icon]="faUsers" class="text-blue-600 mr-2"></fa-icon>
-                <span class="text-sm font-medium text-blue-700">Contributors</span>
-              </div>
-              <p class="text-xl font-bold text-blue-800">{{ currentMonthAnalysis.data.contributors }}</p>
-            </div>
-
-            <!-- Days Remaining -->
-            <div class="bg-purple-50 p-4 rounded-lg">
-              <div class="flex items-center mb-2">
-                <fa-icon [icon]="faCalendarAlt" class="text-purple-600 mr-2"></fa-icon>
-                <span class="text-sm font-medium text-purple-700">Days Left</span>
-              </div>
-              <p class="text-xl font-bold text-purple-800">{{ currentMonthAnalysis.insights.daysRemaining }}</p>
-            </div>
-          </div>
-
-          <!-- Progress Bar -->
-          <div class="mb-4" *ngIf="currentMonthAnalysis.insights.progressPercentage">
-            <div class="flex justify-between text-sm text-gray-600 mb-1">
-              <span>Month Progress</span>
-              <span>{{ currentMonthAnalysis.insights.progressPercentage | number:'1.0-0' }}%</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div class="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                [style.width.%]="currentMonthAnalysis.insights.progressPercentage"></div>
-            </div>
-          </div>
-
-          <!-- Key Insights -->
-          <div class="space-y-2 mb-4"
-            *ngIf="currentMonthAnalysis.data && !currentMonthAnalysis.insights.isCompleteMonth">
-            <!-- Projected Collection -->
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span class="text-sm text-gray-600">Projected Collection:</span>
-              <span class="font-semibold text-gray-800">KES {{ currentMonthAnalysis.insights.projectedCollection |
-                number:'1.0-0' }}</span>
-            </div>
-
-            <!-- Amount Needed -->
-            <div class="flex justify-between items-center p-3 bg-orange-50 rounded-lg"
-              *ngIf="currentMonthAnalysis.insights.improvementNeeded > 0">
-              <span class="text-sm text-orange-700">Still Needed:</span>
-              <span class="font-semibold text-orange-800">KES {{ currentMonthAnalysis.insights.improvementNeeded |
-                number:'1.0-0' }}</span>
-            </div>
-
-            <!-- Daily Target -->
-            <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg"
-              *ngIf="currentMonthAnalysis.insights.dailyTargetRemaining && currentMonthAnalysis.insights.dailyTargetRemaining > 0">
-              <span class="text-sm text-blue-700">Daily Target Needed:</span>
-              <span class="font-semibold text-blue-800">KES {{ currentMonthAnalysis.insights.dailyTargetRemaining |
-                number:'1.0-0' }}</span>
-            </div>
-          </div>
-
-          <!-- Comparison with Previous Month -->
-          <div class="border-t pt-4" *ngIf="currentMonthAnalysis.comparison">
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-600">vs. {{ currentMonthAnalysis.comparison.previousMonth.name }}:</span>
-              <div class="flex items-center">
-                <fa-icon [icon]="getGrowthIcon(currentMonthAnalysis.comparison.growth.trend)"
-                  [ngClass]="getGrowthIconClass(currentMonthAnalysis.comparison.growth.trend)" class="mr-1"></fa-icon>
-                <span [ngClass]="getGrowthTextClass(currentMonthAnalysis.comparison.growth.trend)"
-                  class="text-sm font-medium">
-                  {{ currentMonthAnalysis.comparison.growth.percentage | number:'1.1-1' }}%
-                </span>
-              </div>
-            </div>
-
-            <!-- Ranking -->
-            <div class="flex items-center justify-between mt-2">
-              <span class="text-sm text-gray-600">Month Ranking:</span>
-              <span class="text-sm font-medium text-gray-800">
-                #{{ currentMonthAnalysis.comparison.ranking.position }} of {{
-                currentMonthAnalysis.comparison.ranking.totalMonths }}
-              </span>
-            </div>
-          </div>
-
-
+          </form>
         </div>
 
         <!-- Summary Cards -->
@@ -234,12 +112,23 @@
               <fa-icon [icon]="faTrophy" class="text-yellow-500 mr-3 text-xl"></fa-icon>
               <h3 class="text-lg font-semibold text-gray-700">Best Month</h3>
             </div>
-            <p class="text-2xl font-bold text-gray-800 mb-1">{{ data.summary.bestMonthOverall.monthName }}</p>
-            <p class="text-lg text-gray-700 mb-2">{{ data.summary.bestMonthOverall.amountFormatted }}</p>
-            <p class="text-sm text-gray-500">Collection rate: {{ data.summary.bestMonthOverall.collectionRate }}</p>
+
+            <!-- When bestMonthOverall exists -->
+            <div *ngIf="data.summary.bestMonthOverall; else noBestMonth">
+              <p class="text-2xl font-bold text-gray-800 mb-1">{{ data.summary.bestMonthOverall.monthName }}</p>
+              <p class="text-lg text-gray-700 mb-2">{{ data.summary.bestMonthOverall.amountFormatted }}</p>
+              <p class="text-sm text-gray-500">Collection rate: {{ data.summary.bestMonthOverall.collectionRate }}</p>
+            </div>
+
+            <!-- When no best month data -->
+            <ng-template #noBestMonth>
+              <div class="text-center py-4">
+                <fa-icon [icon]="faTrophy" class="text-gray-300 text-3xl mb-2"></fa-icon>
+                <p class="text-gray-500 font-medium">No contributions yet</p>
+                <p class="text-sm text-gray-400">Best month will appear after contributions</p>
+              </div>
+            </ng-template>
           </div>
-
-
 
           <!-- Contributors -->
           <div
@@ -248,96 +137,326 @@
               <fa-icon [icon]="faUsers" class="text-purple-500 mr-3 text-xl"></fa-icon>
               <h3 class="text-lg font-semibold text-gray-700">Contributors</h3>
             </div>
-            <p class="text-2xl font-bold text-gray-800 mb-1">{{ data.summary['highest_contributor'] }}</p>
-            <p class="text-sm text-gray-500">{{ data.summary['zero_contributors'] }} with zero contributions</p>
+
+            <!-- Check if there are contributors -->
+            <div *ngIf="data.summary['highest_contributor'] !== 'No contributors'; else noContributorsYet">
+              <p class="text-2xl font-bold text-gray-800 mb-1">{{ data.summary['highest_contributor'] }}</p>
+              <p class="text-sm text-gray-500">{{ data.summary['zero_contributors'] }} with zero contributions</p>
+            </div>
+
+            <!-- No contributors case -->
+            <ng-template #noContributorsYet>
+              <div class="text-center py-4">
+                <fa-icon [icon]="faUsers" class="text-gray-300 text-3xl mb-2"></fa-icon>
+                <p class="text-gray-500 font-medium">No contributions yet</p>
+                <p class="text-sm text-gray-400">{{ data.summary['zero_contributors'] }} awaiting contributions</p>
+              </div>
+            </ng-template>
+          </div>
+
+
+
+        </div>
+
+        <!-- Current Month Card -->
+        <div class="bg-white rounded-lg shadow p-4 sm:p-6 mb-3" *ngIf="currentMonthAnalysis">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div class="flex items-center">
+              <fa-icon [icon]="faCalendarCheck" class="text-blue-500 mr-3 text-lg sm:text-xl"></fa-icon>
+              <h3 class="text-base sm:text-lg font-semibold text-gray-700">Current Month</h3>
+            </div>
+            <!-- Risk Level Badge -->
+            <span [ngClass]="getRiskLevelBadgeClass(currentMonthAnalysis.insights.riskLevel)"
+              class="px-3 py-1 rounded-full text-xs font-medium self-start sm:self-auto">
+              {{ currentMonthAnalysis.insights.riskLevel }} Risk
+            </span>
+          </div>
+
+          <!-- Month Name and Status -->
+          <p class="text-xl sm:text-2xl font-bold text-gray-800 mb-1">{{ currentMonthAnalysis.monthName }}</p>
+          <p class="text-xs sm:text-sm text-gray-600 mb-4">{{ currentMonthAnalysis.status }}</p>
+
+          <!-- Main Metrics Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-4 mb-4" *ngIf="currentMonthAnalysis.data">
+            <!-- Collected Amount -->
+            <div class="bg-green-50 p-3 sm:p-4 rounded-lg">
+              <div class="flex items-center mb-1 sm:mb-2">
+                <fa-icon [icon]="faCoins" class="text-green-600 mr-2 text-sm sm:text-base"></fa-icon>
+                <span class="text-xs sm:text-sm font-medium text-green-700">Collected</span>
+              </div>
+              <p class="text-lg sm:text-xl font-bold text-green-800">{{ currentMonthAnalysis.data.collected }}</p>
+            </div>
+
+            <!-- Collection Rate -->
+            <div [ngClass]="getCollectionRateCardClass(currentMonthAnalysis.data.collection_rate)"
+              class="p-3 sm:p-4 rounded-lg">
+              <div class="flex items-center mb-1 sm:mb-2">
+                <fa-icon [icon]="faPercent"
+                  [ngClass]="getCollectionRateIconClass(currentMonthAnalysis.data.collection_rate)"
+                  class="mr-2 text-sm sm:text-base"></fa-icon>
+                <span class="text-xs sm:text-sm font-medium"
+                  [ngClass]="getCollectionRateTextClass(currentMonthAnalysis.data.collection_rate)">Rate</span>
+              </div>
+              <p class="text-lg sm:text-xl font-bold"
+                [ngClass]="getCollectionRateTextClass(currentMonthAnalysis.data.collection_rate)">
+                {{ currentMonthAnalysis.data.collection_rate }}
+              </p>
+            </div>
+
+            <!-- Contributors -->
+            <div class="bg-blue-50 p-3 sm:p-4 rounded-lg">
+              <div class="flex items-center mb-1 sm:mb-2">
+                <fa-icon [icon]="faUsers" class="text-blue-600 mr-2 text-sm sm:text-base"></fa-icon>
+                <span class="text-xs sm:text-sm font-medium text-blue-700">Contributors</span>
+              </div>
+              <p class="text-lg sm:text-xl font-bold text-blue-800">{{ currentMonthAnalysis.data.contributors }}</p>
+            </div>
+
+            <!-- Days Remaining -->
+            <div class="bg-purple-50 p-3 sm:p-4 rounded-lg">
+              <div class="flex items-center mb-1 sm:mb-2">
+                <fa-icon [icon]="faCalendarAlt" class="text-purple-600 mr-2 text-sm sm:text-base"></fa-icon>
+                <span class="text-xs sm:text-sm font-medium text-purple-700">Days Left</span>
+              </div>
+              <p class="text-lg sm:text-xl font-bold text-purple-800">{{ currentMonthAnalysis.insights.daysRemaining }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="mb-4" *ngIf="currentMonthAnalysis.insights.progressPercentage">
+            <div class="flex justify-between text-xs sm:text-sm text-gray-600 mb-1">
+              <span>Month Progress</span>
+              <span>{{ currentMonthAnalysis.insights.progressPercentage | number:'1.0-0' }}%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
+              <div class="bg-blue-500 h-1.5 sm:h-2 rounded-full transition-all duration-300"
+                [style.width.%]="currentMonthAnalysis.insights.progressPercentage"></div>
+            </div>
+          </div>
+
+          <!-- Key Insights -->
+          <div class="space-y-2 mb-4"
+            *ngIf="currentMonthAnalysis.data && !currentMonthAnalysis.insights.isCompleteMonth">
+            <!-- Projected Collection -->
+            <div class="flex justify-between items-center p-2 sm:p-3 bg-gray-50 rounded-lg">
+              <span class="text-xs sm:text-sm text-gray-600">Projected Collection:</span>
+              <span class="font-semibold text-xs sm:text-sm text-gray-800">KES {{
+                currentMonthAnalysis.insights.projectedCollection |
+                number:'1.0-0' }}</span>
+            </div>
+
+            <!-- Amount Needed -->
+            <div class="flex justify-between items-center p-2 sm:p-3 bg-orange-50 rounded-lg"
+              *ngIf="currentMonthAnalysis.insights.improvementNeeded > 0">
+              <span class="text-xs sm:text-sm text-orange-700">Still Needed:</span>
+              <span class="font-semibold text-xs sm:text-sm text-orange-800">KES {{
+                currentMonthAnalysis.insights.improvementNeeded |
+                number:'1.0-0' }}</span>
+            </div>
+
+            <!-- Daily Target -->
+            <div class="flex justify-between items-center p-2 sm:p-3 bg-blue-50 rounded-lg"
+              *ngIf="currentMonthAnalysis.insights.dailyTargetRemaining && currentMonthAnalysis.insights.dailyTargetRemaining > 0">
+              <span class="text-xs sm:text-sm text-blue-700">Daily Target Needed:</span>
+              <span class="font-semibold text-xs sm:text-sm text-blue-800">KES {{
+                currentMonthAnalysis.insights.dailyTargetRemaining |
+                number:'1.0-0' }}</span>
+            </div>
+          </div>
+
+          <!-- Comparison with Previous Month -->
+          <div class="border-t pt-3 sm:pt-4" *ngIf="currentMonthAnalysis.comparison">
+            <div class="flex items-center justify-between">
+              <span class="text-xs sm:text-sm text-gray-600">vs. {{ currentMonthAnalysis.comparison.previousMonth.name
+                }}:</span>
+              <div class="flex items-center">
+                <fa-icon [icon]="getGrowthIcon(currentMonthAnalysis.comparison.growth.trend)"
+                  [ngClass]="getGrowthIconClass(currentMonthAnalysis.comparison.growth.trend)"
+                  class="mr-1 text-sm sm:text-base"></fa-icon>
+                <span [ngClass]="getGrowthTextClass(currentMonthAnalysis.comparison.growth.trend)"
+                  class="text-xs sm:text-sm font-medium">
+                  {{ currentMonthAnalysis.comparison.growth.percentage | number:'1.1-1' }}%
+                </span>
+              </div>
+            </div>
+
+            <!-- Ranking -->
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-xs sm:text-sm text-gray-600">Month Ranking:</span>
+              <span class="text-xs sm:text-sm font-medium text-gray-800">
+                #{{ currentMonthAnalysis.comparison.ranking.position }} of {{
+                currentMonthAnalysis.comparison.ranking.totalMonths }}
+              </span>
+            </div>
           </div>
         </div>
 
-      </div>
 
-      <!-- Quarterly Performance -->
-      <div class="mb-8">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-          <fa-icon [icon]="faChartBar" class="mr-2"></fa-icon>
-          Quarterly Performance
-        </h2>
+        <!-- Quarterly Performance -->
+        <div class="mb-8">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            <fa-icon [icon]="faChartBar" class="mr-2"></fa-icon>
+            Quarterly Performance
+          </h2>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div *ngFor="let quarterKey of getQuarterKeys()" class="bg-white rounded-lg shadow overflow-hidden">
-            <div
-              class="p-3 bg-gradient-to-br from-white via-blue-50 to-white rounded-2xl shadow-lg border border-blue-100 hover:shadow-xl transition relative overflow-hidden">
-              <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ data.quarters[quarterKey].quarterLabel }}</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div *ngFor="let quarterKey of getQuarterKeys()" class="bg-white rounded-lg shadow overflow-hidden">
+              <div
+                class="p-3 bg-gradient-to-br from-white via-blue-50 to-white rounded-2xl shadow-lg border border-blue-100 hover:shadow-xl transition relative overflow-hidden">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ data.quarters[quarterKey].quarterLabel }}</h3>
 
-              <div class="flex justify-between items-center mb-4">
-                <div>
-                  <p class="text-sm text-gray-500">Collected</p>
-                  <p class="text-xl font-bold text-gray-800">{{ data.quarters[quarterKey].totalCollectedFormatted }}</p>
+                <div class="flex justify-between items-center mb-4">
+                  <div>
+                    <p class="text-sm text-gray-500">Collected</p>
+                    <p class="text-xl font-bold text-gray-800">{{ data.quarters[quarterKey].totalCollectedFormatted }}
+                    </p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-sm text-gray-500">Expected</p>
+                    <p class="text-xl font-bold text-gray-800">{{ data.quarters[quarterKey].totalExpectedFormatted }}
+                    </p>
+                  </div>
                 </div>
-                <div class="text-right">
-                  <p class="text-sm text-gray-500">Expected</p>
-                  <p class="text-xl font-bold text-gray-800">{{ data.quarters[quarterKey].totalExpectedFormatted }}</p>
-                </div>
-              </div>
 
-              <div class="mb-4">
-                <p class="text-sm text-gray-500">Collection Rate</p>
-                <p class="text-lg font-semibold">{{ data.quarters[quarterKey].averageCollectionRate }}%</p>
-                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-                  <div class="bg-blue-600 h-2.5 rounded-full"
-                    [style.width.%]="data.quarters[quarterKey].averageCollectionRate"></div>
+                <div class="mb-4">
+                  <p class="text-sm text-gray-500">Collection Rate</p>
+                  <p class="text-lg font-semibold">{{ data.quarters[quarterKey].averageCollectionRate }}%</p>
+                  <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                    <div class="bg-blue-600 h-2.5 rounded-full"
+                      [style.width.%]="data.quarters[quarterKey].averageCollectionRate"></div>
+                  </div>
                 </div>
-              </div>
 
-              <div class="flex justify-between">
-                <div>
-                  <p class="text-sm text-gray-500">Best Month</p>
-                  <p class="font-medium">{{ data.quarters[quarterKey].bestMonth.monthName }}</p>
-                </div>
-                <div>
-                  <p class="text-sm text-gray-500">Performance</p>
-                  <span class="px-2 py-1 rounded-full text-xs font-medium"
-                    [ngClass]="getPerformanceClass(data.quarters[quarterKey].quarterPerformance)">
-                    {{ data.quarters[quarterKey].quarterPerformance }}
-                  </span>
+                <div class="flex justify-between">
+                  <div>
+                    <p class="text-sm text-gray-500">Best Month</p>
+                    <p class="font-medium">{{ data.quarters[quarterKey].bestMonth.monthName }}</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Performance</p>
+                    <span class="px-2 py-1 rounded-full text-xs font-medium"
+                      [ngClass]="getPerformanceClass(data.quarters[quarterKey].quarterPerformance)">
+                      {{ data.quarters[quarterKey].quarterPerformance }}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Monthly Trend -->
-      <div class="mb-8">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-          <fa-icon [icon]="faChartLine" class="mr-2"></fa-icon>
-          Monthly Trend
-        </h2>
+        <!-- Insights -->
+        <div class="mb-8 mt-2">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            <fa-icon [icon]="faShieldAlt" class="mr-2"></fa-icon>
+            Key Insights
+          </h2>
 
-        <div class="bg-white rounded-lg shadow p-6">
+          <div class="bg-white rounded-lg shadow p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Trend Direction -->
+              <div class="border-l-4 border-blue-500 pl-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Trend Direction</h3>
+                <div class="flex items-center">
+                  <fa-icon [icon]="data.insights.trendDirection === 'Better' ? faArrowUp : faArrowDown"
+                    [ngClass]="{'text-green-500': data.insights.trendDirection === 'Better', 'text-red-500': data.insights.trendDirection !== 'Better'}"
+                    class="mr-2 text-xl"></fa-icon>
+                  <p class="text-gray-700">{{ data.insights.trendDirection }}</p>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">Compared to previous periods</p>
+              </div>
+
+              <!-- Consistency -->
+              <div class="border-l-4 border-purple-500 pl-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Consistency Score</h3>
+                <p class="text-2xl font-bold text-gray-800">{{ data.insights.consistencyScore }}%</p>
+                <p class="text-sm text-gray-500">{{ data.insights.consistencyDetails.inconsistentMonths.count }}
+                  inconsistent months</p>
+              </div>
+
+              <!-- Best Quarter -->
+              <div class="border-l-4 border-green-500 pl-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Best Quarter</h3>
+                <div *ngIf="data?.insights.bestQuarter; else noQuarterData">
+                  <p class="text-lg font-bold text-gray-800">{{ data.insights.bestQuarter.quarterLabel }}</p>
+                  <p class="text-sm text-gray-500">Collected {{ data.insights.bestQuarter.totalCollectedFormatted }}
+                  </p>
+                </div>
+                <ng-template #noQuarterData>
+                  <p class="text-gray-500">No quarter data available</p>
+                </ng-template>
+              </div>
+
+              <!-- Worst Quarter -->
+              <div class="border-l-4 border-red-500 pl-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Worst Quarter</h3>
+                <div *ngIf="data?.insights.worstQuarter; else noWorstQuarterData">
+                  <p class="text-lg font-bold text-gray-800">{{ data.insights.worstQuarter.quarterLabel }}</p>
+                  <p class="text-sm text-gray-500">Collected {{ data.insights.worstQuarter.totalCollectedFormatted }}
+                  </p>
+                </div>
+                <ng-template #noWorstQuarterData>
+                  <p class="text-gray-500">No quarter data available</p>
+                </ng-template>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+
+
+          <!-- Monthly Trend -->
+          <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
+            <fa-icon [icon]="faChartLine" class="mr-2 text-sm sm:text-base"></fa-icon>
+            Monthly Trend
+          </h2>
+
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expected
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Collected
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Month</th>
+                  <th scope="col"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Expected</th>
+                  <th scope="col"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Collected</th>
+                  <th scope="col"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Rate</th>
+                  <th scope="col"
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Contributors</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performance
-                  </th>
+                  <th scope="col"
+                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Performance</th>
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-                <tr *ngFor="let month of data.monthly">
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ month.monthName }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ month.expected }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ month.collected }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ month.collection_rate }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ month.contributors }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap">
+                <tr *ngFor="let month of data?.monthly" class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {{ month.monthName }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {{ month.expected }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {{ month.collected }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {{ month.collection_rate }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {{ month.contributors }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     <span class="px-2 py-1 rounded-full text-xs font-medium"
                       [ngClass]="getPerformanceClass(month.performance)">
                       {{ month.performance }}
@@ -345,103 +464,80 @@
                   </td>
                 </tr>
               </tbody>
+
+
             </table>
+
           </div>
+
+          <!-- No monthly data fallback -->
+          <ng-template #noMonthlyData>
+            <div class="text-center py-8 sm:py-12">
+              <fa-icon [icon]="faChartLine" class="text-gray-300 text-3xl sm:text-4xl mb-3 sm:mb-4"></fa-icon>
+              <p class="text-gray-500 text-base sm:text-lg font-medium">No monthly data available</p>
+              <p class="text-gray-400 text-xs sm:text-sm mt-1 sm:mt-2">Monthly trends will appear once contribution data
+                is recorded</p>
+            </div>
+          </ng-template>
+
         </div>
-      </div>
 
-      <!-- Insights -->
-      <div class="mb-8">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-          <fa-icon [icon]="faShieldAlt" class="mr-2"></fa-icon>
-          Key Insights
-        </h2>
+        <!-- All-Time Summary Card -->
+        <div
+          class="p-6 mb-3 bg-gradient-to-br from-white via-amber-50 to-white p-6 rounded-2xl shadow-lg border border-amber-100 hover:shadow-xl transition relative overflow-hidden">
+          <div class="flex items-center mb-4">
+            <fa-icon [icon]="faChartLine" class="text-purple-500 mr-3 text-xl"></fa-icon>
+            <h3 class="text-lg font-semibold text-gray-700">All-Time Summary</h3>
+          </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Trend Direction -->
-            <div class="border-l-4 border-blue-500 pl-4">
-              <h3 class="text-lg font-semibold text-gray-800 mb-2">Trend Direction</h3>
-              <div class="flex items-center">
-                <fa-icon [icon]="data.insights.trendDirection === 'Better' ? faArrowUp : faArrowDown"
-                  [ngClass]="{'text-green-500': data.insights.trendDirection === 'Better', 'text-red-500': data.insights.trendDirection !== 'Better'}"
-                  class="mr-2 text-xl"></fa-icon>
-                <p class="text-gray-700">{{ data.insights.trendDirection }}</p>
+          <div class="grid grid-cols-2 gap-4 mb-3">
+            <div>
+              <p class="text-sm text-gray-500">Total Collected</p>
+              <p class="text-xl font-bold text-gray-800">{{ data.summary.allTimeSummary.totalCollectedFormatted }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Total Expected</p>
+              <p class="text-xl font-bold text-gray-800">{{ data.summary.allTimeSummary.totalExpectedFormatted }}</p>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <p class="text-sm text-gray-500">Collection Rate</p>
+            <div class="flex items-center">
+              <p class="text-lg font-semibold mr-2">{{ data.summary.allTimeSummary.collectionRate }}%</p>
+              <fa-icon [icon]="data.summary.allTimeSummary.performance === 'Excellent' ? faArrowUp : faArrowDown"
+                [ngClass]="{
+           'text-green-500': data.summary.allTimeSummary.performance === 'Excellent',
+           'text-red-500': data.summary.allTimeSummary.performance !== 'Excellent'
+           }">
+              </fa-icon>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+              <div class="h-2.5 rounded-full"
+                [ngClass]="getPerformanceClass(data.summary.allTimeSummary.performance || '')"
+                [style.width.%]="data.summary.allTimeSummary.collectionRate">
               </div>
-              <p class="text-sm text-gray-500 mt-2">Compared to previous periods</p>
-            </div>
-
-            <!-- Consistency -->
-            <div class="border-l-4 border-purple-500 pl-4">
-              <h3 class="text-lg font-semibold text-gray-800 mb-2">Consistency Score</h3>
-              <p class="text-2xl font-bold text-gray-800">{{ data.insights.consistencyScore }}%</p>
-              <p class="text-sm text-gray-500">{{ data.insights.consistencyDetails.inconsistentMonths.count }}
-                inconsistent months</p>
-            </div>
-
-            <!-- Best Quarter -->
-            <div class="border-l-4 border-green-500 pl-4">
-              <h3 class="text-lg font-semibold text-gray-800 mb-2">Best Quarter</h3>
-              <p class="text-lg font-bold text-gray-800">{{ data.insights.bestQuarter.quarterLabel }}</p>
-              <p class="text-sm text-gray-500">Collected {{ data.insights.bestQuarter.totalCollectedFormatted }}</p>
-            </div>
-
-            <!-- Worst Quarter -->
-            <div class="border-l-4 border-red-500 pl-4">
-              <h3 class="text-lg font-semibold text-gray-800 mb-2">Worst Quarter</h3>
-              <p class="text-lg font-bold text-gray-800">{{ data.insights.worstQuarter.quarterLabel }}</p>
-              <p class="text-sm text-gray-500">Collected {{ data.insights.worstQuarter.totalCollectedFormatted }}</p>
             </div>
           </div>
+
+          <div class="text-center">
+            <span class="px-2 py-1 rounded-full text-xs font-medium"
+              [ngClass]="getPerformanceClass(data.summary.allTimeSummary.performance || '')">
+              {{ data.summary.allTimeSummary.performance }} Performance
+            </span>
+          </div>
         </div>
+
       </div>
 
-      <!-- All-Time Summary Card -->
-      <div
-        class="p-6 mb-3 bg-gradient-to-br from-white via-amber-50 to-white p-6 rounded-2xl shadow-lg border border-amber-100 hover:shadow-xl transition relative overflow-hidden">
-        <div class="flex items-center mb-4">
-          <fa-icon [icon]="faChartLine" class="text-purple-500 mr-3 text-xl"></fa-icon>
-          <h3 class="text-lg font-semibold text-gray-700">All-Time Summary</h3>
-        </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-3">
-          <div>
-            <p class="text-sm text-gray-500">Total Collected</p>
-            <p class="text-xl font-bold text-gray-800">{{ data.summary.allTimeSummary.totalCollectedFormatted }}</p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-500">Total Expected</p>
-            <p class="text-xl font-bold text-gray-800">{{ data.summary.allTimeSummary.totalExpectedFormatted }}</p>
-          </div>
-        </div>
 
-        <div class="mb-4">
-          <p class="text-sm text-gray-500">Collection Rate</p>
-          <div class="flex items-center">
-            <p class="text-lg font-semibold mr-2">{{ data.summary.allTimeSummary.collectionRate }}%</p>
-            <fa-icon [icon]="data.summary.allTimeSummary.performance === 'Excellent' ? faArrowUp : faArrowDown"
-              [ngClass]="{
-          'text-green-500': data.summary.allTimeSummary.performance === 'Excellent',
-          'text-red-500': data.summary.allTimeSummary.performance !== 'Excellent'
-        }">
-            </fa-icon>
-          </div>
-          <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-            <div class="h-2.5 rounded-full"
-              [ngClass]="getPerformanceClass(data.summary.allTimeSummary.performance || '')"
-              [style.width.%]="data.summary.allTimeSummary.collectionRate">
-            </div>
-          </div>
-        </div>
-
-        <div class="text-center">
-          <span class="px-2 py-1 rounded-full text-xs font-medium"
-            [ngClass]="getPerformanceClass(data.summary.allTimeSummary.performance || '')">
-            {{ data.summary.allTimeSummary.performance }} Performance
-          </span>
-        </div>
-      </div>
 
     </div>
+
+
   </div>
+
+
+
 </div>

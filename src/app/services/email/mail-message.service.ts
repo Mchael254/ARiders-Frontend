@@ -10,7 +10,7 @@ import { environment } from 'src/environments/environment.development';
 })
 export class MailMessageService {
 
-  baseUrl = environment.apiUrl
+  baseUrl = environment.localUrl
 
   constructor(private http: HttpClient) { }
   

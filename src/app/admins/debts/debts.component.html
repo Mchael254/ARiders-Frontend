@@ -5,41 +5,45 @@
             <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4">Report Period</h2>
                 <div class="flex flex-col sm:flex-row gap-4 sm:items-end">
-                    <!-- Report Date -->
+                    <!-- Start Date -->
                     <div class="flex-1 min-w-0">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Report Date</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
                         <div class="relative rounded-md shadow-sm">
-                            <input type="date" [(ngModel)]="reportDate" (change)="updateReport()"
+                            <input type="date" [(ngModel)]="dateRange.start" (change)="onDateRangeChange()"
                                 class="block w-full rounded-md border-gray-300 pl-3 pr-10 py-2 text-base focus:border-amber-500 focus:ring-amber-500">
                         </div>
                     </div>
 
-                    <!-- Look Back Months -->
+                    <!-- End Date -->
                     <div class="flex-1 min-w-0">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Look Back Months</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
                         <div class="relative rounded-md shadow-sm">
-                            <input type="number" min="1" [(ngModel)]="lookBackMonths" (change)="updateReport()"
+                            <input type="date" [(ngModel)]="dateRange.end" (change)="onDateRangeChange()"
                                 class="block w-full rounded-md border-gray-300 pl-3 pr-10 py-2 text-base focus:border-amber-500 focus:ring-amber-500">
-                            <div
-                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-500">
-                                <span class="text-sm">months</span>
-                            </div>
                         </div>
                     </div>
 
-                    <!-- Update Button -->
-                    <button (click)="updateReport()"
+                    <!-- Update Button (optional since we auto-update on change) -->
+                    <button (click)="fetchDebtSummary()"
                         class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200">
-                        Update Report
+                        Refresh Data
                     </button>
                 </div>
 
                 <!-- Reporting Period Display -->
-                <div class="mt-4 pt-3 border-t border-gray-200">
-                    <p class="text-sm text-gray-600">
-                        <span class="font-medium">Reporting Period:</span>
-                        <span class="text-gray-900">{{ reportPeriod.start }}</span> to
-                        <span class="text-gray-900">{{ reportPeriod.end }}</span>
+                <div class="mt-4 pt-3 border-t border-gray-200 px-4 sm:px-0">
+                    <p class="text-xs sm:text-sm text-gray-600 flex flex-col xs:flex-row gap-1 xs:gap-2 items-baseline">
+                        <span class="font-medium whitespace-nowrap">Reporting Period:</span>
+                        <span class="flex items-baseline gap-1 xs:gap-2">
+                            <span class="text-gray-900 text-base sm:text-lg lg:text-xl font-semibold whitespace-nowrap">
+                                {{ dateRange.start | date:'mediumDate' }}
+                            </span>
+                            <span class="hidden xs:inline">to</span>
+                            <span class="xs:hidden">→</span>
+                            <span class="text-gray-900 text-base sm:text-lg lg:text-xl font-semibold whitespace-nowrap">
+                                {{ dateRange.end | date:'mediumDate' }}
+                            </span>
+                        </span>
                     </p>
                 </div>
             </div>
@@ -62,7 +66,8 @@
                     </div>
                     <div class="ml-3">
                         <p class="text-sm text-red-700">{{ error }}</p>
-                        <button (click)="updateReport()"
+                        <button (click)="onDateRangeChange()">
+                            ()"
                             class="mt-2 text-sm font-medium text-red-700 hover:text-red-600">
                             <span aria-hidden="true">↻</span> Retry
                         </button>
@@ -75,7 +80,8 @@
                 <!-- Performance Overview Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <!-- Collection Rate -->
-                    <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-blue-500">
+                    <div
+                        class="bg-gradient-to-br from-white via-indigo-50 to-white rounded-xl shadow-sm p-5 border-l-4 border-blue-500">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-blue-100 p-2 rounded-lg">
                                 <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor"
@@ -86,7 +92,8 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500">Collection Rate</h3>
-                                <p class="text-2xl font-semibold text-gray-900">{{ collectionRate | number:'1.1-1' }}%
+                                <p class="text-2xl font-semibold text-gray-900">{{ formatPercentage(collectionRate /
+                                    100) }}
                                 </p>
                             </div>
                         </div>
@@ -95,14 +102,16 @@
                                 <div class="bg-blue-600 h-2 rounded-full" [style.width]="collectionRate + '%'"></div>
                             </div>
                             <p class="text-xs text-gray-500 mt-2">
-                                {{ formatCurrency(totalActualRevenue) }} collected of {{
+                                {{ formatCurrency(totalExpectedRevenue - (totalExpectedRevenue * (1 -
+                                collectionRate/100))) }} collected of {{
                                 formatCurrency(totalExpectedRevenue) }} expected
                             </p>
                         </div>
                     </div>
 
                     <!-- Total Debt -->
-                    <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-red-500">
+                    <div
+                        class="bg-gradient-to-br from-white via-blue-50 to-white rounded-xl shadow-sm p-5 border-l-4 border-red-500">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-red-100 p-2 rounded-lg">
                                 <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,17 +121,18 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500">Total Debt</h3>
-                                <p class="text-2xl font-semibold text-gray-900">{{
-                                    formatCurrency(analysis.debt_segmentation.total_debt) }}</p>
+                                <p class="text-2xl font-semibold text-gray-900">{{ formatCurrency(totalExpectedRevenue)
+                                    }}</p>
                             </div>
                         </div>
                         <p class="text-xs text-gray-500 mt-4">
-                            {{ analysis.debt_segmentation.member_count }} members analyzed
+                            {{ memberCount }} members analyzed
                         </p>
                     </div>
 
-                    <!-- Severe Debt -->
-                    <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-orange-500">
+                    <!-- Average Debt -->
+                    <div
+                        class="bg-gradient-to-br from-white via-purple-50 to-white rounded-xl shadow-sm p-5 border-l-4 border-orange-500">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-orange-100 p-2 rounded-lg">
                                 <svg class="h-6 w-6 text-orange-600" fill="none" stroke="currentColor"
@@ -132,18 +142,18 @@
                                 </svg>
                             </div>
                             <div class="ml-4">
-                                <h3 class="text-sm font-medium text-gray-500">Severe Debt</h3>
-                                <p class="text-2xl font-semibold text-gray-900">{{
-                                    analysis.debt_segmentation.severe_debt.count }}</p>
+                                <h3 class="text-sm font-medium text-gray-500">Average Debt</h3>
+                                <p class="text-2xl font-semibold text-gray-900">{{ formatCurrency(averageDebt) }}</p>
                             </div>
                         </div>
                         <p class="text-xs text-gray-500 mt-4">
-                            {{ formatCurrency(analysis.debt_segmentation.severe_debt.total) }} total
+                            Per member average
                         </p>
                     </div>
 
                     <!-- Current Month -->
-                    <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-green-500">
+                    <div
+                        class="bg-gradient-to-br from-white via-green-50 to-white rounded-xl shadow-sm p-5 border-l-4 border-green-500">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-green-100 p-2 rounded-lg">
                                 <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor"
@@ -154,7 +164,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-sm font-medium text-gray-500">Current Month</h3>
-                                <p class="text-2xl font-semibold text-gray-900">{{ currentMonthDebtors.length }}</p>
+                                <p class="text-2xl font-semibold text-gray-900">{{ filteredDebtors.length }}</p>
                             </div>
                         </div>
                         <p class="text-xs text-gray-500 mt-4">
@@ -166,44 +176,47 @@
                 <!-- Risk Analysis Section -->
                 <div class="bg-white rounded-xl shadow-sm overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold text-gray-900">Risk Analysis</h2>
-                        <p class="text-sm text-gray-500 mt-1">Member segmentation by payment risk level</p>
+                        <h2 class="text-lg font-semibold text-gray-900">Payment Status Analysis</h2>
+                        <p class="text-sm text-gray-500 mt-1">Member segmentation by payment status</p>
                     </div>
                     <div class="p-6">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div *ngFor="let risk of ['high_risk', 'medium_risk', 'low_risk', 'current']"
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div *ngFor="let status of paymentStatusOptions"
                                 class="border rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
-                                [class.border-red-200]="risk === 'high_risk'"
-                                [class.border-orange-200]="risk === 'medium_risk'"
-                                [class.border-yellow-200]="risk === 'low_risk'"
-                                [class.border-green-200]="risk === 'current'">
+                                [class.border-red-200]="status.severity === 'danger'"
+                                [class.border-yellow-200]="status.severity === 'warning'"
+                                [class.border-green-200]="status.severity === 'success'"
+                                [class.bg-gradient-to-br]="true" [class.from-white]="true" [class.to-white]="true"
+                                [class.via-red-50]="status.severity === 'danger'"
+                                [class.via-yellow-50]="status.severity === 'warning'"
+                                [class.via-green-50]="status.severity === 'success'">
+
                                 <div class="flex items-center justify-between">
-                                    <h3 class="text-sm font-medium text-gray-700 capitalize">{{ risk.replace('_', ' ')
-                                        }}</h3>
+                                    <h3 class="text-sm font-medium text-gray-700">{{ status.label }}</h3>
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                                        [class.bg-red-100]="risk === 'high_risk'"
-                                        [class.bg-orange-100]="risk === 'medium_risk'"
-                                        [class.bg-yellow-100]="risk === 'low_risk'"
-                                        [class.bg-green-100]="risk === 'current'"
-                                        [class.text-red-800]="risk === 'high_risk'"
-                                        [class.text-orange-800]="risk === 'medium_risk'"
-                                        [class.text-yellow-800]="risk === 'low_risk'"
-                                        [class.text-green-800]="risk === 'current'">
-                                        {{ membersByRiskLevel[risk].length || 0 }}
+                                        [class.bg-red-100]="status.severity === 'danger'"
+                                        [class.bg-yellow-100]="status.severity === 'warning'"
+                                        [class.bg-green-100]="status.severity === 'success'"
+                                        [class.text-red-800]="status.severity === 'danger'"
+                                        [class.text-yellow-800]="status.severity === 'warning'"
+                                        [class.text-green-800]="status.severity === 'success'">
+                                        {{ membersByPaymentStatus[status.value].length || 0 }}
                                     </span>
                                 </div>
+
                                 <p class="text-2xl font-bold mt-2 text-gray-900">
-                                    {{ membersByRiskLevel[risk].length || 0 }}
+                                    {{ membersByPaymentStatus[status.value].length || 0 }}
                                 </p>
+
                                 <div class="mt-3 space-y-1">
-                                    <div *ngFor="let member of membersByRiskLevel[risk]?.slice(0, 3)"
+                                    <div *ngFor="let member of membersByPaymentStatus[status.value]?.slice(0, 3)"
                                         class="text-sm text-gray-600 truncate">
                                         {{ member.first_name }} {{ member.last_name }}
                                     </div>
-                                    <p *ngIf="(membersByRiskLevel[risk]?.length || 0) > 3"
+                                    <p *ngIf="(membersByPaymentStatus[status.value]?.length || 0) > 3"
                                         class="text-xs text-gray-500 mt-1">
-                                        +{{ (membersByRiskLevel[risk].length || 0) - 3 }} more
+                                        +{{ (membersByPaymentStatus[status.value].length || 0) - 3 }} more
                                     </p>
                                 </div>
                             </div>
@@ -220,14 +233,17 @@
                                 </h2>
                                 <p class="text-sm text-gray-500 mt-1">Detailed view of current month debtors</p>
                             </div>
-                            <button (click)="exportFilteredDebtorsToPDF()"
-                                class="mt-3 sm:mt-0 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200">
-                                <svg class="-ml-0.5 mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                </svg>
-                                Export
-                            </button>
+                            <div class="flex gap-2 mt-3 sm:mt-0">
+                                <button (click)="exportFilteredDebtorsToPDF()"
+                                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200">
+                                    <svg class="-ml-0.5 mr-2 h-4 w-4" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    Export PDF
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -250,7 +266,13 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
-                                Outstanding: {{ formatCurrency(currentMonthDebtTotal) }}
+                                Outstanding:{{ formatCurrency(currentMonthDebtTotal) }} {{currentMonthPaidTotal}}
+                            </div>
+                            <div
+                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-black">
+                                <i class="pi pi-wallet text-blue-500 mr-2"></i>
+                                <span class="font-medium">Total Paid: {{currentMonthPaidTotal}}</span>
+
                             </div>
                             <div
                                 class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
@@ -259,7 +281,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                                 </svg>
-                                {{ currentMonthDebtors.length }} Debtors
+                                {{ filteredDebtors.length }} Debtors
                             </div>
                         </div>
                     </div>
@@ -285,7 +307,6 @@
                             </div>
                         </div>
                     </div>
-
 
                     <!-- Debtors Table -->
                     <div class="overflow-x-auto">
@@ -364,14 +385,6 @@
                                                         d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
                                             </button>
-                                            <button class="text-blue-600 hover:text-blue-900">
-                                                <svg class="h-5 w-5" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                                </svg>
-                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -385,7 +398,7 @@
                     </div>
 
                     <!-- Pagination -->
-                    <div class="flex flex-col m-2 p-2 sm:flex-row sm:items-center sm:justify-between gap-2 w-full ">
+                    <div class="flex flex-col m-2 p-2 sm:flex-row sm:items-center sm:justify-between gap-2 w-full">
                         <!-- Pagination Info -->
                         <div class="text-center sm:text-left">
                             <p class="text-sm text-gray-700">
@@ -410,11 +423,10 @@
                                     </svg>
                                 </button>
 
-                                <button *ngFor="let page of [].constructor(totalPages); let i = index"
-                                    (click)="goToPage(i + 1)"
+                                <button *ngFor="let page of getPages()" (click)="goToPage(page)"
                                     class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium hover:bg-gray-50"
-                                    [ngClass]="{'text-amber-600 font-semibold bg-amber-50': currentPage === (i + 1)}">
-                                    {{ i + 1 }}
+                                    [ngClass]="{'text-amber-600 font-semibold bg-amber-50': currentPage === page}">
+                                    {{ page }}
                                 </button>
 
                                 <button (click)="nextPage()"
@@ -430,10 +442,62 @@
                             </nav>
                         </div>
                     </div>
-
                 </div>
+
+                <!-- Monthly Trends Section -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden mt-6 mx-4 sm:mx-0">
+                    <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg sm:text-xl font-semibold text-gray-900">Monthly Collection Trends</h2>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-1">Historical payment performance over time</p>
+                    </div>
+                    <div class="p-4 sm:p-6">
+                        <!-- Chart Container - Responsive height -->
+                        <div class="h-60 xs:h-72 sm:h-80">
+                            <canvas baseChart [type]="'line'" [data]="chartData" [options]="chartOptions"
+                                [plugins]="chartPlugins" [legend]="true">
+                            </canvas>
+                        </div>
+
+                        <!-- Trend Summary - Improved responsive grid -->
+                        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                            <div *ngFor="let trend of monthlyTrends | slice: 0:3"
+                                class="bg-gradient-to-br from-white via-blue-50 to-white rounded-xl sm:rounded-2xl shadow-sm sm:shadow-md border border-gray-200 hover:shadow-md sm:hover:shadow-lg transition p-4 sm:p-6">
+                                <!-- Month Header -->
+                                <h3
+                                    class="text-lg sm:text-xl font-semibold text-blue-900 flex items-center gap-2 mb-3 sm:mb-4">
+                                    <i class="pi pi-calendar text-blue-600 text-sm sm:text-base"></i>
+                                    {{ formatMonth(trend.month) }}
+                                </h3>
+
+                                <!-- Stat Rows - Improved mobile spacing -->
+                                <div class="space-y-1.5 sm:space-y-2 text-gray-700 text-xs sm:text-sm">
+                                    <div class="flex items-center gap-2">
+                                        <i class="pi pi-wallet text-green-600 text-xs sm:text-sm"></i>
+                                        <span class="font-medium">Expected:</span>
+                                        <span class="ml-auto">{{ formatCurrency(trend.total_expected) }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <i class="pi pi-wallet text-blue-500 text-xs sm:text-sm"></i>
+                                        <span class="font-medium">Paid:</span>
+                                        <span class="ml-auto">{{ formatCurrency(trend.total_paid) }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <i class="pi pi-chart-line text-purple-600 text-xs sm:text-sm"></i>
+                                        <span class="font-medium">Collection Rate:</span>
+                                        <span class="ml-auto">{{ formatPercentage(trend.collection_rate / 100) }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <i class="pi pi-users text-orange-500 text-xs sm:text-sm"></i>
+                                        <span class="font-medium">Members:</span>
+                                        <span class="ml-auto">{{ trend.member_count }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
-
 </div>

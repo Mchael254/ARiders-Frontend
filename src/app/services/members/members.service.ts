@@ -8,7 +8,7 @@ import { environment } from 'src/environments/environment.development';
   providedIn: 'root'
 })
 export class MembersService {
-  private baseApiUrl = `${environment.apiUrl}/api/members`;
+  private baseApiUrl = `${environment.localUrl}/api/members`;
 
   constructor(private http: HttpClient) { }
 

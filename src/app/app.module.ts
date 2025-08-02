@@ -65,6 +65,8 @@ import { ToastrModule } from 'ngx-toastr';
 import { PasswordModule } from 'primeng/password';
 import { AccordionModule } from 'primeng/accordion';
 import { MembershippComponent } from './membershipp/membershipp.component';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { environment } from 'src/environments/environment.development';
 
 
 
@@ -141,9 +143,8 @@ import { MembershippComponent } from './membershipp/membershipp.component';
       preventDuplicates: true,
     }),
     EffectsModule.forRoot([AuthEffects]),
-    StoreModule.forRoot(reducers, { metaReducers },
-
-    ),
+    StoreModule.forRoot(reducers, { metaReducers },),
+    StoreDevtoolsModule.instrument({maxAge:25, logOnly:environment.production})
 
   ],
   providers: [

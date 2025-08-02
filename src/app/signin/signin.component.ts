@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ResponsesService } from '../services/utilities/responses.service';
 import { Router } from '@angular/router';
 import { combineLatest, filter } from 'rxjs';
 import { Store } from '@ngrx/store';
@@ -9,6 +8,8 @@ import * as AuthActions from '../store/auth/auth.actions';
 import { ToastrService } from 'ngx-toastr';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { AuthService } from '../services/auth/auth.service';
+import { getRedirectPath } from '../guards/auth/auth.guard';
+
 
 @Component({
   selector: 'app-signin',
@@ -48,20 +49,13 @@ export class SigninComponent {
       this.store.select(selectAuthRole),
       this.store.select(selectAuthError)
     ])
-      .pipe(filter(([auth, role, error]) => auth || !!error))
+      .pipe(filter(([auth, error]) => auth || !!error))
       .subscribe(([authenticated, role, error]) => {
         this.loadingLine = false;
-
-        if (authenticated) {
-          if (role === 'admin') {
-            this.router.navigate(['/admin']);
-          } else if (role === 'member') {
-            this.router.navigate(['/dashboard']);
-          } else {
-            this.router.navigate(['/home']);
-          }
+        if (authenticated && role) {
+          const redirectPath = getRedirectPath(role);
+          this.router.navigate([redirectPath]);
         }
-
         if (error) {
           this.toastr.error(error);
         }

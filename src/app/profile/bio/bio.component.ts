@@ -77,6 +77,7 @@ export class BioComponent implements OnInit {
           this.originalProfile = profile;
           this.profileId = profile.user?.id || null;
           this.email = profile.user?.email || null;
+          
 
           this.basicForm = this.fb.group({
             first_name: [profile.user?.first_name || ''],
@@ -215,7 +216,7 @@ export class BioComponent implements OnInit {
 
     const uniqueNumbers = new Set(numbers);
     if (uniqueNumbers.size !== numbers.length) {
-      this.response.showWarning("You cannot use the same number in more than one field.");
+      this.toastr.error("You cannot use the same number in more than one field.")
       return;
     }
 

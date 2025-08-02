@@ -42,21 +42,28 @@ export class AuthService {
 
         const userId = response.data?.user?.id;
         if (!userId) {
-          throw new Error('Login succeeded but user ID missing.');
+          throw new Error('Login succeeded but user ID is missing.');
         }
 
+        // Fetch extended profile using your RPC
         return from(
-          this.supabase.from('members').select('*').eq('id', userId).single()
+          this.supabase.rpc('get_user_profile', { p_user_id: userId })
         ).pipe(
           map(profileRes => {
             if (profileRes.error) {
               throw profileRes.error;
             }
 
+            const member = profileRes.data.member;
+            const role = profileRes.data.role?.name || null;
+
             return {
               session: response.data.session,
               user: response.data.user,
-              profile: profileRes.data,
+              profile: {
+                ...member,
+                role // inject role directly for compatibility
+              },
               error: null
             };
           })
@@ -64,6 +71,7 @@ export class AuthService {
       })
     );
   }
+
 
   logout() {
     return from(this.supabase.auth.signOut());

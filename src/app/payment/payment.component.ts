@@ -1,11 +1,13 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Observable, Subject, Subscription, takeUntil } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 import { ResponsesService } from 'src/app/services/utilities/responses.service';
 import { SocketService } from 'src/app/services/utilities/socket.service';
 import { PaymentService } from 'src/app/services/payment/payment.service';
 import { ToastrService } from 'ngx-toastr';
+import { AuthState } from '../store/auth/auth.reducer';
+import { select, Store } from '@ngrx/store';
 
 @Component({
   selector: 'app-payment',
@@ -13,6 +15,7 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./payment.component.css']
 })
 export class PaymentComponent implements OnInit, OnDestroy {
+  profile$: Observable<AuthState>;
   paymentForm: FormGroup;
   displayConfirmDialog = false;
   currentStatus: string | null = null;
@@ -22,10 +25,12 @@ export class PaymentComponent implements OnInit, OnDestroy {
   private socketSub: Subscription | null = null;
   @Input() visible: boolean = false;
   @Output() visibleChange = new EventEmitter<boolean>();
+  memberId = '';
+  private destroy$ = new Subject<void>();
 
   onDialogClose() {
     this.visibleChange.emit(false);
-    this.clearTransactionDetails(); 
+    this.clearTransactionDetails();
   }
 
   constructor(
@@ -33,8 +38,10 @@ export class PaymentComponent implements OnInit, OnDestroy {
     private response: ResponsesService,
     private socketService: SocketService,
     private paymentService: PaymentService,
-    private toastr:ToastrService
+    private toastr: ToastrService,
+    private store: Store<{ auth: AuthState }>,
   ) {
+    this.profile$ = this.store.pipe(select('auth'));
     this.paymentForm = this.fb.group({
       phoneNumber: ['', [Validators.required, Validators.pattern(/^(07|01)\d{8}$/)]],
       amount: [null, [Validators.required, Validators.min(1)]],
@@ -42,6 +49,15 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.profile$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((profile) => {
+        if (profile) {
+          this.memberId = profile.user?.id || '';
+          
+        }
+      });
+      
     this.socketSub = this.socketService.onMessage().subscribe((data: any) => {
       console.log('📨 Socket message received:', data);
 
@@ -122,7 +138,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
     const payload = {
       phone: this.getFormattedInputPhone(),
       amount: this.paymentForm.value.amount,
-      Order_ID: orderId
+      Order_ID: orderId,
+      memberId:this.memberId,
     };
 
     console.log('🚀 Initiating payment with payload:', payload);

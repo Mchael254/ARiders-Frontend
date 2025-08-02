@@ -20,6 +20,7 @@ interface MonthlyReport {
   is_overdue: boolean;
   formatted_amount_paid: string;
   formatted_expected_amount: string;
+  month:string;
 }
 
 interface MemberInfo {
@@ -69,16 +70,15 @@ export class MemberdebtComponent implements OnInit, OnChanges {
 
   isLoading = true;
   error: string | null = null;
-  data: MemberDebtData | null = null
-  lookBackOptions = [1, 3, 6, 12, 24]
-  filterForm: FormGroup;
+  data: MemberDebtData | null = null;
 
-  constructor(private debtService: DebtService, private fb: FormBuilder, private store: Store<{ auth: AuthState }>) {
-    this.filterForm = this.fb.group({
-      lookBackMonths: [6, [Validators.required, Validators.min(1), Validators.max(60)]],
-      reportDate: [new Date().toISOString().split('T')[0]] // Today's date in YYYY-MM-DD format
-    });
-  }
+  // Removed lookBackOptions since we don't need them anymore
+  // Removed filterForm since we don't need date filters
+
+  constructor(
+    private debtService: DebtService,
+    private store: Store<{ auth: AuthState }>
+  ) { }
 
   ngOnInit(): void {
     if (this.memberId) {
@@ -102,12 +102,8 @@ export class MemberdebtComponent implements OnInit, OnChanges {
     this.isLoading = true;
     this.error = null;
 
-    // Extract parameters from filter form
-    const lookBackMonths = this.filterForm.get('lookBackMonths')?.value || 6; // Default to 6 months
-    const reportDate = this.filterForm.get('reportDate')?.value || new Date().toISOString().split('T')[0]; // Default to today
-
-    // API call with correct parameters
-    this.debtService.getMemberDebtSummary(this.memberId, lookBackMonths, reportDate).subscribe({
+    // Simplified API call - only needs memberId now
+    this.debtService.getMemberDebtSummary(this.memberId).subscribe({
       next: (response) => {
         this.data = response;
         this.isLoading = false;
@@ -120,6 +116,7 @@ export class MemberdebtComponent implements OnInit, OnChanges {
     });
   }
 
+  // Helper methods remain the same
   goBack(): void {
     this.backToDebts.emit();
   }
@@ -128,9 +125,9 @@ export class MemberdebtComponent implements OnInit, OnChanges {
     switch (status) {
       case 'partial_payment':
         return 'bg-yellow-100 text-yellow-800';
-      case 'fully_paid':
+      case 'paid_full': // Updated to match new status from RPC
         return 'bg-green-100 text-green-800';
-      case 'overdue_unpaid':
+      case 'no_payment': // Updated to match new status from RPC
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -145,5 +142,16 @@ export class MemberdebtComponent implements OnInit, OnChanges {
     return days === 1 ? '1 day' : `${days} days`;
   }
 
+  // New helper to format the automatic date range
+  formatDateRange(start: string, end: string): string {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
 
+    if (startDate.getFullYear() === endDate.getFullYear()) {
+      return `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - 
+              ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    }
+    return `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - 
+            ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+  }
 }

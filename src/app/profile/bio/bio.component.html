@@ -6,7 +6,7 @@
                 <!-- Profile Image Column -->
                 <div class="flex flex-col items-center md:items-start gap-4">
                     <div class="relative w-fit">
-                        <img [src]="previewImage || profile.profile_image || '../../assets/batProfile.jpg'"
+                        <img [src]="previewImage || profile.profile_image || '../../assets/ariders.jpg'"
                             alt="Profile Image"
                             class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-[#e8c15e] shadow-sm" />
 
@@ -155,12 +155,12 @@
                 <div *ngIf="contactForm.dirty" class="flex justify-end space-x-3 pt-2">
                     <button
                         class="px-4 py-2 bg-[#6c757d] text-white rounded-md hover:bg-[#5a6268] transition-colors text-sm font-medium"
-                        (click)="resetForm('basic')" type="button">
+                        (click)="resetForm('contact')" type="button">
                         Cancel
                     </button>
                     <button
                         class="px-4 py-2 bg-[#d4a72c] hover:bg-[#b38d25] text-white rounded-md transition-colors text-sm font-medium"
-                        (click)="saveBasic(profileId ?? '')" type="button">
+                        (click)="saveContact(profileId ?? '')" type="button">
                         Save Changes
                     </button>
                 </div>
@@ -189,12 +189,12 @@
                 <div *ngIf="addressForm.dirty" class="flex justify-end space-x-3 pt-2">
                     <button
                         class="px-4 py-2 bg-[#6c757d] text-white rounded-md hover:bg-[#5a6268] transition-colors text-sm font-medium"
-                        (click)="resetForm('basic')" type="button">
+                        (click)="resetForm('address')" type="button">
                         Cancel
                     </button>
                     <button
                         class="px-4 py-2 bg-[#d4a72c] hover:bg-[#b38d25] text-white rounded-md transition-colors text-sm font-medium"
-                        (click)="saveBasic(profileId ?? '')" type="button">
+                        (click)="saveAddress(profileId ?? '')" type="button">
                         Save Changes
                     </button>
                 </div>
@@ -213,7 +213,6 @@
                             class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-[#f8f9fa] rounded-lg">
                             <div class="flex-1">
                                 <h4 class="font-medium text-[#212529]">Password</h4>
-                                <p class="text-sm text-[#6c757d] mt-1">Last changed 30 days ago</p>
                             </div>
                             <button (click)="requestPasswordReset(email ?? '')"
                                 class="bg-[#17a2b8] hover:bg-[#138496] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">

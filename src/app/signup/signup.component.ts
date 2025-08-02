@@ -73,7 +73,7 @@ export class SignupComponent {
       phone_number: form.phoneNumber
     };
 
-    // First validate form after 3 seconds
+    //validate form after 3 seconds
     setTimeout(() => {
       this.allFieldsValidator();
 
@@ -92,7 +92,7 @@ export class SignupComponent {
 
       this.auth.register(userData).subscribe({
         next: async (result) => {
-          this.toastr.success(result.message);
+          this.toastr.success("Success, check your email for more details");
           this.spinner.hide();
           this.router.navigate(['/signin']);
 

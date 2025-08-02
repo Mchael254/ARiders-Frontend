@@ -24,10 +24,10 @@ export class AuthEffects {
     private storage: LocalStorageService,
     private router: Router,
     private http: HttpClient,
-    private responsesService: ResponsesService,
     private userService: UserService,
     private toastr: ToastrService,
   ) { }
+  updateUrl = environment.localUrl
 
   login$ = createEffect(() =>
     this.actions$.pipe(
@@ -56,6 +56,7 @@ export class AuthEffects {
               last_name: profile.last_name,
               middle_name: profile.middle_name,
               gender: profile.gender,
+              dob:profile.dob,
               membership_status: profile.membership_status,
               rider_type_id: profile.rider_type_id
             };
@@ -74,6 +75,7 @@ export class AuthEffects {
               last_name: profile.last_name,
               middle_name: profile.middle_name,
               gender: profile.gender,
+              dob:profile.dob,
               membership_status: profile.membership_status,
               rider_type_id: profile.rider_type_id
             });
@@ -142,7 +144,7 @@ export class AuthEffects {
       ofType(updateUserProfileSection),
       // tap(() => this.responsesService.showSpinner()),
       switchMap(({ section, data, userId }) =>
-        this.http.put(`${this.baseUrl}/api/user/update-user-profile`, { section, data, userId }).pipe(
+        this.http.put(`${this.updateUrl}/api/user/update-user-profile`, { section, data, userId }).pipe(
           tap((response: any) => {
             console.log('Update Response:', response);
 

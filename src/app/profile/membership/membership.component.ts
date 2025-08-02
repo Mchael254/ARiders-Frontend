@@ -75,6 +75,7 @@ export class MembershipComponent {
   loading: boolean = false;
   error: string | null = null;
   showPaymentModal = false;
+  currentYear:any;
 
   constructor(
     private store: Store<{ auth: AuthState }>,
@@ -111,14 +112,13 @@ export class MembershipComponent {
     this.spinner.show();
     this.error = null;
 
-    const lookBackMonths = this.calculateLookBackMonths();
-    const reportDate = new Date().toISOString().split('T')[0]; // Current date in YYYY-MM-DD format
-
-    this.debtService.getMemberDebtSummary(this.profileId, lookBackMonths, reportDate)
+    this.debtService.getMemberDebtSummary(this.profileId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: DebtSummaryResponse) => {
           this.debtSummary = response;
+          console.log('this is debt summary>>>',this.debtSummary);
+          
           this.spinner.hide();
         },
         error: (error) => {
@@ -129,21 +129,21 @@ export class MembershipComponent {
       });
   }
 
+  // Calculate months from January 1st of current year to current month
   private calculateLookBackMonths(): number {
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11, so add 1
+    this.currentYear = currentYear;
+    const currentMonth = currentDate.getMonth() + 1; 
 
-    // Calculate months from January 1st of current year to current month
+    
     return currentMonth;
   }
 
-  // Method to refresh the data
   refreshDebtSummary(): void {
     this.loadMemberDebtSummary();
   }
 
-  // TrackBy function for performance optimization
   trackByMonth(index: number, report: MonthlyReport): string {
     return report.month_year;
   }
@@ -151,7 +151,7 @@ export class MembershipComponent {
   initiatePayment(): void {
     const amount = this.getLatestRunningDebt();
     console.log('Initiating payment for latest running debt:', amount);
-    // Your payment logic here
+   
   }
 
 

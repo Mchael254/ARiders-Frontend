@@ -16,6 +16,7 @@ import {
   faPercent,
   faShieldAlt
 } from '@fortawesome/free-solid-svg-icons';
+import { NgxSpinnerService } from 'ngx-spinner';
 import { ContributionService } from 'src/app/services/contribution/contribution.service';
 
 interface ContributionAnalysisResponse {
@@ -108,12 +109,12 @@ interface CurrentMonthIndicator {
 }
 
 interface AllTimeSummary {
-    totalCollected: number;
-    totalExpected: number;
-    totalCollectedFormatted: string;
-    totalExpectedFormatted: string;
-    collectionRate: string;
-    performance: string;
+  totalCollected: number;
+  totalExpected: number;
+  totalCollectedFormatted: string;
+  totalExpectedFormatted: string;
+  collectionRate: string;
+  performance: string;
 }
 
 @Component({
@@ -148,7 +149,9 @@ export class ContributionsComponent implements OnInit {
   currentMonth: any;
   currentMonthAnalysis: CurrentMonthAnalysis | null = null;
 
-  constructor(private contributionService: ContributionService, private fb: FormBuilder) {
+  constructor(private contributionService: ContributionService, private fb: FormBuilder,
+    private spinner: NgxSpinnerService
+  ) {
     this.rangeForm = this.fb.group({
       startDate: ['', Validators.required],
       endDate: ['', Validators.required]
@@ -164,7 +167,7 @@ export class ContributionsComponent implements OnInit {
     const currentYear = new Date().getFullYear();
     const defaultStart = `${currentYear}-01-01`;
     const defaultEnd = `${currentYear}-12-31`;
-    
+
     this.rangeForm.patchValue({
       startDate: defaultStart,
       endDate: defaultEnd
@@ -183,7 +186,7 @@ export class ContributionsComponent implements OnInit {
       endDate: this.rangeForm.value.endDate
     };
 
-    this.loading = true;
+    this.spinner.show();
     this.error = null;
 
     this.contributionService.getGeneralContribution(periodData).subscribe({
@@ -195,19 +198,19 @@ export class ContributionsComponent implements OnInit {
         } else {
           this.error = response.message || 'Failed to load contribution data';
         }
-        this.loading = false;
+        this.spinner.hide();
       },
       error: (err) => {
         this.error = err.message || 'An error occurred while fetching data';
-        this.loading = false;
+        this.spinner.hide();
       }
     });
   }
 
   /**
-   * Analyzes the current month's contribution performance
-   * @returns CurrentMonthAnalysis object with current month insights
-   */
+  * Analyzes the current month's contribution performance
+  * @returns CurrentMonthAnalysis object with current month insights
+  */
   analyzeCurrentMonth(): CurrentMonthAnalysis | null {
     if (!this.data?.monthly) {
       return null;
@@ -217,12 +220,20 @@ export class ContributionsComponent implements OnInit {
     const currentMonthName = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
     const currentMonthKey = `${currentDate.toLocaleString('default', { month: 'short' })} ${currentDate.getFullYear()}`;
 
-    // Find current month data
-    const currentMonthData = this.data.monthly.find(month =>
-      month.monthName === currentMonthName ||
-      month.month === currentMonthKey ||
-      month.monthYear === currentMonthName
-    );
+    // Find current month data - try multiple matching strategies
+    const currentMonthData = this.data.monthly.find(month => {
+      // Try different possible month formats
+      const monthMatches = [
+        month.monthName === currentMonthName,
+        month.month === currentMonthKey,
+        month.monthYear === currentMonthName,
+        // Also try matching just the month part for cases like "Aug 2025"
+        month.month && month.month.includes(currentDate.toLocaleString('default', { month: 'short' })) &&
+        month.month.includes(currentDate.getFullYear().toString())
+      ];
+
+      return monthMatches.some(match => match);
+    });
 
     if (!currentMonthData) {
       return {
@@ -248,8 +259,8 @@ export class ContributionsComponent implements OnInit {
     const comparison = this.compareWithPreviousMonths(currentMonthData);
 
     return {
-      isCurrentMonth: true,
-      monthName: currentMonthData.monthName,
+      isCurrentMonth: true, 
+      monthName: currentMonthData.monthName || currentMonthName,
       status: this.getCurrentMonthStatus(currentMonthData, insights),
       data: currentMonthData,
       insights,
