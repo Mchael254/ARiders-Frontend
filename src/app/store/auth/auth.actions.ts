@@ -1,5 +1,4 @@
 import { createAction, props } from '@ngrx/store';
-import { User } from '@supabase/supabase-js';
 import { AuthSession } from './auth.Model';
 
 // login
@@ -10,7 +9,7 @@ export const login = createAction(
 
 export const loginSuccess = createAction(
   '[Auth] Login Success',
-  props<AuthSession>() // or destructure if needed
+  props<AuthSession>() 
 );
 
 export const loginFailure = createAction(
@@ -43,7 +42,7 @@ export const updateProfileImage = createAction(
 //update profile section
 export const updateUserProfileSection = createAction(
   '[Auth] Update User Profile Section',
-  props<{ section: 'basic' | 'address' | 'contact'; data: any; userId: string | number }>()
+  props<{ section: 'basic' | 'address' | 'contact' | 'rider_type'; data: any; userId: string | number }>()
 );
 
 export const updateUserProfileSuccess = createAction(
@@ -56,3 +55,50 @@ export const updateUserProfileFailure = createAction(
   props<{ error: any }>()
 );
 
+//load rider category
+export const loadRiderTypes = createAction('[Auth] Load Rider Types');
+export const loadRiderTypesSuccess = createAction(
+  '[Auth] Load Rider Types Success',
+  props<{ riderTypes: { id: string, type_name: string }[] }>()
+);
+export const loadRiderTypesFailure = createAction(
+  '[Auth] Load Rider Types Failure',
+  props<{ error: any }>()
+);
+
+//update ride category
+export const updateRiderType = createAction(
+  '[Auth] Update Rider Type',
+  props<{ memberId: string; riderTypeId: string }>()
+);
+
+export const updateRiderTypeSuccess = createAction(
+  '[Auth] Update Rider Type Success',
+  props<{ riderTypeId: string }>()
+);
+
+export const updateRiderTypeFailure = createAction(
+  '[Auth] Update Rider Type Failure',
+  props<{ error: any }>()
+);
+
+export const clearUpdateRiderTypeStatus = createAction(
+  '[Auth] Clear Update Rider Type Status'
+);
+
+//refresh profile
+export const refreshUserProfile = createAction(
+  '[Auth] Refresh User Profile',
+  props<{ memberId: string }>()
+);
+
+
+export const refreshUserProfileSuccess = createAction(
+  '[Auth] Refresh User Profile Success',
+  props<{ updatedData: any }>()
+);
+
+export const refreshUserProfileFailure = createAction(
+  '[Auth] Refresh User Profile Failure',
+  props<{ error: any }>()
+);

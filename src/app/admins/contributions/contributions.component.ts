@@ -1,19 +1,133 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Component } from '@angular/core';
-import { faArrowDown, faArrowUp, faBullseye, faCalendarAlt, faCalendarCheck, faChartBar, faChartLine, faCoins, faCrown, faPercent, faShieldAlt, faStar, faTrophy, faUsers } from '@fortawesome/free-solid-svg-icons';
-import { ChartConfiguration, ChartOptions } from 'chart.js';
-import { AnalysisResponse } from 'src/app/interfaces/contribution';
-import { ContributionService } from 'src/app/services/contribution.service';
-import { ResponsesService } from 'src/app/services/responses.service';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  faCoins,
+  faBullseye,
+  faUsers,
+  faCrown,
+  faStar,
+  faChartLine,
+  faArrowUp,
+  faArrowDown,
+  faCalendarAlt,
+  faChartBar,
+  faCalendarCheck,
+  faTrophy,
+  faPercent,
+  faShieldAlt
+} from '@fortawesome/free-solid-svg-icons';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { ContributionService } from 'src/app/services/contribution/contribution.service';
 
+interface ContributionAnalysisResponse {
+  success: boolean;
+  message: string;
+  period: {
+    startDate: string;
+    endDate: string;
+  };
+  summary: {
+    reportDate: string;
+    reportPeriod: string;
+    quartersIncluded: number;
+    allTimeSummary: AllTimeSummary;
+    analysisPeriod: {
+      startDate: string;
+      endDate: string;
+      periodLabel: string;
+    };
+    bestMonthOverall: {
+      monthName: string;
+      amount: number;
+      amountFormatted: string;
+      collectionRate: string;
+    };
+    'total_contributions_(period)': string;
+    'total_contributions_(all_time)': string;
+    'total_expected_contributions': string;
+    'zero_contributors': string;
+    'highest_contributor': string;
+    'lowest_collection_month': string;
+    'average_contributors_per_month': string;
+    'consistent_contributors_(>=_2_months)': string;
+    'last_month_growth_(%)': string;
+    'best_collection_month_(current_year)': string;
+  };
+  quarters: {
+    [key: string]: any;
+  };
+  monthly: any[];
+  insights: any;
+  charts: any;
+  metadata: any;
+}
+
+// Supporting interfaces
+interface CurrentMonthAnalysis {
+  isCurrentMonth: boolean;
+  monthName: string;
+  status: string;
+  data: any | null;
+  insights: CurrentMonthInsights;
+  comparison: MonthComparison | null;
+}
+
+interface CurrentMonthInsights {
+  daysRemaining: number;
+  isCompleteMonth: boolean;
+  projectedCollection: number;
+  improvementNeeded: number;
+  riskLevel: 'Low' | 'Medium' | 'High' | 'Critical';
+  dailyTargetRemaining?: number;
+  progressPercentage?: number;
+  expectedDaily: number;
+  actualDailyRate?: number;
+  onTrackForTarget?: boolean;
+  projectedShortfall?: number;
+}
+
+interface MonthComparison {
+  previousMonth: {
+    name: string;
+    collected: string;
+    collectionRate: string;
+  };
+  growth: {
+    amount: number;
+    percentage: number;
+    trend: 'positive' | 'negative' | 'stable';
+  };
+  ranking: {
+    position: number;
+    totalMonths: number;
+    percentile: number;
+  };
+}
+
+interface CurrentMonthIndicator {
+  label: string;
+  value: string;
+  icon: string;
+  color: string;
+  bgColor: string;
+}
+
+interface AllTimeSummary {
+  totalCollected: number;
+  totalExpected: number;
+  totalCollectedFormatted: string;
+  totalExpectedFormatted: string;
+  collectionRate: string;
+  performance: string;
+}
 
 @Component({
   selector: 'app-contributions',
   templateUrl: './contributions.component.html',
   styleUrls: ['./contributions.component.css']
 })
-
-export class ContributionsComponent {
+export class ContributionsComponent implements OnInit {
+  // Font Awesome icons
   faCoins = faCoins;
   faBullseye = faBullseye;
   faUsers = faUsers;
@@ -28,585 +142,460 @@ export class ContributionsComponent {
   faTrophy = faTrophy;
   faPercent = faPercent;
   faShieldAlt = faShieldAlt;
-  // Default empty state 
-  emptyState: AnalysisResponse = {
-    success: false,
-    message: 'No data available',
-    period: {
-      startDate: this.formatDate(new Date()),
-      endDate: this.formatDate(new Date())
-    },
-    summary: {
-      reportDate: new Date().toISOString().split('T')[0],
-      reportPeriod: 'No data',
-      quartersIncluded: 0,
-      total_contributions_period: "KES 0.00",
-      total_contributions_all_time: "KES 0.00",
-      total_expected_contributions: "KES 0.00",
-      zero_contributors: "0 members",
-      highest_contributor: "None",
-      lowest_collection_month: "None",
-      average_contributors_per_month: "0.00",
-      consistent_contributors: "0",
-      last_month_growth: "N/A",
-      best_collection_month: "None",
-      analysisPeriod: {
-        startDate: this.formatDate(new Date()),
-        endDate: this.formatDate(new Date()),
-        periodLabel: 'No period selected'
-      }
-    },
-    quarters: {},
-    monthly: [],
-    insights: {
-      trendDirection: "No data",
-      bestQuarter: null,
-      worstQuarter: null,
-      bestMonthOverall: null,
-      totalQuarters: 0,
-      monthsAnalyzed: 0,
-      consistencyScore: "0.0"
-    },
-    charts: {
-      quarterlyComparison: [],
-      monthlyTrend: [],
-      contributorTrend: [],
-      quarterlyMonthlyPerformance: []
-    }
-  };
 
-  analysisData: AnalysisResponse = this.emptyState;
-  loading: boolean = false;
+  // Component data
+  loading = true;
   error: string | null = null;
-  startDate: string;
-  endDate: string;
+  data: ContributionAnalysisResponse | null = null;
+  rangeForm: FormGroup;
+  minDate: Date;
+  maxDate: Date;
+  currentMonth: any;
+  currentMonthAnalysis: CurrentMonthAnalysis | null = null;
+  currentMonthAmount:number = 0;
 
-  periodAmount: number = 0;
-  monthAnalysis: any
+  constructor(private contributionService: ContributionService, private fb: FormBuilder,
+    private spinner: NgxSpinnerService
+  ) {
+    this.rangeForm = this.fb.group({
+      startDate: ['', Validators.required],
+      endDate: ['', Validators.required]
+    });
 
-
-  constructor(private contributionService: ContributionService) {
-    // Set default dates - current year start to today
-    const today = new Date();
-    this.endDate = this.formatDate(today);
-
-    const yearStart = new Date(today.getFullYear(), 0, 1);
-    this.startDate = this.formatDate(yearStart);
+    // Set min/max dates (optional)
+    const currentYear = new Date().getFullYear();
+    this.minDate = new Date(currentYear - 5, 0, 1);
+    this.maxDate = new Date(currentYear + 5, 11, 31);
   }
-
 
   ngOnInit(): void {
-    this.fetchAnalysis();
+    const currentYear = new Date().getFullYear();
+    const defaultStart = `${currentYear}-01-01`;
+    const defaultEnd = `${currentYear}-12-31`;
 
+    this.rangeForm.patchValue({
+      startDate: defaultStart,
+      endDate: defaultEnd
+    });
+
+    this.loadData();
   }
 
-  private formatDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-  getBestMonth(): { monthName: string, amount: string } | null {
-    if (!this.analysisData?.monthly || this.analysisData.monthly.length === 0) {
-      return null;
+  loadData(): void {
+    if (this.rangeForm.invalid) {
+      return;
     }
-
-    if (this.analysisData.insights?.bestMonthOverall) {
-      return {
-        monthName: this.analysisData.insights.bestMonthOverall.monthName,
-        amount: this.analysisData.insights.bestMonthOverall.amountFormatted
-      };
-    }
-
-    let bestMonth = this.analysisData.monthly[0];
-    let maxAmount = this.parseAmount(bestMonth.collected);
-
-    for (const month of this.analysisData.monthly) {
-      const currentAmount = this.parseAmount(month.collected);
-      if (currentAmount > maxAmount) {
-        maxAmount = currentAmount;
-        bestMonth = month;
-      }
-    }
-
-    return {
-      monthName: bestMonth.monthName,
-      amount: bestMonth.collected
-    };
-  }
-
-  parseAmount(amountString: string): number {
-    return parseFloat(amountString.replace(/[^\d.-]/g, '')) || 0;
-  }
-
-
-  fetchAnalysis(): void {
-    this.loading = true;
-    this.error = null;
 
     const periodData = {
-      startDate: this.startDate,
-      endDate: this.endDate
+      startDate: this.rangeForm.value.startDate,
+      endDate: this.rangeForm.value.endDate
     };
 
+    this.spinner.show();
+    this.error = null;
+
     this.contributionService.getGeneralContribution(periodData).subscribe({
-      next: (data: any) => {
-        if (data.success) {
-          this.analysisData = data;
-          console.log(this.analysisData);
-          const summary = this.analysisData.summary;
-          const amountString = (summary as any)["total_contributions_(period)"];
-          const numericAmount = parseFloat(amountString.replace(/[^\d.]/g, ''));
-          this.periodAmount = numericAmount;
-          console.log("this is the monthly data", this.analysisData.charts.monthlyTrend);
-          this.monthAnalysis = this.analysisData.charts.monthlyTrend;
+      next: (response) => {
+        if (response.success) {
+          this.data = response;
+          console.log("this is contribution data>>", this.data);
 
-          this.updateChartData();
-
-          // Update empty state analysisPeriod if not present
-          if (!this.analysisData.summary.analysisPeriod) {
-            this.analysisData.summary.analysisPeriod = {
-              startDate: this.startDate,
-              endDate: this.endDate,
-              periodLabel: `${new Date(this.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} - ${new Date(this.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`
-            };
-          }
+          this.currentMonthAnalysis = this.analyzeCurrentMonth();
+          console.log('Current Month Analysis:', this.currentMonthAnalysis);
         } else {
-          this.analysisData = {
-            ...this.emptyState,
-            period: data.period || periodData,
-            message: data.message || 'No data found for the specified period'
-          };
-          // Clear chart data when no data available
-          this.clearChartData();
+          this.error = response.message || 'Failed to load contribution data';
         }
-        this.loading = false;
+        this.spinner.hide();
       },
-      error: (error) => {
-        this.error = error.error?.message || 'Failed to fetch analysis data. Please try again.';
-        this.analysisData = {
-          ...this.emptyState,
-          period: periodData,
-          message: this.error ?? undefined
-        };
-        // Clear chart data on error
-        this.clearChartData();
-        this.loading = false;
-        console.error('Error fetching analysis:', error);
+      error: (err) => {
+        this.error = err.message || 'An error occurred while fetching data';
+        this.spinner.hide();
       }
     });
   }
 
-  onDateChange(): void {
-    if (this.startDate && this.endDate) {
-      this.fetchAnalysis();
+  /**
+  * Analyzes the current month's contribution performance
+  * @returns CurrentMonthAnalysis object with current month insights
+  */
+  analyzeCurrentMonth(): CurrentMonthAnalysis | null {
+    if (!this.data?.monthly) {
+      return null;
     }
-  }
 
-  getQuarters(): any[] {
-    if (!this.analysisData?.quarters) return [];
-    return Object.values(this.analysisData.quarters);
-  }
+    const currentDate = new Date();
+    const currentMonthName = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+    const currentMonthKey = `${currentDate.toLocaleString('default', { month: 'short' })} ${currentDate.getFullYear()}`;
 
-
-  getMonthlyTrendData(): any[] {
-    return this.analysisData?.charts?.monthlyTrend || [];
-  }
-
-  getContributorTrendData(): any[] {
-    return this.analysisData?.charts?.contributorTrend || [];
-  }
-
-  getPerformanceRating(rate: number): string {
-    if (rate >= 80) return 'Excellent';
-    if (rate >= 60) return 'Good';
-    if (rate >= 40) return 'Fair';
-    if (rate >= 20) return 'Poor';
-    return 'Critical';
-  }
-
-  hasData(): boolean {
-    return this.analysisData.success &&
-      this.analysisData.monthly.length > 0 &&
-      Object.keys(this.analysisData.quarters).length > 0;
-  }
-
-  //CHARTS
-  private updateChartData(): void {
-    this.updateLineChart();
-    this.updateContributorTrendBarChart();
-    this.updateQuarterlyComparisonBarChart();
-    this.updateQuarterlyMonthlyPerformanceBarChart();
-  }
-
-  //line chart
-  private updateLineChart(): void {
-    const monthlyTrendData = this.analysisData.charts.monthlyTrend;
-
-    if (monthlyTrendData && monthlyTrendData.length > 0) {
-      this.lineChartData = {
-        labels: monthlyTrendData.map((item: any) => item.month),
-        datasets: [
-          {
-            data: monthlyTrendData.map((item: any) => item.collected),
-            label: 'Collected (KES)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            tension: 0.4,
-            fill: true,
-            pointBackgroundColor: (context) =>
-              (context.raw as number) > 0 ? 'rgba(75, 192, 192, 1)' : 'rgba(201, 203, 207, 1)'
-          },
-          {
-            data: monthlyTrendData.map((item: any) => item.expected),
-            label: 'Expected (KES)',
-            borderColor: 'rgba(255, 99, 132, 1)',
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            tension: 0.4,
-            borderDash: [5, 5],
-            pointBackgroundColor: (context) =>
-              (context.raw as number) > 0 ? 'rgba(255, 99, 132, 1)' : 'rgba(201, 203, 207, 1)'
-          },
-          {
-            data: monthlyTrendData.map((item: any) => item.rate),
-            label: 'Collection Rate (%)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            tension: 0.4,
-            yAxisID: 'y1',
-            pointBackgroundColor: (context) =>
-              (context.raw as number) > 0 ? 'rgba(54, 162, 235, 1)' : 'rgba(201, 203, 207, 1)'
-          }
-        ]
-      };
-      this.lineChartOptions.plugins!.title!.text = 'Monthly Contribution Trend Analysis';
-    }
-  }
-
-  private updateContributorTrendBarChart(): void {
-    const contributorTrendData = this.analysisData.charts.contributorTrend;
-
-    if (contributorTrendData && contributorTrendData.length > 0) {
-      this.contributorTrendBarData = {
-        labels: contributorTrendData.map((item: any) => item.month || item.period),
-        datasets: [
-          {
-            data: contributorTrendData.map((item: any) => item.active_contributors || item.contributors),
-            label: 'Active Contributors',
-            backgroundColor: 'rgba(54, 162, 235, 0.8)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-          }
-        ]
-      };
-    }
-  }
-
-  //quarterly comparison
-  private updateQuarterlyComparisonBarChart(): void {
-    const quarterlyData = this.analysisData.charts.quarterlyComparison;
-
-    if (quarterlyData && quarterlyData.length > 0) {
-      this.quarterlyComparisonBarData = {
-        labels: quarterlyData.map((item: any) => item.quarter || item.period),
-        datasets: [
-          {
-            data: quarterlyData.map((item: any) => item.collected || item.total_collected),
-            label: 'Collected',
-            backgroundColor: 'rgba(75, 192, 192, 0.8)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1
-          },
-          {
-            data: quarterlyData.map((item: any) => item.expected || item.total_expected),
-            label: 'Expected',
-            backgroundColor: 'rgba(255, 99, 132, 0.8)',
-            borderColor: 'rgba(255, 99, 132, 1)',
-            borderWidth: 1
-          }
-        ]
-      };
-    }
-  }
-
-  private updateQuarterlyMonthlyPerformanceBarChart(): void {
-    const performanceData = this.analysisData.charts.quarterlyMonthlyPerformance;
-    console.log('Quarterly Monthly Performance Data:', performanceData);
-
-    if (performanceData && performanceData.length > 0) {
-      // Extract all unique months from all quarters
-      const allMonths = new Set<string>();
-      performanceData.forEach((quarter: any) => {
-        if (quarter.monthlyPerformance) {
-          quarter.monthlyPerformance.forEach((month: any) => {
-            allMonths.add(month.month);
-          });
-        }
-      });
-
-      // Sort months chronologically
-      const monthLabels = Array.from(allMonths).sort(
-        (a, b) => new Date(a).getTime() - new Date(b).getTime()
-      );
-
-      // Create datasets for each quarter
-      const colors = [
-        'rgba(75, 192, 192, 0.8)',
-        'rgba(255, 99, 132, 0.8)',
-        'rgba(54, 162, 235, 0.8)',
-        'rgba(255, 206, 86, 0.8)'
+    // Find current month data - try multiple matching strategies
+    const currentMonthData = this.data.monthly.find(month => {
+      // Try different possible month formats
+      const monthMatches = [
+        month.monthName === currentMonthName,
+        month.month === currentMonthKey,
+        month.monthYear === currentMonthName,
+        // Also try matching just the month part for cases like "Aug 2025"
+        month.month && month.month.includes(currentDate.toLocaleString('default', { month: 'short' })) &&
+        month.month.includes(currentDate.getFullYear().toString())
       ];
 
-      const datasets = performanceData.map((quarter: any, index: number) => {
-        const data = monthLabels.map(monthLabel => {
-          const monthData = quarter.monthlyPerformance?.find((m: any) => m.month === monthLabel);
-          return monthData ? (monthData.collected || 0) : 0;
-        });
+      return monthMatches.some(match => match);
+    });
 
-        return {
-          label: quarter.quarter || `Quarter ${index + 1}`,
-          data: data,
-          backgroundColor: colors[index % colors.length],
-          borderColor: colors[index % colors.length].replace('0.8', '1'),
-          borderWidth: 1
-        };
-      });
-
-      this.quarterlyMonthlyPerformanceBarData = {
-        labels: monthLabels,
-        datasets: datasets
+    if (!currentMonthData) {
+      return {
+        isCurrentMonth: false,
+        monthName: currentMonthName,
+        status: 'No data available for current month',
+        data: null,
+        insights: {
+          daysRemaining: this.getDaysRemainingInMonth(),
+          isCompleteMonth: false,
+          projectedCollection: 0,
+          improvementNeeded: 0,
+          riskLevel: 'Critical',
+          dailyTargetRemaining: 0,
+          progressPercentage: 0,
+          expectedDaily: 0
+        },
+        comparison: null
       };
     }
-  }
 
+    // Calculate insights for current month
+    const insights = this.calculateCurrentMonthInsights(currentMonthData);
 
-  private clearChartData(): void {
-    // Clear line chart
-    this.lineChartData = {
-      labels: [],
-      datasets: [
-        {
-          data: [],
-          label: 'Collected (KES)',
-          borderColor: 'rgba(75, 192, 192, 1)',
-          backgroundColor: 'rgba(75, 192, 192, 0.2)',
-          tension: 0.4,
-          fill: true
-        },
-        {
-          data: [],
-          label: 'Expected (KES)',
-          borderColor: 'rgba(255, 99, 132, 1)',
-          backgroundColor: 'rgba(255, 99, 132, 0.2)',
-          tension: 0.4,
-          borderDash: [5, 5]
-        },
-        {
-          data: [],
-          label: 'Collection Rate (%)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          backgroundColor: 'rgba(54, 162, 235, 0.2)',
-          tension: 0.4,
-          yAxisID: 'y1'
-        }
-      ]
+    // Compare with previous months
+    const comparison = this.compareWithPreviousMonths(currentMonthData);
+
+    // Generate a more accurate status message
+    const collectedAmount = parseFloat(currentMonthData.collected.replace(/[^\d.]/g, ''));
+    const expectedAmount = parseFloat(currentMonthData.expected.replace(/[^\d.]/g, ''));
+    this.currentMonthAmount =expectedAmount
+        
+    const shortfall = expectedAmount - collectedAmount;
+
+    let status = '';
+    if (insights.riskLevel === 'Critical') {
+      if (insights.daysRemaining > 0) {
+        status = `Critical: Need KES ${shortfall.toFixed(0)} more (KES ${insights.dailyTargetRemaining}/day for ${insights.daysRemaining} days)`;
+      } else {
+        status = `Month complete: KES ${shortfall.toFixed(0)} shortfall`;
+      }
+    } else if (insights.riskLevel === 'High') {
+      status = `High risk: KES ${shortfall.toFixed(0)} still needed`;
+    } else if (insights.riskLevel === 'Medium') {
+      status = `On track: KES ${shortfall.toFixed(0)} remaining`;
+    } else {
+      status = `Excellent progress: Only KES ${shortfall.toFixed(0)} remaining`;
+    }
+
+    return {
+      isCurrentMonth: true,
+      monthName: currentMonthData.monthName || currentMonthName,
+      status: status,
+      data: currentMonthData,
+      insights,
+      comparison
     };
-
-    // Clear bar charts
-    this.contributorTrendBarData = { labels: [], datasets: [] };
-    this.quarterlyComparisonBarData = { labels: [], datasets: [] };
-    this.quarterlyMonthlyPerformanceBarData = { labels: [], datasets: [] };
   }
 
-  // Bar Chart Data Properties
-  public contributorTrendBarData: ChartConfiguration<'bar'>['data'] = {
-    labels: [],
-    datasets: []
-  };
+  /**
+   * Calculates insights specific to the current month
+   */
+  private calculateCurrentMonthInsights(monthData: any): CurrentMonthInsights {
+    const daysRemaining = this.getDaysRemainingInMonth();
+    const totalDaysInMonth = this.getTotalDaysInCurrentMonth();
+    const daysPassed = totalDaysInMonth - daysRemaining;
 
-  public quarterlyComparisonBarData: ChartConfiguration<'bar'>['data'] = {
-    labels: [],
-    datasets: []
-  };
+    const expectedAmount = parseFloat(monthData.expected.replace(/[^\d.]/g, ''));
+    const collectedAmount = parseFloat(monthData.collected.replace(/[^\d.]/g, ''));
 
-  public quarterlyMonthlyPerformanceBarData: ChartConfiguration<'bar'>['data'] = {
-    labels: [],
-    datasets: []
-  };
+    // Calculate daily rates
+    const expectedDaily = expectedAmount / totalDaysInMonth;
+    const actualDaily = daysPassed > 0 ? collectedAmount / daysPassed : 0;
 
-  // Bar Chart Options
-  public contributorTrendBarOptions: ChartOptions<'bar'> = {
-    responsive: true,
-    scales: {
-      y: {
-        title: {
-          display: true,
-          text: 'Number of Contributors'
-        },
-        beginAtZero: true
-      }
-    },
-    plugins: {
-      title: {
-        display: true,
-        text: 'Contributor Trend Analysis',
-        font: {
-          size: 16
-        }
-      },
-      tooltip: {
-        callbacks: {
-          label: function (context) {
-            return context.dataset.label + ': ' + context.raw + ' contributors';
-          }
-        }
-      }
+    // Project what we'll collect if we continue at current rate
+    const projectedCollection = actualDaily * totalDaysInMonth;
+
+    // The remaining amount needed to meet target
+    const remainingNeeded = Math.max(0, expectedAmount - collectedAmount);
+
+    // What we need to collect daily for the remaining days to meet target
+    const dailyTargetRemaining = daysRemaining > 0 ? remainingNeeded / daysRemaining : 0;
+
+    let riskLevel: 'Low' | 'Medium' | 'High' | 'Critical';
+    const collectionRate = parseFloat(monthData.collection_rate.replace('%', ''));
+
+    if (collectionRate >= 80) riskLevel = 'Low';
+    else if (collectionRate >= 60) riskLevel = 'Medium';
+    else if (collectionRate >= 30) riskLevel = 'High';
+    else riskLevel = 'Critical';
+
+    return {
+      daysRemaining,
+      isCompleteMonth: daysRemaining === 0,
+      projectedCollection: Math.round(projectedCollection),
+      improvementNeeded: Math.round(remainingNeeded), // This should be the actual shortfall
+      riskLevel,
+      dailyTargetRemaining: Math.round(dailyTargetRemaining),
+      progressPercentage: (daysPassed / totalDaysInMonth) * 100,
+      // Additional helpful metrics
+      expectedDaily: Math.round(expectedDaily),
+      actualDailyRate: Math.round(actualDaily),
+      onTrackForTarget: projectedCollection >= expectedAmount,
+      projectedShortfall: Math.max(0, expectedAmount - projectedCollection)
+    };
+  }
+  /**
+   * Compares current month with previous months
+   */
+  private compareWithPreviousMonths(currentMonthData: any): MonthComparison | null {
+    if (!this.data?.monthly || this.data.monthly.length < 2) {
+      return null;
     }
-  };
 
-  public quarterlyComparisonBarOptions: ChartOptions<'bar'> = {
-    responsive: true,
-    scales: {
-      y: {
-        title: {
-          display: true,
-          text: 'Amount (KES)'
-        },
-        beginAtZero: true
-      }
-    },
-    plugins: {
-      title: {
-        display: true,
-        text: 'Quarterly Comparison',
-        font: {
-          size: 16
-        }
+    const currentIndex = this.data.monthly.findIndex(m => m.month === currentMonthData.month);
+    if (currentIndex <= 0) return null;
+
+    const previousMonth = this.data.monthly[currentIndex - 1];
+    const currentCollected = parseFloat(currentMonthData.collected.replace(/[^\d.]/g, ''));
+    const previousCollected = parseFloat(previousMonth.collected.replace(/[^\d.]/g, ''));
+
+    const growthAmount = currentCollected - previousCollected;
+    const growthPercentage = previousCollected > 0 ? (growthAmount / previousCollected) * 100 : 0;
+
+    // Find best and worst performing months for context
+    const sortedMonths = [...this.data.monthly]
+      .filter(m => parseFloat(m.collected.replace(/[^\d.]/g, '')) > 0)
+      .sort((a, b) => parseFloat(b.collection_rate.replace('%', '')) - parseFloat(a.collection_rate.replace('%', '')));
+
+    return {
+      previousMonth: {
+        name: previousMonth.monthName,
+        collected: previousMonth.collected,
+        collectionRate: previousMonth.collection_rate
       },
-      tooltip: {
-        callbacks: {
-          label: function (context) {
-            return context.dataset.label + ': KES ' + (context.raw as number).toLocaleString();
-          }
-        }
-      }
-    }
-  };
-
-  public quarterlyMonthlyPerformanceBarOptions: ChartOptions<'bar'> = {
-    responsive: true,
-    scales: {
-      y: {
-        title: {
-          display: true,
-          text: 'Amount (KES)'
-        },
-        beginAtZero: true
-      }
-    },
-    plugins: {
-      title: {
-        display: true,
-        text: 'Quarterly Monthly Performance',
-        font: {
-          size: 16
-        }
+      growth: {
+        amount: growthAmount,
+        percentage: growthPercentage,
+        trend: growthAmount > 0 ? 'positive' : growthAmount < 0 ? 'negative' : 'stable'
       },
-      tooltip: {
-        callbacks: {
-          label: function (context) {
-            return context.dataset.label + ': KES ' + (context.raw as number).toLocaleString();
-          }
-        }
+      ranking: {
+        position: sortedMonths.findIndex(m => m.month === currentMonthData.month) + 1,
+        totalMonths: sortedMonths.length,
+        percentile: ((sortedMonths.length - sortedMonths.findIndex(m => m.month === currentMonthData.month)) / sortedMonths.length) * 100
       }
+    };
+  }
+
+  /**
+   * Determines the current month status message
+   */
+  private getCurrentMonthStatus(monthData: any, insights: CurrentMonthInsights): string {
+    const collectionRate = parseFloat(monthData.collection_rate.replace('%', ''));
+
+    if (insights.isCompleteMonth) {
+      if (collectionRate >= 80) return 'Excellent performance this month!';
+      if (collectionRate >= 60) return 'Good performance this month';
+      if (collectionRate >= 30) return 'Below target performance';
+      return 'Critical performance this month';
+    } else {
+      if (insights.riskLevel === 'Low') return 'On track to meet targets';
+      if (insights.riskLevel === 'Medium') return 'May need additional effort';
+      if (insights.riskLevel === 'High') return 'Requires immediate attention';
+      return 'Critical situation - urgent action needed';
     }
-  };
+  }
 
-  public barChartLegend = true;
+  /**
+   * Gets the number of days remaining in the current month
+   */
+  private getDaysRemainingInMonth(): number {
+    const today = new Date();
+    const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    const daysRemaining = lastDayOfMonth.getDate() - today.getDate();
+    return Math.max(0, daysRemaining);
+  }
 
-  //line chart
-  public lineChartData: ChartConfiguration<'line'>['data'] = {
-    labels: [],
-    datasets: [
+  /**
+   * Gets the total number of days in the current month
+   */
+  private getTotalDaysInCurrentMonth(): number {
+    const today = new Date();
+    return new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  }
+
+  /**
+   * Gets current month performance indicators
+   */
+  getCurrentMonthIndicators(): CurrentMonthIndicator[] {
+    if (!this.currentMonthAnalysis?.data) return [];
+
+    const data = this.currentMonthAnalysis.data;
+    const insights = this.currentMonthAnalysis.insights;
+
+    return [
       {
-        data: [],
-        label: 'Collected (KES)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        tension: 0.4,
-        fill: true
+        label: 'Collected This Month',
+        value: data.collected,
+        icon: 'faCoins',
+        color: 'text-green-600',
+        bgColor: 'bg-green-50'
       },
       {
-        data: [],
-        label: 'Expected (KES)',
-        borderColor: 'rgba(255, 99, 132, 1)',
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        tension: 0.4,
-        borderDash: [5, 5]
+        label: 'Collection Rate',
+        value: data.collection_rate,
+        icon: 'faPercent',
+        color: this.getCollectionRateColor(parseFloat(data.collection_rate.replace('%', ''))),
+        bgColor: this.getCollectionRateBgColor(parseFloat(data.collection_rate.replace('%', '')))
       },
       {
-        data: [],
-        label: 'Collection Rate (%)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        tension: 0.4,
-        yAxisID: 'y1'
-      }
-    ]
-  };
-
-  public lineChartOptions: ChartOptions<'line'> = {
-    responsive: true,
-    scales: {
-      y: {
-        title: {
-          display: true,
-          text: 'Amount (KES)'
-        },
-        suggestedMax: 9000
+        label: 'Contributors',
+        value: data.contributors.toString(),
+        icon: 'faUsers',
+        color: 'text-blue-600',
+        bgColor: 'bg-blue-50'
       },
-      y1: {
-        position: 'right',
-        title: {
-          display: true,
-          text: 'Rate (%)'
-        },
-        min: 0,
-        max: 100,
-        grid: {
-          drawOnChartArea: false
-        }
+      {
+        label: 'Days Remaining',
+        value: insights.daysRemaining.toString(),
+        icon: 'faCalendarAlt',
+        color: 'text-purple-600',
+        bgColor: 'bg-purple-50'
       }
-    },
-    plugins: {
-      title: {
-        display: true,
-        text: 'Monthly Contribution Trend Analysis',
-        font: {
-          size: 16
-        }
-      },
-      tooltip: {
-        callbacks: {
-          label: function (context) {
-            let label = context.dataset.label || '';
-            if (label) {
-              label += ': ';
-            }
-            if (context.datasetIndex === 2) {
+    ];
+  }
 
-              label += context.raw + '%';
-            } else {
-              label += 'KES ' + (context.raw as number).toLocaleString();
-            }
-            return label;
-          }
-        }
-      }
+  /**
+   * Helper methods for styling
+   */
+  private getCollectionRateColor(rate: number): string {
+    if (rate >= 80) return 'text-green-600';
+    if (rate >= 60) return 'text-blue-600';
+    if (rate >= 30) return 'text-orange-600';
+    return 'text-red-600';
+  }
+
+  private getCollectionRateBgColor(rate: number): string {
+    if (rate >= 80) return 'bg-green-50';
+    if (rate >= 60) return 'bg-blue-50';
+    if (rate >= 30) return 'bg-orange-50';
+    return 'bg-red-50';
+  }
+
+  // ... existing methods remain the same
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
+  getQuarterKeys(): string[] {
+    if (!this.data?.quarters) return [];
+    return Object.keys(this.data.quarters);
+  }
+
+  getPerformanceClass(performance: string): string {
+    switch (performance.toLowerCase()) {
+      case 'excellent': return 'bg-green-100 text-green-800';
+      case 'good': return 'bg-blue-100 text-blue-800';
+      case 'fair': return 'bg-yellow-100 text-yellow-800';
+      case 'poor': return 'bg-orange-100 text-orange-800';
+      case 'critical': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
-  };
+  }
 
-  public lineChartLegend = true;
+  getRiskLevelBadgeClass(riskLevel: string): string {
+    switch (riskLevel) {
+      case 'Low':
+        return 'bg-green-100 text-green-800';
+      case 'Medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'High':
+        return 'bg-orange-100 text-orange-800';
+      case 'Critical':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  }
 
+  /**
+   * Get CSS class for collection rate card background
+   */
+  getCollectionRateCardClass(collectionRate: string): string {
+    const rate = parseFloat(collectionRate.replace('%', ''));
+    if (rate >= 80) return 'bg-green-50';
+    if (rate >= 60) return 'bg-blue-50';
+    if (rate >= 30) return 'bg-orange-50';
+    return 'bg-red-50';
+  }
+
+  /**
+   * Get CSS class for collection rate icon
+   */
+  getCollectionRateIconClass(collectionRate: string): string {
+    const rate = parseFloat(collectionRate.replace('%', ''));
+    if (rate >= 80) return 'text-green-600';
+    if (rate >= 60) return 'text-blue-600';
+    if (rate >= 30) return 'text-orange-600';
+    return 'text-red-600';
+  }
+
+  /**
+   * Get CSS class for collection rate text
+   */
+  getCollectionRateTextClass(collectionRate: string): string {
+    const rate = parseFloat(collectionRate.replace('%', ''));
+    if (rate >= 80) return 'text-green-700';
+    if (rate >= 60) return 'text-blue-700';
+    if (rate >= 30) return 'text-orange-700';
+    return 'text-red-700';
+  }
+
+  /**
+   * Get growth trend icon
+   */
+  getGrowthIcon(trend: string): any {
+    switch (trend) {
+      case 'positive':
+        return this.faArrowUp;
+      case 'negative':
+        return this.faArrowDown;
+      case 'stable':
+      default:
+        return this.faArrowUp; // or use a different icon for stable
+    }
+  }
+
+  /**
+   * Get CSS class for growth icon
+   */
+  getGrowthIconClass(trend: string): string {
+    switch (trend) {
+      case 'positive':
+        return 'text-green-500';
+      case 'negative':
+        return 'text-red-500';
+      case 'stable':
+      default:
+        return 'text-gray-500';
+    }
+  }
+
+  /**
+   * Get CSS class for growth text
+   */
+  getGrowthTextClass(trend: string): string {
+    switch (trend) {
+      case 'positive':
+        return 'text-green-600';
+      case 'negative':
+        return 'text-red-600';
+      case 'stable':
+      default:
+        return 'text-gray-600';
+    }
+  }
 }
+

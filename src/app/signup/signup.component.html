@@ -1,73 +1,156 @@
-<div class="main">
-    <div class="video">
-        <video width="320" height="280"  autoplay>
-            <source src="../../assets/authVideo.mp4" type="video/mp4" autoplay>
-            <source src="movie.ogg" type="video/ogg">
-        </video>
-
-    </div>
-
-    <div class="signupContainer">
-       
-        <h1>A-RIDERS</h1>
-        <p style="color: #d2d4c8;">Adventure awaits</p>
-        <p  class="line" *ngIf="loadingLine"></p>
-
-        <div class="formContainer">
-           
-            <form class="signUpForm" [formGroup]="signupForm" (ngSubmit)="onSignUp()">
-                <input type="text" placeholder="First Name" formControlName="firstName" 
-                    [class.invalid]="signupForm.get('firstName')?.invalid && (signupForm.get('firstName')?.touched)">
-                    <p class="error" *ngIf="signupForm.get('firstName')?.touched && signupForm.get('firstName')?.hasError('required')">
-                        First name is required.
-                    </p>
-
-                <input type="text" placeholder="Last Name" formControlName="lastName"
-                    [class.invalid]="signupForm.get('lastName')?.invalid && (signupForm.get('lastName')?.touched)">
-                    <p class="error" *ngIf="signupForm.get('lastName')?.touched && signupForm.get('lastName')?.hasError('required')">
-                        Last Name is required.
-                    </p> 
-
-                <input type="email" placeholder="Email" formControlName="email"
-                    [class.invalid]="signupForm.get('email')?.invalid && (signupForm.get('email')?.touched)">
-                    <p class="error" *ngIf="signupForm.get('email')?.touched && signupForm.get('email')?.hasError('required')">
-                        Email name is required.
-                    </p>
-                    <p class="error" *ngIf="signupForm.get('email')?.touched && signupForm.get('email')?.hasError('pattern')">
-                        Invlid email format 
-                    </p>
-
-                <input type="text" placeholder="Phone Number" formControlName="phoneNumber"
-                    [class.invalid]="signupForm.get('phoneNumber')?.invalid && (signupForm.get('phoneNumber')?.touched)">
-                    <p class="error" *ngIf="signupForm.get('phoneNumber')?.touched && signupForm.get('phoneNumber')?.hasError('required')">
-                        Phone Number is required.
-                    </p>
-                    <p class="error" *ngIf="signupForm.get('phoneNumber')?.touched && signupForm.get('phoneNumber')?.hasError('pattern')">
-                        Phone Number must be 10 digits
-                    </p>
-
-                <input type="password" placeholder="Password" formControlName="password"
-                    [class.invalid]="signupForm.get('password')?.invalid && (signupForm.get('password')?.touched)">
-                    <p class="error" *ngIf="signupForm.get('password')?.touched && signupForm.get('password')?.hasError('required')">
-                        Password is required
-                    </p>
-                    <p class="error" *ngIf="signupForm.get('password')?.touched && signupForm.get('password')?.hasError('minlength')">
-                        Password must be atleast 8 characters
-                    </p>
-                
-                <input type="password" placeholder="Confirm Password" formControlName="confirmPassword"
-                    [class.invalid]="signupForm.get('confirmPassword')?.invalid && (signupForm.get('confirmPassword')?.touched)">
-                    <p class="error" *ngIf="signupForm.get('confirmPassword')?.touched && signupForm.get('confirmPassword')?.hasError('required')">
-                        ConfirmPassword is required
-                    </p>
-
-                <button type="submit" data-cy="signup-btn" class="signup-btn" value="Submit">Sign up</button>
-                <div style="font-size: small; margin-top: 5px;margin-bottom: 10px; text-align: center;">
-                    <span>Already have an account? </span>
-                    <a routerLink="/signin" style="margin-left: 4px;">Sign in</a>
-                  </div>
-            </form>
+<div class="min-h-screen flex">
+    <!-- Video Section (Left) - Centered -->
+    <div class="hidden md:flex md:w-1/2 bg-black items-center justify-center">
+        <div class="max-w-lg mx-auto">
+            <video width="480" height="360" autoplay muted loop class="rounded-lg shadow-xl">
+                <source src="../../assets/authVideo.mp4" type="video/mp4">
+                <source src="movie.ogg" type="video/ogg">
+                Your browser does not support the video tag.
+            </video>
         </div>
-
     </div>
-</div>
+
+    <!-- Signup Form Section (Right) - 100vh height -->
+    <div class="w-full md:w-1/2 flex items-center justify-center bg-gray-50 overflow-y-auto py-5">
+        <div class="w-full max-w-md px-6 sm:px-8">
+            <!-- Logo Section -->
+            <div class="bg-[#a27929] py-3 text-center rounded-t-lg">
+                <img src="https://res.cloudinary.com/djcf5hzom/image/upload/v1752259519/profile_pics/user_03a59f58-a390-4606-97bb-61a4759c963e_1752259517039.jpg"
+                    alt="A Riders Logo"
+                    class="w-12 h-12 rounded-full border-2 border-white shadow-sm object-cover mx-auto">
+            </div>
+
+            <!-- Welcome Message -->
+            <div class="bg-white shadow rounded-b-lg px-6 py-3 ">
+                <h2 class="text-center text-2xl font-bold text-gray-900">
+                    Let's get you started!
+                </h2>
+                <p class="mt-1 text-center text-sm text-gray-600 mb-6">
+                    Adventure awaits
+                </p>
+                <p *ngIf="loadingLine" class="line"></p>
+
+                <!-- Compact Signup Form -->
+                <form [formGroup]="signupForm" #signupFom="ngForm" (ngSubmit)="onSignUp()" class="space-y-4">
+                    <div class="space-y-2">
+                        <div>
+                            <input type="text" pInputText formControlName="firstName" placeholder="First name"
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded"
+                                style="font-size: 13px;width:100%"
+                                [class.border-red-500]="signupForm.get('firstName')?.invalid && signupForm.get('firstName')?.touched" />
+                            <p *ngIf="signupForm.get('firstName')?.touched && signupForm.get('firstName')?.hasError('required')"
+                                class="mt-1 text-xs text-red-600">
+                                Required
+                            </p>
+                        </div>
+
+                        <div>
+                            <input type="text" pInputText placeholder="Last name" formControlName="lastName"
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded"
+                                style="font-size: 13px;width:100%"
+                                [class.border-red-500]="signupForm.get('lastName')?.invalid && signupForm.get('lastName')?.touched">
+                            <p *ngIf="signupForm.get('lastName')?.touched && signupForm.get('lastName')?.hasError('required')"
+                                class="mt-1 text-xs text-red-600">
+                                Required
+                            </p>
+                        </div>
+
+                        <div>
+                            <input type="email" pInputText placeholder="Email" formControlName="email"
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded"
+                                style="font-size: 13px;width:100%"
+                                [class.border-red-500]="signupForm.get('email')?.invalid && signupForm.get('email')?.touched">
+                            <p *ngIf="signupForm.get('email')?.touched && signupForm.get('email')?.hasError('required')"
+                                class="mt-1 text-xs text-red-600">
+                                Email required
+                            </p>
+                            <p *ngIf="signupForm.get('email')?.touched && signupForm.get('email')?.hasError('pattern')"
+                                class="mt-1 text-xs text-red-600">
+                                Invalid format
+                            </p>
+                        </div>
+
+                        <div>
+                            <input type="text" pInputText placeholder="Phone Number" formControlName="phoneNumber" maxlength="10"
+                                class="w-full px-3 py-2 text-base border border-gray-300 rounded"
+                                style="font-size: 13px;width:100%"
+                                [class.border-red-500]="signupForm.get('phoneNumber')?.invalid && signupForm.get('phoneNumber')?.touched">
+                            <p *ngIf="signupForm.get('phoneNumber')?.touched && signupForm.get('phoneNumber')?.hasError('required')"
+                                class="mt-1 text-xs text-red-600">
+                                Required
+                            </p>
+                            <p *ngIf="signupForm.get('phoneNumber')?.touched && signupForm.get('phoneNumber')?.hasError('pattern')"
+                                class="mt-1 text-xs text-red-600">
+                                10 digits required
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+
+                        <div class="w-full">
+                            <p-password id="password" formControlName="password" placeholder="Enter your password"
+                                [inputStyle]="{'width': '100%', 'padding': '0.6rem 0.35rem','margin-bottom':'5px', 'font-size': '0.875rem', 'line-height': '1.25rem'}"
+                                [style]="{'width': '100%', 'font-size':'13px'}"
+                                [inputStyleClass]="'w-full font-[13px] border rounded px-3 py-2 text-sm border border-gray-300 rounded ' + 
+                    (signupForm.get('password')?.invalid && signupForm.get('password')?.touched ? 'border-red-500' : 'border-gray-300')" [toggleMask]="true"
+                                [feedback]="true"
+                                panelStyleClass="bg-white shadow-lg rounded-md px-3 py-2 border border-gray-200 w-full">
+                                <ng-template pTemplate="header">
+                                    <div class="text-sm font-medium text-gray-700 mb-2">Password Requirements</div>
+                                </ng-template>
+                                <ng-template pTemplate="footer">
+                                    <div class="text-xs text-gray-500 mt-2">Must be at least 8 characters</div>
+                                </ng-template>
+                            </p-password>
+                        </div>
+                        <p *ngIf="signupForm.get('password')?.touched && signupForm.get('password')?.hasError('required')"
+                            class="mt-1 text-xs text-red-600">
+                            Required
+                        </p>
+                        <p *ngIf="signupForm.get('password')?.touched && signupForm.get('password')?.hasError('minlength')"
+                            class="mt-1 text-xs text-red-600">
+                            Min 8 characters
+                        </p>
+                    </div>
+
+                    <div>
+                        <div class="w-full">
+                            <p-password id="confirmPassword" formControlName="confirmPassword"
+                                placeholder="Confirm Password"
+                                [inputStyle]="{'width': '100%', 'padding': '0.6rem 0.35rem', 'font-size': '0.875rem', 'line-height': '1.25rem'}"
+                                [style]="{'width': '100%', 'font-size':'13px'}"
+                                [inputStyleClass]="'w-full border rounded font-[13px] px-3 ' + 
+                                (signupForm.get('confirmPassword')?.invalid && signupForm.get('confirmPassword')?.touched ? 'border-red-500' : 'border-gray-300')"
+                                [toggleMask]="true" [feedback]="true"
+                                panelStyleClass="bg-white shadow-lg rounded-md p-4 mt-2 border border-gray-200 w-full">
+                                <ng-template pTemplate="header">
+                                    <div class="text-sm font-medium text-gray-700 mb-2">Password Requirements</div>
+                                </ng-template>
+                                <ng-template pTemplate="footer">
+                                    <div class="text-xs text-gray-500 mt-2">Must be at least 8 characters</div>
+                                </ng-template>
+                            </p-password>
+                        </div>
+                        <p *ngIf="signupForm.get('confirmPassword')?.touched && signupForm.get('confirmPassword')?.hasError('required')"
+                            class="mt-1 text-xs text-red-600">
+                            Required
+                        </p>
+
+                    </div>
+
+                    <button type="submit" data-cy="signup-btn"
+                        [disabled]="signupForm.invalid"
+                        class="w-full py-2 px-4 bg-[#a27929] hover:bg-[#8c6d3f] text-white text-sm font-medium rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#a27929] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        Sign Up
+                    </button>
+
+                    <div class="text-center text-xs text-gray-600 pt-2">
+                        <span routerLink="/landing" class="underline text-[#a27929] mr-3 cursor-pointer hover:underline">Home</span>
+                        Have an account? <a routerLink="/signin" class="text-[#a27929] text-base hover:underline">Sign
+                            In</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>

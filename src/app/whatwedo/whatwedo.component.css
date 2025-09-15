@@ -1,0 +1,26 @@
+/* what-we-do.component.css */
+.infinite-scroller {
+  animation: scroll 40s linear infinite;
+}
+
+.infinite-scroller:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.activity-card:hover img {
+  transform: scale(1.05);
+}
+
+.text-transparent {
+  color: transparent;
+}
+

@@ -1,101 +1,288 @@
-<div class="main" *ngIf="profile$ | async as profile">
-    <div class="infoCards">
-        <div class="detailsHeader">
-            <div class="image-container">
-                <img [src]="profile.profile_image || '../../assets/batProfile.jpg'" alt="Profile Image" />
+<div class="bg-[#f8f9fa] px-4 py-1 md:p-8" style="height: 85vh;overflow-y:auto" *ngIf="profile$ | async as profile">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 ">
+        <!-- Profile Header - Updated with richer golden tones -->
+        <div class="lg:col-span-3 bg-[#d4a72c] rounded-xl shadow-md p-6">
+            <div class="flex flex-col md:flex-row items-center gap-6">
+                <!-- Profile Image Column -->
+                <div class="flex flex-col items-center md:items-start gap-4">
+                    <div class="relative w-fit">
+                        <img [src]="previewImage || profile.profile_image || '../../assets/ariders.jpg'"
+                            alt="Profile Image"
+                            class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-[#e8c15e] shadow-sm" />
 
-            </div>
-            <div class="text-details">
-                <h3 class="name">{{ profile.first_name }}</h3> <span style="margin-left: 10px; margin-right: 25px;">
-                    <h3 class="name">{{ profile.last_name }}</h3>
-                </span>
-                <h3 class="name">{{ profile.role }}</h3>
+                        <!-- Edit Button -->
+                        <button *ngIf="profileBtn && !previewImage"
+                            class="absolute -bottom-2 -right-2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors border-2 border-[#e8c15e]"
+                            (click)="fileInput.click()">
+                            <fa-icon [icon]="faPen" class="text-[#b38d25] text-sm"></fa-icon>
+                        </button>
+
+                        <!-- Cancel/Save Buttons -->
+                        <div *ngIf="previewImage" class="absolute -bottom-2 left-0 right-0 flex justify-center gap-2">
+                            <button (click)="cancelImageChange()"
+                                class="bg-[#6c757d] hover:bg-[#5a6268] text-white px-4 py-1 rounded-full text-sm font-medium transition-colors">
+                                Cancel
+                            </button>
+                            <button (click)="uploadImage(profileId ?? '')"
+                                class="bg-[#2c3e50] hover:bg-[#1a252f] text-white px-4 py-1 rounded-full text-sm font-medium transition-colors">
+                                Save
+                            </button>
+                        </div>
+
+                        <input type="file" #fileInput accept="image/*" class="hidden"
+                            (change)="onImageSelected($event)" />
+                    </div>
+                </div>
+
+                <!-- Profile Info Column -->
+                <div class="flex-1 text-center md:text-left">
+                    <h1
+                        class="text-2xl md:text-3xl font-bold text-white flex flex-wrap justify-center md:justify-start items-baseline gap-2">
+                        <span>{{ profile.first_name }}</span>
+                        <span>{{ profile.last_name }}</span>
+                    </h1>
+                    <div class="mt-2 bg-white/20 text-white px-3 py-1 rounded-full inline-block text-sm font-semibold">
+                        {{ profile.role | titlecase }}
+                    </div>
+
+                    <!-- Membership Info Cards - Updated with new accent colors -->
+                    <div class="flex flex-col sm:flex-row gap-3 mt-4">
+                        <div class="bg-[#2c3e50]/20 border border-[#e8c15e]/30 rounded-lg p-3 flex-1 max-w-xs">
+                            <h3 class="text-xs font-medium text-amber-100 mb-1">Membership Status</h3>
+                            <p class="text-lg font-semibold text-white">{{ profile.membership_status }}</p>
+                        </div>
+
+                        <div class="bg-[#2c3e50]/20 border border-[#e8c15e]/30 rounded-lg p-3 flex-1 max-w-xs">
+                            <h3 class="text-xs font-medium text-amber-100 mb-1">Membership Type</h3>
+                            <p class="text-lg font-semibold text-white">Premium</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- BASIC INFO -->
-        <div class="infoCard">
-            <h4>Basic Information</h4>
+        <!-- BASIC INFO - Updated card styling -->
+        <div class="bg-white rounded-xl shadow-sm border border-[#e9ecef] p-6">
+            <h4 class="text-lg font-semibold text-[#212529] mb-4">Basic Information</h4>
 
-            <form [formGroup]="basicForm">
-                <label>First Name</label>
-                <input formControlName="first_name" />
+            <form [formGroup]="basicForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-[#495057] mb-1">First Name</label>
+                    <input formControlName="first_name"
+                        class="w-full px-3 py-2 border border-[#e9ecef] rounded-md shadow-sm focus:outline-none focus:ring-[#d4a72c] focus:border-[#d4a72c]" />
+                </div>
 
-                <label>Last Name</label>
-                <input formControlName="last_name" />
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                    <input formControlName="last_name"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-yellow-700" />
+                </div>
 
-                <label>Middle Name</label>
-                <input formControlName="middle_name" />
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Middle Name</label>
+                    <input formControlName="middle_name"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-yellow-700" />
+                </div>
 
-                <label>Gender</label>
-                <p-dropdown id="gender" [options]="genderOptions" formControlName="gender" placeholder="Select Gender"
-                    optionLabel="label" optionValue="value"></p-dropdown>
+                <div>
+                    <label for="dob" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                    <p-dropdown id="gender" [options]="genderOptions" formControlName="gender"
+                        placeholder="Select Gender" optionLabel="label" optionValue="value"></p-dropdown>
+                </div>
 
-                <label for="dob">Date of Birth</label>
-                <p-calendar id="dob" formControlName="dob" [maxDate]="today" dateFormat="yy-mm-dd" [showIcon]="true"
-                    [monthNavigator]="true" [yearNavigator]="true" yearRange="1900:2099"
-                    placeholder="Select your birthdate"></p-calendar>
+                <div>
+                    <label for="dob" class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                    <p-calendar id="dob" formControlName="dob" [maxDate]="today" dateFormat="yy-mm-dd" [showIcon]="true"
+                        [monthNavigator]="true" [yearNavigator]="true" yearRange="1900:2099"
+                        placeholder="Select your birthdate"
+                        class="w-full [&>span]:w-full [&>span>input]:w-full [&>span>input]:border-gray-300 [&>span>input]:rounded-md"></p-calendar>
+                </div>
 
-                <div *ngIf="basicForm.get('dob')?.invalid && basicForm.get('dob')?.touched" class="text-danger">
+                <div *ngIf="basicForm.get('dob')?.invalid && basicForm.get('dob')?.touched"
+                    class="text-sm text-red-600">
                     Please select a valid date of birth.
                 </div>
 
-                <div *ngIf="basicForm.dirty" class="action-buttons">
-                    <button class="save" (click)="saveBasic(profileId ?? '')" type="button">Save</button>
-                    <button class="cancel" (click)="resetForm('basic')" type="button">Cancel</button>
+                <div *ngIf="basicForm.dirty" class="flex justify-end space-x-3 pt-2">
+                    <button
+                        class="px-4 py-2 bg-[#6c757d] text-white rounded-md hover:bg-[#5a6268] transition-colors text-sm font-medium"
+                        (click)="resetForm('basic')" type="button">
+                        Cancel
+                    </button>
+                    <button
+                        class="px-4 py-2 bg-[#d4a72c] hover:bg-[#b38d25] text-white rounded-md transition-colors text-sm font-medium"
+                        (click)="saveBasic(profileId ?? '')" type="button">
+                        Save Changes
+                    </button>
                 </div>
             </form>
         </div>
 
-        <!-- ADDRESS INFO -->
-        <div class="infoCard">
-            <h4>Address</h4>
+        <!-- CONTACT INFO - Consistent with Basic Info styling -->
+        <div class="bg-white rounded-xl shadow-sm border border-[#e9ecef] p-6">
+            <h4 class="text-lg font-semibold text-[#212529] mb-4">Contact Information</h4>
 
-            <form [formGroup]="addressForm">
-                <label>City</label>
-                <input formControlName="city" />
+            <form [formGroup]="contactForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <input formControlName="phone_number" maxlength="10"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-700 focus:border-yellow-700" />
+                    <div *ngIf="contactForm.get('phone_number')?.invalid && contactForm.get('phone_number')?.touched">
+                        <small class="text-sm text-red-600">Contact must be exactly 10 digits.</small>
+                    </div>
+                </div>
 
-                <label>County</label>
-                <input formControlName="county" />
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Emergency Number</label>
+                    <input type="text" formControlName="emergency_phone" maxlength="10" placeholder="Emergency Contact"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-700 focus:border-yellow-700" />
+                    <div
+                        *ngIf="contactForm.get('emergency_phone')?.invalid && contactForm.get('emergency_phone')?.touched">
+                        <small class="text-sm text-red-600">Contact must be exactly 10 digits.</small>
+                    </div>
+                </div>
 
-                <div *ngIf="addressForm.dirty" class="action-buttons">
-                    <button class="save" (click)="saveAddress(profileId ?? '')" type="button">Save</button>
-                    <button class="cancel" (click)="resetForm('address')" type="button">Cancel</button>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Work Number</label>
+                    <input type="text" formControlName="work_phone" maxlength="10" placeholder="Work Contact"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-700 focus:border-yellow-700" />
+                    <div *ngIf="contactForm.get('work_phone')?.invalid && contactForm.get('work_phone')?.touched">
+                        <small class="text-sm text-red-600">Contact must be exactly 10 digits.</small>
+                    </div>
+                </div>
+
+
+                <div *ngIf="contactForm.dirty" class="flex justify-end space-x-3 pt-2">
+                    <button
+                        class="px-4 py-2 bg-[#6c757d] text-white rounded-md hover:bg-[#5a6268] transition-colors text-sm font-medium"
+                        (click)="resetForm('contact')" type="button">
+                        Cancel
+                    </button>
+                    <button
+                        class="px-4 py-2 bg-[#d4a72c] hover:bg-[#b38d25] text-white rounded-md transition-colors text-sm font-medium"
+                        (click)="saveContact(profileId ?? '')" type="button">
+                        Save Changes
+                    </button>
                 </div>
             </form>
+
+
         </div>
 
-        <!-- CONTACT INFO -->
-        <div class="infoCard">
-            <h4>Contact</h4>
+        <!-- ADDRESS INFO - Consistent with other cards -->
+        <div class="bg-white rounded-xl shadow-sm border border-[#e9ecef] p-6">
+            <h4 class="text-lg font-semibold text-[#212529] mb-4">Address</h4>
 
-            <form [formGroup]="contactForm">
-                <label>Phone Number</label>
-                <input formControlName="phone_number" maxlength="10" class="form-control" />
-                <div *ngIf="contactForm.get('phone_number')?.invalid && contactForm.get('phone_number')?.touched">
-                    <small class="text-danger" style="color: red;">contact must be exactly 10 digits.</small>
+            <form [formGroup]="addressForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                    <input formControlName="city"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-700 focus:border-yellow-700" />
                 </div>
 
-                <label>Emergency Number</label>
-                <input type="text" formControlName="emergency_phone" maxlength="10" placeholder="Emergency Contact"
-                    class="form-control" />
-                <div *ngIf="contactForm.get('emergency_phone')?.invalid && contactForm.get('emergency_phone')?.touched">
-                    <small class="text-danger">contact must be exactly 10 digits.</small>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">County</label>
+                    <input formControlName="county"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-700 focus:border-yellow-700" />
                 </div>
 
-                <label>Work Number</label>
-                <input type="text" formControlName="work_phone" maxlength="10" placeholder="Work Contact"
-                    class="form-control" />
-                <div *ngIf="contactForm.get('work_phone')?.invalid && contactForm.get('work_phone')?.touched">
-                    <small class="text-danger">contact must be exactly 10 digits.</small>
-                </div>
-
-                <div *ngIf="contactForm.dirty" class="action-buttons">
-                    <button class="save" (click)="saveContact(profileId ?? '')" type="button">Save</button>
-                    <button class="cancel" (click)="resetForm('contact')" type="button">Cancel</button>
+                <div *ngIf="addressForm.dirty" class="flex justify-end space-x-3 pt-2">
+                    <button
+                        class="px-4 py-2 bg-[#6c757d] text-white rounded-md hover:bg-[#5a6268] transition-colors text-sm font-medium"
+                        (click)="resetForm('address')" type="button">
+                        Cancel
+                    </button>
+                    <button
+                        class="px-4 py-2 bg-[#d4a72c] hover:bg-[#b38d25] text-white rounded-md transition-colors text-sm font-medium"
+                        (click)="saveAddress(profileId ?? '')" type="button">
+                        Save Changes
+                    </button>
                 </div>
             </form>
+
         </div>
 
+        <!-- SETTINGS SECTION - Updated with new palette -->
+        <div class="lg:col-span-3 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Security Settings -->
+                <div class="bg-white rounded-xl shadow-sm border border-[#e9ecef] p-6">
+                    <h2 class="text-xl font-bold text-[#212529] mb-6">Security Settings</h2>
+                    <div class="space-y-4">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-[#f8f9fa] rounded-lg">
+                            <div class="flex-1">
+                                <h4 class="font-medium text-[#212529]">Password</h4>
+                            </div>
+                            <button (click)="requestPasswordReset(email ?? '')"
+                                class="bg-[#17a2b8] hover:bg-[#138496] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+                                Change Password
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Settings -->
+                <div class="bg-white rounded-xl shadow-sm border border-[#e9ecef] p-6">
+                    <h2 class="text-xl font-bold text-[#212529] mb-6">Account Actions</h2>
+                    <div class="space-y-4">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-[#f8f9fa] rounded-lg">
+                            <div class="flex-1">
+                                <h4 class="font-medium text-[#212529]">Delete Account</h4>
+                                <p class="text-sm text-[#6c757d] mt-1">Account deleted can never be recovered</p>
+                            </div>
+                            <button
+                                class="bg-[#dc3545] hover:bg-[#c82333] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+                                Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preferences Section -->
+            <div class="bg-white rounded-xl shadow-sm border border-[#e9ecef] p-6">
+                <h2 class="text-xl font-bold text-[#212529] mb-6">Preferences</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Rider Type -->
+                    <div class="p-4 bg-[#f8f9fa] rounded-lg">
+                        <h4 class="font-medium text-[#212529] mb-2">Cycling categories</h4>
+                        <p class="text-sm text-[#6c757d] mb-3">Select your primary cycling discipline</p>
+                        <div class="flex flex-wrap gap-2">
+                            <ng-container *ngIf="(riderTypes$ | async) as types">
+                                <div *ngIf="clickedRiderType && successMessageVisible" class="text-[#28a745]">Updated
+                                    successfully!</div>
+                                <div *ngIf="clickedRiderType && (updateRiderTypeError$ | async) as err"
+                                    class="text-[#dc3545]">{{ err }}</div>
+
+                                <button *ngFor="let type of types" class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors border
+                                    {{ (selectedRiderType$ | async) === type.id ? 
+                                        'bg-[#d4a72c] text-white border-[#d4a72c]' : 
+                                        'bg-white text-[#495057] border-[#e9ecef] hover:border-[#d4a72c]' }}"
+                                    (click)="selectRiderType(type)">
+                                    {{ type.type_name }}
+                                </button>
+                            </ng-container>
+                        </div>
+                    </div>
+
+                    <!-- Theme Selector -->
+                    <div class="p-4 bg-[#f8f9fa] rounded-lg">
+                        <h4 class="font-medium text-[#212529] mb-2">Theme</h4>
+                        <p class="text-sm text-[#6c757d] mb-3">Choose your visual appearance</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button *ngFor="let theme of ['Light', 'Dark']" class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors border
+                                {{ selectedTheme === theme ? 
+                                   'bg-[#d4a72c] text-white border-[#d4a72c]' : 
+                                   'bg-white text-[#495057] border-[#e9ecef] hover:border-[#d4a72c]' }}"
+                                (click)="selectTheme(theme)">
+                                {{ theme }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

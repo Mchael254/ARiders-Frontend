@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ResponsesService } from 'src/app/services/responses.service';
+import { ResponsesService } from 'src/app/services/utilities/toaster/responses.service';
 
 @Component({
   selector: 'app-spinner',
@@ -7,8 +7,8 @@ import { ResponsesService } from 'src/app/services/responses.service';
   styleUrls: ['./spinner.component.css']
 })
 export class SpinnerComponent {
-  
+
   loading$ = this.response.loading$;
-  constructor(private response: ResponsesService) {}
+  constructor(private response: ResponsesService) { }
 
 }

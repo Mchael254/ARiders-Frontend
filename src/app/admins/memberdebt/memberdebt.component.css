@@ -1,0 +1,16 @@
+.main {
+  background-color: #f5f3f3;
+  width: 82vw;
+  height: 85vh;
+  border: solid #d2d4c8 1px;
+  border-radius: 5px;
+  overflow-y: auto;
+  padding: 0px 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  gap: 3px;
+}
+
+
+ 

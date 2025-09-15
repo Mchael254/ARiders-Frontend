@@ -1,12 +1,15 @@
 import { Component } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
-import { ResponsesService } from '../services/responses.service';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { combineLatest, filter } from 'rxjs';
-import { loginForm } from '../interfaces/authInterface';
 import { Store } from '@ngrx/store';
 import { selectAuthError, selectAuthRole, selectIsAuthenticated } from '../store/auth/auth.selector';
 import * as AuthActions from '../store/auth/auth.actions';
+import { ToastrService } from 'ngx-toastr';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { AuthService } from '../services/auth/auth.service';
+import { getRedirectPath } from '../guards/auth/auth.guard';
+
 
 @Component({
   selector: 'app-signin',
@@ -14,43 +17,47 @@ import * as AuthActions from '../store/auth/auth.actions';
   styleUrls: ['./signin.component.css']
 })
 export class SigninComponent {
+
+  isLoading = false;
+  loadingLine: boolean = false;
+  visible: boolean = false;
+
   constructor(
     private fb: FormBuilder,
-    private response: ResponsesService,
+    private spinner: NgxSpinnerService,
+    private requestPasswordChange: AuthService,
     private router: Router,
-    private store: Store
-  ) {}
+    private store: Store,
+    private toastr: ToastrService,
+  ) { }
 
+  // Signin form 
   signinForm = this.fb.group({
     email: ['', [Validators.required, Validators.pattern(/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i)]],
     password: ['', [Validators.required, Validators.minLength(8)]],
   });
 
-  loadingLine: boolean = false;
+  // Forgot password form 
+  forgotPasswordForm = this.fb.group({
+    email: ['', [Validators.required, Validators.pattern(/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i)]]
+  });
+
 
   ngOnInit(): void {
-    // Handle login result (auth + role)
     combineLatest([
       this.store.select(selectIsAuthenticated),
       this.store.select(selectAuthRole),
       this.store.select(selectAuthError)
     ])
-      .pipe(filter(([auth, role, error]) => auth || !!error)) 
+      .pipe(filter(([auth, error]) => auth || !!error))
       .subscribe(([authenticated, role, error]) => {
         this.loadingLine = false;
-
-        if (authenticated) {
-          if (role === 'admin') {
-            this.router.navigate(['/admin']);
-          } else if (role === 'member') {
-            this.router.navigate(['/dashboard']);
-          } else {
-            this.router.navigate(['/home']);
-          }
+        if (authenticated && role) {
+          const redirectPath = getRedirectPath(role);
+          this.router.navigate([redirectPath]);
         }
-
         if (error) {
-          this.response.showError(error); 
+          this.toastr.error(error);
         }
       });
   }
@@ -60,8 +67,7 @@ export class SigninComponent {
     const password = this.signinForm.get('password')?.value || '';
 
     if (password === '' || email === '' || password.length < 8) {
-      this.response.showWarning('Check fields ⚠️');
-      
+      this.toastr.warning('Check fields ⚠️');
       return false;
     }
 
@@ -69,15 +75,74 @@ export class SigninComponent {
   }
 
   onSignIn(): void {
-    this.loadingLine = true;
-
     if (!this.inputValidator()) {
       this.loadingLine = false;
       return;
     }
 
-    const form = this.signinForm.getRawValue() as loginForm;
-    this.store.dispatch(AuthActions.login({ email: form.email, password: form.password }));
+    this.isLoading = true;
+    this.loadingLine = true;
+
+    setTimeout(() => {
+      const form = this.signinForm.getRawValue();
+      this.store.dispatch(AuthActions.login({
+        email: form.email!,
+        password: form.password!
+      }));
+
+      this.isLoading = false;
+      this.loadingLine = false;
+    }, 3000);
   }
 
+  showDialog() {
+    this.visible = true;
+  }
+
+  closeDialog() {
+    this.visible = false;
+    this.forgotPasswordForm.reset();
+  }
+
+  forgotPasswordValidator(): boolean {
+    const email = this.forgotPasswordForm.get('email')?.value || '';
+
+    if (email === '' || this.forgotPasswordForm.get('email')?.invalid) {
+      return false;
+    }
+
+    return true;
+  }
+
+  passwordValue: string = '';
+  onForgotPasswordSubmit() {
+    this.forgotPasswordForm.markAllAsTouched();
+
+    if (!this.forgotPasswordValidator()) {
+      return;
+    }
+
+    const email = this.forgotPasswordForm.get('email')?.value ?? '';
+
+    this.spinner.show();
+    this.requestPasswordChange.sendPasswordReset(email).subscribe({
+      next: ({ error }) => {
+        this.spinner.hide();
+        if (error) {
+          this.toastr.error('Failed to send password reset email');
+        } else {
+          this.toastr.success(`Password reset email sent to ${email}`);
+          this.closeDialog()
+        }
+      },
+      error: () => {
+        this.spinner.hide();
+        this.toastr.error('Something went wrong');
+      }
+    });
+  }
+
+  get forgotPasswordEmail() {
+    return this.forgotPasswordForm.get('email');
+  }
 }

@@ -1,0 +1,90 @@
+<div class="flex flex-col lg:flex-row bg-gray-50 rounded-xl overflow-hidden shadow-lg border border-gray-200 max-w-6xl mx-auto">
+
+    <!-- Left: About Us Content - Enhanced -->
+    <div class="flex-1 p-5 md:p-8 flex flex-col justify-center space-y-4 md:space-y-6 relative">
+        <!-- Futuristic corner accents -->
+        <div class="absolute top-4 left-4 w-2.5 h-2.5 border-t-2 border-l-2 border-yellow-600 rounded-tl"></div>
+        <div class="absolute bottom-4 right-4 w-2.5 h-2.5 border-b-2 border-r-2 border-yellow-600 rounded-br"></div>
+        
+        <div class="space-y-2 md:space-y-3">
+            <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 tracking-tight leading-tight">
+                About <span class="text-[#d4a72c]">Us</span>
+            </h2>
+            <p class="text-base sm:text-lg md:text-xl text-yellow-600 italic font-medium tracking-wider">
+                Passion • Community • Adventure
+            </p>
+        </div>
+        
+        <div class="bg-white p-4 md:p-6 rounded-lg border border-gray-200 shadow-sm text-base sm:text-lg md:text-xl leading-relaxed">
+            <p class="text-gray-700">
+                We are <span class="font-semibold text-yellow-700">Mombasa's premier cycling collective</span>, 
+                combining tradition with technology to create exceptional riding experiences 
+                for enthusiasts of all levels.
+            </p>
+        </div>
+        
+        <button routerLink="/signup"
+            class="px-6 py-3 md:px-8 md:py-4 bg-[#d4a72c] text-white font-medium rounded-lg shadow-md hover:shadow-yellow-500/40 hover:scale-[1.02] transition-all duration-300 text-base md:text-lg flex items-center justify-center gap-2 w-full sm:w-fit">
+            Join Our Network
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Right: Statistics - Enhanced with larger circles -->
+    <div class="flex-1 p-5 md:p-8 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 relative flex flex-col justify-center">
+        <!-- Subtle grid pattern -->
+        <div class="absolute inset-0 opacity-5 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48cGF0aCBkPSJNMCAwaDQwdjQwSDB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTAgMGwyMCAyME0yMCAwTDAgMjAiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9zdmc+')]"></div>
+        
+        <h3 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 text-center mb-6 md:mb-8">
+            Our <span class="text-[#d4a72c]">Impact</span>
+        </h3>
+        
+        <div class="grid grid-cols-2 gap-4 sm:gap-6 md:gap-8">
+            <!-- Member Stat -->
+            <div class="flex flex-col items-center group">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-[#d4a72c] rounded-full flex items-center justify-center shadow-lg hover:shadow-yellow-500/40 transition-shadow duration-300 relative mb-2 sm:mb-3">
+                    <i class="pi pi-users text-white text-2xl sm:text-3xl md:text-4xl"></i>
+                    <div class="absolute inset-0 rounded-full border-2 border-yellow-400/30 animate-[spin_8s_linear_infinite]"></div>
+                </div>
+                <p class="text-center font-medium text-gray-700 text-sm sm:text-base md:text-lg">
+                    120+ Members
+                </p>
+            </div>
+            
+            <!-- Distance Stat -->
+            <div class="flex flex-col items-center group">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-[#d4a72c]  rounded-full flex items-center justify-center shadow-lg hover:shadow-yellow-500/40 transition-shadow duration-300 relative mb-2 sm:mb-3">
+                    <i class="pi pi-map-marker text-white text-2xl sm:text-3xl md:text-4xl"></i>
+                    <div class="absolute inset-0 rounded-full border-2 border-yellow-400/30 animate-[spin_10s_linear_infinite_reverse]"></div>
+                </div>
+                <p class="text-center font-medium text-gray-700 text-sm sm:text-base md:text-lg">
+                    5k KM Ridden
+                </p>
+            </div>
+            
+            <!-- Events Stat -->
+            <div class="flex flex-col items-center group">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-[#d4a72c]  rounded-full flex items-center justify-center shadow-lg hover:shadow-yellow-500/40 transition-shadow duration-300 relative mb-2 sm:mb-3">
+                    <i class="pi pi-star text-white text-2xl sm:text-3xl md:text-4xl"></i>
+                    <div class="absolute inset-0 rounded-full border-2 border-yellow-400/30 animate-[spin_12s_linear_infinite]"></div>
+                </div>
+                <p class="text-center font-medium text-gray-700 text-sm sm:text-base md:text-lg">
+                    25 Events
+                </p>
+            </div>
+            
+            <!-- Legacy Stat -->
+            <div class="flex flex-col items-center group">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-[#d4a72c]  rounded-full flex items-center justify-center shadow-lg hover:shadow-yellow-500/40 transition-shadow duration-300 relative mb-2 sm:mb-3">
+                    <i class="pi pi-clock text-white text-2xl sm:text-3xl md:text-4xl"></i>
+                    <div class="absolute inset-0 rounded-full border-2 border-yellow-400/30 animate-[spin_14s_linear_infinite_reverse]"></div>
+                </div>
+                <p class="text-center font-medium text-gray-700 text-sm sm:text-base md:text-lg">
+                    10yrs Legacy
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

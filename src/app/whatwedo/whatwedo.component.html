@@ -1,0 +1,64 @@
+<!-- what-we-do.component.html -->
+<section class="py-16 bg-black text-white overflow-hidden relative">
+    <!-- Animated background elements -->
+    <div class="absolute inset-0 overflow-hidden opacity-10">
+        <div class="absolute top-0 left-0 w-64 h-64 bg-cyan-400 rounded-full filter blur-3xl opacity-20 animate-pulse">
+        </div>
+        <div
+            class="absolute bottom-0 right-0 w-64 h-64 bg-emerald-400 rounded-full filter blur-3xl opacity-20 animate-pulse">
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 relative z-10">
+        <h2 class="text-4xl md:text-5xl font-bold mb-12 text-center">
+            <span
+                class="bg-clip-text text-transparent bg-gradient-to-r from-[#d4a72c] via-[#c9941d] to-[#b07d15] animate-shine font-bold">
+                What We Do
+            </span>
+        </h2>
+
+        <!-- Desktop Infinite Scroller -->
+        <div class="hidden md:block relative h-[28rem] overflow-hidden">
+            <div class="absolute inset-0 flex items-center">
+                <div class="infinite-scroller flex space-x-8">
+                    <div *ngFor="let activity of duplicatedActivities; let i = index"
+                        class="scroller-item flex-shrink-0 w-80 h-96 relative rounded-2xl overflow-hidden group transition-all duration-500 hover:scale-105 hover:z-10">
+                        <div class="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-all duration-300">
+                        </div>
+                        <img [src]="activity.image" [alt]="activity.title"
+                            class="w-full h-full object-contain object-center transition-transform duration-700 group-hover:scale-110">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end p-6">
+                            <div
+                                class="transform group-hover:translate-y-0 translate-y-2 transition-transform duration-300">
+                                <h3 class="text-2xl font-bold text-[#d4a72c] drop-shadow-lg">{{activity.title}}</h3>
+                                <p class="text-gray-300 mt-2 drop-shadow-lg">{{activity.description}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <!-- Mobile Grid -->
+        <div class="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div *ngFor="let activity of activities"
+                class="activity-card h-80 relative rounded-xl overflow-hidden group transition-all duration-300 hover:shadow-lg hover:shadow-cyan-400/20">
+                <div class="absolute inset-0 flex items-center justify-center bg-black">
+                    <div class="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-all duration-300"></div>
+                    <img [src]="activity.image" [alt]="activity.title"
+                        class="max-w-full max-h-full object-scale-down transition-transform duration-500 group-hover:scale-105">
+                </div>
+                <div
+                    class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end p-4">
+                    <div class="transform group-hover:translate-y-0 translate-y-2 transition-transform duration-300">
+                        <h3 class="text-xl font-bold text-[#d4a72c] drop-shadow-lg">{{activity.title}}</h3>
+                        <p class="text-gray-300 text-sm mt-1 drop-shadow-lg">{{activity.description}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

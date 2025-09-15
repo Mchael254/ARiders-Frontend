@@ -1,0 +1,607 @@
+<div class="main">
+    <div class="bg-gray-50">
+        <div class="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
+            <!-- Period Selection Card -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Report Period</h2>
+                <div class="flex flex-col sm:flex-row gap-4 sm:items-end">
+                    <!-- Start Date -->
+                    <div class="flex-1 min-w-0">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                        <div class="relative rounded-md shadow-sm">
+                            <input type="date" [(ngModel)]="dateRange.start" (change)="onDateRangeChange()"
+                                class="block w-full rounded-md border-gray-300 pl-3 pr-10 py-2 text-base focus:border-amber-500 focus:ring-amber-500">
+                        </div>
+                    </div>
+
+                    <!-- End Date -->
+                    <div class="flex-1 min-w-0">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                        <div class="relative rounded-md shadow-sm">
+                            <input type="date" [(ngModel)]="dateRange.end" (change)="onDateRangeChange()"
+                                class="block w-full rounded-md border-gray-300 pl-3 pr-10 py-2 text-base focus:border-amber-500 focus:ring-amber-500">
+                        </div>
+                    </div>
+
+                    <!-- Update Button (optional since we auto-update on change) -->
+                    <button (click)="fetchDebtSummary()"
+                        class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200">
+                        Refresh Data
+                    </button>
+                </div>
+
+                <!-- Reporting Period Display -->
+                <div class="mt-4 pt-3 border-t border-gray-200 px-4 sm:px-0">
+                    <p class="text-xs sm:text-sm text-gray-600 flex flex-col xs:flex-row gap-1 xs:gap-2 items-baseline">
+                        <span class="font-medium whitespace-nowrap">Reporting Period:</span>
+                        <span class="flex items-baseline gap-1 xs:gap-2">
+                            <span class="text-gray-900 text-base sm:text-lg lg:text-xl font-semibold whitespace-nowrap">
+                                {{ dateRange.start | date:'mediumDate' }}
+                            </span>
+                            <span class="hidden xs:inline">to</span>
+                            <span class="xs:hidden">→</span>
+                            <span class="text-gray-900 text-base sm:text-lg lg:text-xl font-semibold whitespace-nowrap">
+                                {{ dateRange.end | date:'mediumDate' }}
+                            </span>
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div *ngIf="loading" class="flex flex-col items-center justify-center py-12 bg-white rounded-xl shadow-sm">
+                <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-amber-500 mb-4"></div>
+                <p class="text-gray-600">Loading debt summary...</p>
+            </div>
+
+            <!-- Error State -->
+            <div *ngIf="error" class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-700">{{ error }}</p>
+                        <button (click)="onDateRangeChange()">
+                            ()"
+                            class="mt-2 text-sm font-medium text-red-700 hover:text-red-600">
+                            <span aria-hidden="true">↻</span> Retry
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div *ngIf="!loading && analysis" class="space-y-6">
+                <!-- Performance Overview Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Collection Rate -->
+                    <div
+                        class="bg-gradient-to-br from-white via-indigo-50 to-white rounded-xl shadow-sm p-5 border-l-4 border-blue-500">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-blue-100 p-2 rounded-lg">
+                                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500">Collection Rate</h3>
+                                <p class="text-2xl font-semibold text-gray-900">{{ formatPercentage(collectionRate /
+                                    100) }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-600 h-2 rounded-full" [style.width]="collectionRate + '%'"></div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">
+                                {{ formatCurrency(totalExpectedRevenue - (totalExpectedRevenue * (1 -
+                                collectionRate/100))) }} collected of {{
+                                formatCurrency(totalExpectedRevenue) }} expected
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Total Debt -->
+                    <div
+                        class="bg-gradient-to-br from-white via-blue-50 to-white rounded-xl shadow-sm p-5 border-l-4 border-red-500">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-red-100 p-2 rounded-lg">
+                                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500">Total Debt</h3>
+                                <p class="text-2xl font-semibold text-gray-900">{{ formatCurrency(totalExpectedRevenue)
+                                    }}</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-4">
+                            {{ memberCount }} members analyzed
+                        </p>
+                    </div>
+
+                    <!-- Average Debt -->
+                    <div
+                        class="bg-gradient-to-br from-white via-purple-50 to-white rounded-xl shadow-sm p-5 border-l-4 border-orange-500">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-orange-100 p-2 rounded-lg">
+                                <svg class="h-6 w-6 text-orange-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500">Average Debt</h3>
+                                <p class="text-2xl font-semibold text-gray-900">{{ formatCurrency(averageDebt) }}</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-4">
+                            Per member average
+                        </p>
+                    </div>
+
+                    <!-- Current Month -->
+                    <div
+                        class="bg-gradient-to-br from-white via-green-50 to-white rounded-xl shadow-sm p-5 border-l-4 border-green-500">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-green-100 p-2 rounded-lg">
+                                <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500">Current Month</h3>
+                                <p class="text-2xl font-semibold text-gray-900">{{ filteredDebtors.length }}</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-4">
+                            {{ formatCurrency(currentMonthDebtTotal) }} outstanding
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Risk Analysis Section -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-900">Payment Status Analysis</h2>
+                        <p class="text-sm text-gray-500 mt-1">Member segmentation by payment status</p>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div *ngFor="let status of paymentStatusOptions"
+                                class="border rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
+                                [class.border-red-200]="status.severity === 'danger'"
+                                [class.border-yellow-200]="status.severity === 'warning'"
+                                [class.border-green-200]="status.severity === 'success'"
+                                [class.bg-gradient-to-br]="true" [class.from-white]="true" [class.to-white]="true"
+                                [class.via-red-50]="status.severity === 'danger'"
+                                [class.via-yellow-50]="status.severity === 'warning'"
+                                [class.via-green-50]="status.severity === 'success'">
+
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-sm font-medium text-gray-700">{{ status.label }}</h3>
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                        [class.bg-red-100]="status.severity === 'danger'"
+                                        [class.bg-yellow-100]="status.severity === 'warning'"
+                                        [class.bg-green-100]="status.severity === 'success'"
+                                        [class.text-red-800]="status.severity === 'danger'"
+                                        [class.text-yellow-800]="status.severity === 'warning'"
+                                        [class.text-green-800]="status.severity === 'success'">
+                                        {{ membersByPaymentStatus[status.value].length || 0 }}
+                                    </span>
+                                </div>
+
+                                <p class="text-2xl font-bold mt-2 text-gray-900">
+                                    {{ membersByPaymentStatus[status.value].length || 0 }}
+                                </p>
+
+                                <div class="mt-3 space-y-1">
+                                    <div *ngFor="let member of membersByPaymentStatus[status.value]?.slice(0, 3)"
+                                        class="text-sm text-gray-600 truncate">
+                                        {{ member.first_name }} {{ member.last_name }}
+                                    </div>
+                                    <p *ngIf="(membersByPaymentStatus[status.value]?.length || 0) > 3"
+                                        class="text-xs text-gray-500 mt-1">
+                                        +{{ (membersByPaymentStatus[status.value].length || 0) - 3 }} more
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Month Debtors Section -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h2 class="text-lg font-semibold text-gray-900">Current Month ({{ currentMonthName }})
+                                </h2>
+                                <p class="text-sm text-gray-500 mt-1">Detailed view of current month debtors</p>
+                            </div>
+                            <div class="flex gap-2 mt-3 sm:mt-0">
+                                <button (click)="exportFilteredDebtorsToPDF()"
+                                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200">
+                                    <svg class="-ml-0.5 mr-2 h-4 w-4" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    Export PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summary Ribbon -->
+                    <div class="px-6 py-3 bg-gray-50 border-b border-gray-200">
+                        <div class="flex flex-wrap gap-2">
+                            <div
+                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                <svg class="-ml-0.5 mr-1.5 h-4 w-4" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Expected: {{ formatCurrency(currentMonthExpectedTotal) }}
+                            </div>
+                            <div
+                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                <svg class="-ml-0.5 mr-1.5 h-4 w-4" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                Outstanding:{{ formatCurrency(currentMonthDebtTotal) }} {{currentMonthPaidTotal}}
+                            </div>
+                            <div
+                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-black">
+                                <i class="pi pi-wallet text-blue-500 mr-2"></i>
+                                <span class="font-medium">Total Paid: {{currentMonthPaidTotal}}</span>
+
+                            </div>
+                            <div
+                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
+                                <svg class="-ml-0.5 mr-1.5 h-4 w-4" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                                {{ currentMonthDebtorCount }} Debtors
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Controls -->
+                    <div class="px-6 py-3 bg-white border-b border-gray-200">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <!-- Search Input -->
+                            <div class="w-full sm:w-1/2">
+                                <input type="text" id="search" [(ngModel)]="searchTerm"
+                                    (ngModelChange)="onSearchChange()"
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
+                                    placeholder="Search name/email">
+                            </div>
+
+                            <!-- Status Filter -->
+                            <div
+                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
+                                <svg class="-ml-0.5 mr-1.5 h-4 w-4" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                                {{filteredDebtors.length}}
+                            </div>
+
+                            <div class="w-full sm:w-64">
+                                <select id="status" [(ngModel)]="activeFilter" (ngModelChange)="onFilterChange()"
+                                    class="block cursor-pointer w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-md">
+                                    <option *ngFor="let option of paymentStatusOptions" [value]="option.value">
+                                        {{option.label}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Debtors Table -->
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Member</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Expected</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Paid</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Balance</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr *ngFor="let member of paginatedDebtors" class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div
+                                                class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium">
+                                                {{ member.first_name.charAt(0) }}{{ member.last_name.charAt(0) }}
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900">{{ member.first_name }}
+                                                    {{ member.last_name }}</div>
+                                                <div class="text-sm text-gray-500 truncate max-w-xs">{{ member.email }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span
+                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full capitalize"
+                                            [class.bg-green-100]="member.payment_status === 'fully_paid'"
+                                            [class.text-green-800]="member.payment_status === 'fully_paid'"
+                                            [class.bg-yellow-100]="member.payment_status === 'partial'"
+                                            [class.text-yellow-800]="member.payment_status === 'partial'"
+                                            [class.bg-red-100]="member.payment_status === 'no_payment'"
+                                            [class.text-red-800]="member.payment_status === 'no_payment'">
+                                            {{ member.payment_status.replace('_', ' ') }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ formatCurrency(member.total_expected) }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ formatCurrency(member.total_paid) }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"
+                                        [class.text-green-600]="member.current_month_debt <= 0"
+                                        [class.text-red-600]="member.current_month_debt > 0">
+                                        {{ formatCurrency(member.current_month_debt) }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <div class="flex justify-end space-x-2">
+                                            <button (click)="viewDebt(member.member_id)"
+                                                class="text-amber-600 hover:text-amber-900">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr *ngIf="filteredDebtors.length === 0">
+                                    <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                                        No debtors found matching your criteria
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="flex flex-col m-2 p-2 sm:flex-row sm:items-center sm:justify-between gap-2 w-full">
+                        <!-- Pagination Info -->
+                        <div class="text-center sm:text-left">
+                            <p class="text-sm text-gray-700">
+                                Showing <span class="font-medium">{{ (currentPage - 1) * pageSize + 1 }}</span>
+                                to <span class="font-medium">{{ Math.min(currentPage * pageSize, filteredDebtors.length)
+                                    }}</span>
+                                of <span class="font-medium">{{ filteredDebtors.length }}</span> results
+                            </p>
+                        </div>
+
+                        <!-- Pagination Nav -->
+                        <div class="flex justify-center sm:justify-start">
+                            <nav class="inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <button (click)="prevPage()"
+                                    class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                                    [disabled]="currentPage === 1">
+                                    <span class="sr-only">Previous</span>
+                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+
+                                <button *ngFor="let page of getPages()" (click)="goToPage(page)"
+                                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium hover:bg-gray-50"
+                                    [ngClass]="{'text-amber-600 font-semibold bg-amber-50': currentPage === page}">
+                                    {{ page }}
+                                </button>
+
+                                <button (click)="nextPage()"
+                                    class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                                    [disabled]="currentPage === totalPages">
+                                    <span class="sr-only">Next</span>
+                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Trends Section -->
+                <div
+                    class="bg-white rounded-lg sm:rounded-xl shadow-sm overflow-hidden mt-4 sm:mt-6 mx-2 sm:mx-4 lg:mx-0">
+                    <!-- Header Section -->
+                    <div class="px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200">
+                        <h2 class="text-base sm:text-lg md:text-xl font-semibold text-gray-900">
+                            Monthly Collection Trends
+                        </h2>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-1">
+                            Historical payment performance over time
+                        </p>
+                    </div>
+
+                    <div class="p-3 sm:p-4 md:p-6">
+                        <!-- Chart Container - Fully responsive with proper aspect ratios -->
+                        <div class="relative w-full">
+                            <!-- Mobile: 4:3 aspect ratio, Tablet+: 16:9 aspect ratio -->
+                            <div class="aspect-[4/3] sm:aspect-[16/10] md:aspect-[16/9] lg:aspect-[21/9] w-full">
+                                <canvas baseChart [type]="'line'" [data]="chartData" [options]="chartOptions"
+                                    [plugins]="chartPlugins" [legend]="true" class="w-full h-full">
+                                </canvas>
+                            </div>
+                        </div>
+
+                        <!-- Trend Summary - Enhanced responsive grid -->
+                        <div
+                            class="mt-4 sm:mt-6 grid grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+                            <div *ngFor="let trend of monthlyTrends | slice: 0:3; trackBy: trackByMonth" class="group bg-gradient-to-br from-white via-blue-50/30 to-white rounded-lg sm:rounded-xl md:rounded-2xl 
+                       shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-200 
+                       transition-all duration-200 ease-in-out transform hover:-translate-y-0.5
+                       p-3 sm:p-4 md:p-6">
+
+                                <!-- Month Header -->
+                                <div class="flex items-center gap-2 mb-3 sm:mb-4 pb-2 border-b border-gray-100">
+                                    <div class="flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 
+                                bg-blue-100 rounded-full flex items-center justify-center
+                                group-hover:bg-blue-200 transition-colors">
+                                        <i class="pi pi-calendar text-blue-600 text-xs sm:text-sm md:text-base"></i>
+                                    </div>
+                                    <h3 class="text-sm sm:text-base md:text-lg font-semibold text-blue-900 truncate">
+                                        {{ formatMonth(trend.month) }}
+                                    </h3>
+                                </div>
+
+                                <!-- Stats Grid - Enhanced mobile layout -->
+                                <div class="space-y-2 sm:space-y-2.5 md:space-y-3">
+                                    <!-- Expected Amount -->
+                                    <div
+                                        class="flex items-center justify-between gap-2 p-1.5 sm:p-2 rounded-md hover:bg-green-50 transition-colors">
+                                        <div class="flex items-center gap-2 min-w-0 flex-1">
+                                            <div
+                                                class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 bg-green-100 rounded-full flex items-center justify-center">
+                                                <i class="pi pi-wallet text-green-600 text-xs"></i>
+                                            </div>
+                                            <span
+                                                class="font-medium text-gray-700 text-xs sm:text-sm truncate">Expected</span>
+                                        </div>
+                                        <span
+                                            class="text-xs sm:text-sm font-semibold text-green-700 ml-auto flex-shrink-0">
+                                            {{ formatCurrency(trend.total_expected) }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Paid Amount -->
+                                    <div
+                                        class="flex items-center justify-between gap-2 p-1.5 sm:p-2 rounded-md hover:bg-blue-50 transition-colors">
+                                        <div class="flex items-center gap-2 min-w-0 flex-1">
+                                            <div
+                                                class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 bg-blue-100 rounded-full flex items-center justify-center">
+                                                <i class="pi pi-credit-card text-blue-600 text-xs"></i>
+                                            </div>
+                                            <span
+                                                class="font-medium text-gray-700 text-xs sm:text-sm truncate">Paid</span>
+                                        </div>
+                                        <span
+                                            class="text-xs sm:text-sm font-semibold text-blue-700 ml-auto flex-shrink-0">
+                                            {{ formatCurrency(trend.total_paid) }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Collection Rate -->
+                                    <div
+                                        class="flex items-center justify-between gap-2 p-1.5 sm:p-2 rounded-md hover:bg-purple-50 transition-colors">
+                                        <div class="flex items-center gap-2 min-w-0 flex-1">
+                                            <div
+                                                class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 bg-purple-100 rounded-full flex items-center justify-center">
+                                                <i class="pi pi-chart-line text-purple-600 text-xs"></i>
+                                            </div>
+                                            <span
+                                                class="font-medium text-gray-700 text-xs sm:text-sm truncate">Rate</span>
+                                        </div>
+                                        <span class="text-xs sm:text-sm font-semibold ml-auto flex-shrink-0"
+                                            [class.text-green-600]="trend.collection_rate >= 80"
+                                            [class.text-yellow-600]="trend.collection_rate >= 50 && trend.collection_rate < 80"
+                                            [class.text-red-600]="trend.collection_rate < 50">
+                                            {{ formatPercentage(trend.collection_rate / 100) }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Members Count -->
+                                    <div
+                                        class="flex items-center justify-between gap-2 p-1.5 sm:p-2 rounded-md hover:bg-orange-50 transition-colors">
+                                        <div class="flex items-center gap-2 min-w-0 flex-1">
+                                            <div
+                                                class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 bg-orange-100 rounded-full flex items-center justify-center">
+                                                <i class="pi pi-users text-orange-600 text-xs"></i>
+                                            </div>
+                                            <span
+                                                class="font-medium text-gray-700 text-xs sm:text-sm truncate">Members</span>
+                                        </div>
+                                        <span
+                                            class="text-xs sm:text-sm font-semibold text-orange-700 ml-auto flex-shrink-0">
+                                            {{ trend.member_count }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Progress Bar (Optional) -->
+                                <div class="mt-3 sm:mt-4">
+                                    <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+                                        <span>Collection Progress</span>
+                                        <span>{{ formatPercentage(trend.collection_rate / 100) }}</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                        <div class="h-1.5 rounded-full transition-all duration-300"
+                                            [style.width.%]="trend.collection_rate"
+                                            [class.bg-green-500]="trend.collection_rate >= 80"
+                                            [class.bg-yellow-500]="trend.collection_rate >= 50 && trend.collection_rate < 80"
+                                            [class.bg-red-500]="trend.collection_rate < 50">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mobile: Show more button if there are more trends -->
+                        <div *ngIf="monthlyTrends.length > 3" class="mt-4 sm:mt-6 text-center">
+                            <button
+                                class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                <i class="pi pi-chevron-down mr-2 text-xs"></i>
+                                View More Trends
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

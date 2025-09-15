@@ -1,83 +1,209 @@
-<div class="main">
+<div class="flex flex-col md:flex-row h-screen bg-gray-100">
 
-    <div class="navigation">
-        <h4>A Riders</h4>
-        <div class="navLinks">
-            <ul>
-                <li><a (click)="setView('dashboard')">Dashboard</a></li>
-                <li><a (click)="setView('members')">Members</a></li>
-                <li><a (click)="setView('contributions')">Contributions</a></li>
-                <li><a (click)="setView('admin-events')">Events </a></li>
-                <li><a (click)="setView('reports')">Reports</a></li>
-                <li><a (click)="setView('settings')">Settings</a></li>
-                <li><a (click)="logOut()">Logout</a></li>
+    <!-- Desktop Navigation -->
+    <div class="hidden md:flex md:flex-col bg-black text-white p-4" style="width: 15%;">
+        <h4 class="text-xl font-bold mb-6">A Riders</h4>
+        <div class="flex-grow">
+            <ul class="space-y-2">
+                <li>
+                    <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                        [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'dashboard'}"
+                        (click)="setView('dashboard')">
+                        Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                        [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'members'}"
+                        (click)="setView('members')">
+                        Members
+                    </a>
+                </li>
+                <li>
+                    <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                        [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'contributions'}"
+                        (click)="setView('contributions')">
+                        Contributions
+                    </a>
+                </li>
+                <li>
+                    <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                        [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'debts'}"
+                        (click)="setView('debts')">
+                        Debts
+                    </a>
+                </li>
+                <li>
+                    <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                        [ngClass]="{'bg-yellow-700 text-white':(currentView$ | async) === 'events'}"
+                        (click)="setView('events')">
+                        Events
+                    </a>
+                </li>
+                <li>
+                    <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                        [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'reports'}"
+                        (click)="setView('reports')">
+                        Reports
+                    </a>
+                </li>
+                <li>
+                    <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                        [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'settings'}"
+                        (click)="setView('settings')">
+                        Settings
+                    </a>
+                </li>
+                <li class="mt-4">
+                    <a class="block p-2 rounded hover:bg-red-600 cursor-pointer" (click)="showLogoutDialog()">
+                        Logout
+                    </a>
+                </li>
             </ul>
         </div>
     </div>
 
-    <div class="viewPanel">
-        <div class="viewBar">
-            <div class="account">
-                <!-- <p>{{ userEmail }}</p> -->
-                <img src="../../assets/ariders.jpg" alt="Profile Picture" />
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+
+        <!-- Mobile Header -->
+        <div class="md:hidden flex justify-between items-center bg-black text-yellow-500 p-4">
+            <h4 class="text-xl font-bold">A Riders</h4>
+            <button (click)="toggleSideNav()" class="text-white focus:outline-none">
+                <fa-icon [icon]="faBars"></fa-icon>
+            </button>
+        </div>
+
+        <!-- View Bar -->
+        <div class="flex justify-between items-center bg-white shadow p-4">
+            <div class="flex items-center">
+                <p class="font-semibold text-gray-700">{{ currentView$ | async }}</p>
             </div>
-
-            <div class="panelActions">
-                <p>{{ currentView }}</p>
-            </div>
-
-            <div class="side">
-                <div class="viewBarLinks">
-                    <a (click)="toggleSideNav()"><fa-icon [icon]="faBars"></fa-icon></a>
-                </div>
-
-                <div class="sidePanel" [ngClass]="{ sidePanelOpen: sideNavOpen }">
-                    <div class="sidePanelContent">
-                        <h4>A riders</h4>
-                        <div class="closeSideNav" (click)="toggleSideNav()">Close</div>
-                        <ul>
-                            <li><a (click)="setView('dashboard')">Dashboard</a></li>
-                            <li><a (click)="setView('members')">Members</a></li>
-                            <li><a (click)="setView('contributions')">Contributions</a></li>
-                            <li><a (click)="setView('admin-events')">Events </a></li>
-                            <li><a (click)="setView('reports')">Reports</a></li>
-                            <li><a (click)="setView('settings')">Settings</a></li>
-                            <li><a (click)="logOut()">Logout</a></li>
-                        </ul>
-                    </div>
-                </div>
+            <div class="flex items-center">
+                <img src="../../assets/ariders.jpg" alt="Profile Picture" class="w-10 h-10 rounded-full" />
             </div>
         </div>
 
-        <div class="panel">
-            <div *ngIf="currentView === 'dashboard'">
-                <p>dashboard</p>
+        <!-- Mobile Side Panel -->
+        <div class="fixed inset-0 z-50" *ngIf="sideNavOpen">
+            <div class="absolute inset-0 bg-black bg-opacity-50" (click)="toggleSideNav()"></div>
+            <div class="absolute left-0 top-0 h-full 50 bg-black text-white p-4 transform transition-transform duration-300 ease-in-out"
+                [ngClass]="{ 'translate-x-0': sideNavOpen, '-translate-x-full': !sideNavOpen }">
+                <div class="flex justify-between items-center mb-6">
+                    <h4 class="text-xl font-bold">A Riders</h4>
+                    <!-- <button (click)="toggleSideNav()" class="text-white focus:outline-none bg-yellow-500 px-2 py-1 rounded-full">X</button> -->
+                </div>
+                <ul class="space-y-2">
+                    <li>
+                        <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                            [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'dashboard'}"
+                            (click)="setView('dashboard')">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                            [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'members'}"
+                            (click)="setView('members')">
+                            Members
+                        </a>
+                    </li>
+                    <li>
+                        <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                            [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'contributions'}"
+                            (click)="setView('contributions')">
+                            Contributions
+                        </a>
+                    </li>
+                    <li>
+                        <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                            [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'debts'}"
+                            (click)="setView('debts')">
+                            Debts
+                        </a>
+                    </li>
+                    <li>
+                        <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                            [ngClass]="{'bg-yellow-700 text-white':(currentView$ | async) === 'events'}"
+                            (click)="setView('events')">
+                            Events
+                        </a>
+                    </li>
+                    <li>
+                        <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                            [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'reports'}"
+                            (click)="setView('reports')">
+                            Reports
+                        </a>
+                    </li>
+                    <li>
+                        <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                            [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'settings'}"
+                            (click)="setView('settings')">
+                            Settings
+                        </a>
+                    </li>
+                    <li class="mt-4">
+                        <a class="block p-2 rounded hover:bg-red-600 cursor-pointer" (click)="showLogoutDialog()">
+                            Logout
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+
+        <!-- Panel Content -->
+        <div class="flex-1 overflow-auto p-4 bg-gray-50">
+            <div *ngIf="(currentView$ | async) === 'dashboard'">
+                <p>Dashboard</p>
             </div>
 
-            <div *ngIf="currentView === 'members'">
-                <app-members></app-members>
+            <div *ngIf="(currentView$ | async) === 'members'">
+                <app-members (memberSelected)="setView('memberDebt', {memberId: $event})"></app-members>
             </div>
 
-            <div class="events" *ngIf="currentView === 'contributions'">
+            <div *ngIf="(currentView$ | async) === 'contributions'">
                 <app-contributions></app-contributions>
-
             </div>
 
-            <div *ngIf="currentView === 'reports'">
+            <div *ngIf="(currentView$ | async) === 'debts'">
+                <app-debts (viewMemberDebt)="setView('memberDebt', {memberId: $event})"></app-debts>
+            </div>
+
+            <div *ngIf="(currentView$ | async) === 'reports'">
                 <app-reports></app-reports>
-
             </div>
 
-            <div *ngIf="currentView === 'admin-events'">
+            <div *ngIf="(currentView$ | async) === 'admin-events'">
                 <app-admin-events></app-admin-events>
             </div>
 
-            <div *ngIf="currentView === 'settings'">
+            <div *ngIf="(currentView$ | async) === 'settings'">
                 <app-settings></app-settings>
-            </div>  
+            </div>
 
+            <div *ngIf="(currentView$ | async) === 'memberDebt'">
+                <app-memberdebt [memberId]="(selectedMemberId$ | async)"
+                    [viewData]="(viewData$ | async)?.['memberDebt']" (backToDebts)="setView('debts')">
+                </app-memberdebt>
+            </div>
         </div>
-
-
     </div>
+
+    <!-- Logout Confirmation Dialog -->
+    <p-dialog header="Confirm Logout" [(visible)]="logoutDialogVisible" [modal]="true" [closable]="false"
+        [dismissableMask]="true" [style]="{width: '350px'}" [contentStyle]="{'padding': '1.5rem'}">
+
+        <p style="margin: 0 0 1.5rem 0; line-height: 1.5;">Are you sure you want to log out?</p>
+
+        <ng-template pTemplate="footer">
+            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                <button pButton type="button" label="Cancel" icon="pi pi-times" (click)="logoutDialogVisible=false"
+                    class="p-button-text bg-gray-300" style="padding: 0.5rem 1rem;"></button>
+                <button pButton type="button" label="Logout" icon="pi pi-sign-out" (click)="confirmLogout()"
+                    class="p-button-danger bg-red-400 text-black font-semibold" style="padding: 0.5rem 1rem;"></button>
+            </div>
+        </ng-template>
+    </p-dialog>
 </div>
