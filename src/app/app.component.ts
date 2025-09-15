@@ -4,8 +4,8 @@ import { Router } from '@angular/router';
 import { selectAnyLoading, selectAuthState } from './store/auth/auth.selector';
 import * as AuthActions from './store/auth/auth.actions';
 import { filter } from 'rxjs';
-import { LocalStorageService } from './services/utilities/local-storage.service';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { LocalStorageService } from './services/utilities/local-storage/local-storage.service';
 
 @Component({
   selector: 'app-root',

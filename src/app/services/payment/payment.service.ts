@@ -7,16 +7,26 @@ import { environment } from 'src/environments/environment.development';
   providedIn: 'root'
 })
 export class PaymentService {
-  baseUrl = environment.paymentUrl;
+  paymentUrl = environment.paymentUrl;
+  baseUrl = environment.localUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   initiateSTKPush(payload: { phone: string; amount: number; Order_ID: string }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/api/stkPush`, payload);
+    return this.http.post(`${this.paymentUrl}/api/stkPush`, payload);
   }
 
   confirmPayment(checkoutRequestId: string): Observable<any> {
-    const url = `${this.baseUrl}/api/confirmPayment/${checkoutRequestId}`;
+    const url = `${this.paymentUrl}/api/confirmPayment/${checkoutRequestId}`;
     return this.http.post(url, {});
   }
+
+  getAllPaymentTypes(): Observable<{ id: string, name: string, description: string }[]> {
+    return this.http.get<{ id: string, name: string, description: string }[]>(`${this.baseUrl}/api/mpesa/getPaymentTypes`);
+  }
+
+  warmupMpesa(): Observable<any> {
+    return this.http.post(`${this.paymentUrl}/api/warmupMpesa`, {});
+  }
+
 }

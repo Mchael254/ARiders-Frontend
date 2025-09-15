@@ -7,7 +7,7 @@
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <!-- Left Section - Delete Button -->
                 <div>
-                    <button (click)="deleteSelectedMembers()" [disabled]="!selectedMembers.length"
+                    <button [disabled]="!selectedMembers.length"
                         class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
                         <i class="pi pi-trash"></i>
                         <span>Delete</span>
@@ -66,13 +66,13 @@
             <div class="mt-6">
                 <button (click)="fetchMembers()"
                     class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-700 hover:bg-yellow-500">
-                     <span aria-hidden="true" class="mr-2">↻</span> Retry
+                    <span aria-hidden="true" class="mr-2">↻</span> Retry
                 </button>
             </div>
         </div>
 
         <!-- Members Grid -->
-        <div  *ngIf="!noData && !loading && members?.length" class="bg-white rounded-lg shadow overflow-hidden">
+        <div *ngIf="!noData && !loading && members?.length" class="bg-white rounded-lg shadow overflow-hidden">
             <!-- Summary -->
             <div class="p-4 border-b border-gray-200 text-sm text-gray-600">
                 Total members: {{ totalCount || members.length }}
@@ -92,13 +92,13 @@
                 <div class="col-span-3">Status</div>
             </div>
 
-
             <!-- Members List -->
             <div class="divide-y divide-gray-200">
                 <div *ngFor="let member of displayedMembers"
                     [class.bg-gray-50]="member.membership_status === 'inactive'"
                     class="p-4 hover:bg-gray-50 transition-colors">
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-4 items-center">
+
                         <!-- Checkbox -->
                         <div class="col-span-1 flex items-center">
                             <input type="checkbox" [checked]="isSelected(member)" (change)="toggleSelection(member)"
@@ -126,15 +126,15 @@
                         <!-- Role -->
                         <div class="col-span-2">
                             <div *ngIf="selectedRoleMemberId === member.id; else showRole" class="relative z-10">
-                                <select [(ngModel)]="member.role" (change)="updateRole(member)"
-                                    [disabled]="member.membership_status !== 'active'"
-                                    class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-md">
-                                    <option *ngFor="let role of roles" [value]="role.value">{{ role.label }}</option>
-                                </select>
+                                <p-dropdown [options]="roles" [(ngModel)]="member.role" optionLabel="label"
+                                    optionValue="value" [disabled]="member.membership_status !== 'active'"
+                                    placeholder="Select Role" [appendTo]="'body'" (onChange)="updateRole(member)"
+                                    class="w-full">
+                                </p-dropdown>
                             </div>
                             <ng-template #showRole>
                                 <div class="flex items-center gap-2">
-                                    <span>{{ member.role }}</span>
+                                    <span>{{ member.role_label || member.role }}</span>
                                     <button *ngIf="member.membership_status === 'active'"
                                         (click)="selectedRoleMemberId = member.id"
                                         class="text-amber-600 hover:text-amber-800">
@@ -145,17 +145,53 @@
                         </div>
 
                         <!-- Status -->
-                        <div class="col-span-3">
-                            <div class="flex items-center gap-3">
-                                <span [class]="getStatusClasses(member.membership_status)">
-                                    {{ member.membership_status }}
-                                </span>
-                                <button *ngIf="member.membership_status === 'inactive'" (click)="activateMember(member)"
-                                    class="px-3 py-1 text-xs bg-amber-100 text-amber-800 rounded-full hover:bg-amber-200 transition-colors">
-                                    Activate
-                                </button>
-                            </div>
+                        <div class="col-span-2 flex items-center gap-4">
+                            <span [class]="getStatusClasses(member.membership_status)">
+                                {{ member.membership_status }}
+                            </span>
+
+                            <!-- Deactivate button only if active -->
+                            <button *ngIf="member.membership_status === 'active'" (click)="openDeactivateDialog(member)"
+                                class="px-3 py-1 text-xs bg-red-100 text-red-800 rounded-full hover:bg-red-200 transition-colors"
+                                type="button">
+                                Deactivate
+                            </button>
                         </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deactivate Dialog (outside the loop, preferably at root level of your template) -->
+            <div class="dialog-overlay" *ngIf="deactivateDialogVisible">
+                <div class="dialog-box">
+                    <!-- Header -->
+                    <div class="dialog-header">
+                        <h3>Deactivate Member</h3>
+                        <button class="dialog-close" (click)="deactivateDialogVisible = false">&times;</button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="dialog-body">
+                        <p>
+                            <span class="warning-icon">&#9888;</span>
+                            Please provide a reason for deactivating
+                            <strong>{{ selectedMember?.first_name }} {{ selectedMember?.last_name }}</strong>.
+                        </p>
+
+                        <div [class.invisible]="!warningMessage" class="warning-message flex justify-center align-center">
+                            <p>Please provide a reason for deletion</p>
+                        </div>
+
+                        <label for="deactivationReason">Reason</label>
+                        <textarea id="deactivationReason" [(ngModel)]="deactivationReason"
+                            placeholder="Enter reason..."></textarea>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="dialog-footer">
+                        <button class="btn btn-cancel" (click)="deactivateDialogVisible = false">Cancel</button>
+                        <button class="btn btn-confirm" (click)="confirmDeactivate()">Confirm</button>
                     </div>
                 </div>
             </div>
@@ -165,7 +201,6 @@
                 <i class="pi pi-users text-4xl text-gray-300 mb-2"></i>
                 <p>No members found</p>
             </div>
-
 
             <div
                 class="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3 bg-white border-t border-gray-200 gap-3">
@@ -197,7 +232,6 @@
                     </button>
                 </nav>
             </div>
-
 
         </div>
     </div>

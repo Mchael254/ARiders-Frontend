@@ -85,3 +85,20 @@ export const updateRiderTypeFailure = createAction(
 export const clearUpdateRiderTypeStatus = createAction(
   '[Auth] Clear Update Rider Type Status'
 );
+
+//refresh profile
+export const refreshUserProfile = createAction(
+  '[Auth] Refresh User Profile',
+  props<{ memberId: string }>()
+);
+
+
+export const refreshUserProfileSuccess = createAction(
+  '[Auth] Refresh User Profile Success',
+  props<{ updatedData: any }>()
+);
+
+export const refreshUserProfileFailure = createAction(
+  '[Auth] Refresh User Profile Failure',
+  props<{ error: any }>()
+);

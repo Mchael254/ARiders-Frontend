@@ -41,57 +41,56 @@ export class AdminComponent implements OnInit {
 
   sideNavOpen = false;
   faBars = faBars;
+  logoutDialogVisible = false;
 
   // Tab configuration with role-based access
   tabsConfig: TabConfig[] = [
     {
       id: 'dashboard',
       label: 'Dashboard',
-      requiredRoles: ['chairman', 'secretary', 'treasurer']
+      requiredRoles: ['chairman', 'secretary', 'treasurer', 'developer']
     },
     {
       id: 'members',
       label: 'Members',
-      requiredRoles: ['chairman', 'secretary', 'treasurer']
+      requiredRoles: ['chairman', 'secretary', 'treasurer', 'developer']
     },
     {
       id: 'contributions',
       label: 'Contributions',
-      requiredRoles: ['chairman', 'treasurer']
+      requiredRoles: ['chairman', 'treasurer', 'developer']
     },
     {
       id: 'debts',
       label: 'Debts',
-      requiredRoles: ['chairman', 'treasurer']
+      requiredRoles: ['chairman', 'treasurer', 'developer']
     },
     {
       id: 'events',
       label: 'Events',
-      requiredRoles: ['chairman', 'secretary']
+      requiredRoles: ['chairman', 'secretary', 'developer']
     },
     {
       id: 'reports',
       label: 'Reports',
-      requiredRoles: ['chairman', 'secretary', 'treasurer']
+      requiredRoles: ['chairman', 'secretary', 'treasurer', 'developer']
     },
     {
       id: 'settings',
       label: 'Settings',
-      requiredRoles: ['chairman']
+      requiredRoles: ['chairman', 'developer']
     },
     {
       id: 'memberDebt',
       label: "memberDebt",
-      requiredRoles: ['chairman', 'treasurer']
+      requiredRoles: ['chairman', 'treasurer', 'developer']
     }
   ];
 
-  // Observable for accessible tabs based on user role
   accessibleTabs$: Observable<TabConfig[]> = this.userRole$.pipe(
     map(userRole => this.getAccessibleTabs(userRole))
   );
 
-  // Observable to check if current user can access current view
   canAccessCurrentView$: Observable<boolean> = combineLatest([
     this.currentView$,
     this.userRole$
@@ -102,7 +101,6 @@ export class AdminComponent implements OnInit {
   constructor(private store: Store<AppState>, private toastr: ToastrService,) { }
 
   ngOnInit() {
-    // Check if user can access current view, if not redirect to dashboard
     this.canAccessCurrentView$.subscribe(canAccess => {
       if (!canAccess) {
         this.setView('dashboard');
@@ -122,19 +120,20 @@ export class AdminComponent implements OnInit {
         this.store.dispatch(AdminPanelActions.setAdminPanelView({ view, data }));
         this.sideNavOpen = false;
       } else {
-        // Optionally show a toast message
-        this.toastr.warning(`Access denied to ${view} for current user role`);
+        // this.toastr.warning(`Access denied to ${view} for current user role`);
       }
     });
   }
 
-  logOut() {
-    if (confirm('Are you sure you want to logout?')) {
-      this.store.dispatch(AuthActions.logout());
-    }
+  showLogoutDialog() {
+    this.logoutDialogVisible = true;
   }
 
-  // Helper methods for permission checking
+  confirmLogout() {
+    this.logoutDialogVisible = false;
+    this.store.dispatch(AuthActions.logout());
+  }
+
   private getAccessibleTabs(userRole: string): TabConfig[] {
     return this.tabsConfig.filter(tab => this.canAccessTab(tab.id, userRole));
   }
@@ -142,11 +141,10 @@ export class AdminComponent implements OnInit {
   private canAccessTab(tabId: string, userRole: string): boolean {
     const tab = this.tabsConfig.find(t => t.id === tabId);
     if (!tab) return false;
-    
+
     return tab.requiredRoles.includes(userRole);
   }
 
-  // Public methods for template use
   canAccessView(viewId: string): Observable<boolean> {
     return this.userRole$.pipe(
       map(userRole => this.canAccessTab(viewId, userRole))
@@ -165,7 +163,7 @@ export class AdminComponent implements OnInit {
   getRoleDisplayName(): Observable<string> {
     return this.userRole$.pipe(
       map(role => {
-        switch(role) {
+        switch (role) {
           case 'chairman': return 'Chairman';
           case 'secretary': return 'Secretary';
           case 'treasurer': return 'Treasurer';

@@ -52,10 +52,15 @@
                                     Showing full history from {{ data.report_parameters.member_since | date:'mediumDate' }} to {{ data.report_parameters.report_date | date:'mediumDate' }}
                                 </p>
                             </div>
-                            <div class="flex items-center">
+                            <div class="flex items-center space-x-2">
                                 <span
                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                     Member for {{ formatDaysSince(data.member_info.member_since_days) }}
+                                </span>
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                    [class]="getMemberStatusClass()">
+                                    {{ getMemberStatusText() }}
                                 </span>
                             </div>
                         </div>
@@ -70,11 +75,25 @@
                                 <p class="mt-1 text-lg font-semibold text-gray-900">{{ data.member_info.email }}</p>
                             </div>
                         </div>
+
+                        <!-- Warning Alert -->
+                        <div *ngIf="hasNextMonthWarning()" class="mt-4 bg-orange-50 border-l-4 border-orange-400 p-4 rounded-lg">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-orange-700">{{ data.report_parameters.next_month_warning }}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Summary Cards Grid -->
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div class="bg-white shadow-sm rounded-lg p-5">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-red-100 rounded-md p-2">
@@ -85,7 +104,7 @@
                             </div>
                             <div class="ml-4">
                                 <p class="text-sm font-medium text-gray-500">Total Debt</p>
-                                <p class="text-2xl font-semibold text-red-600">{{ data.summary.total_debt | currency:'KES ':'symbol':'1.0-0' }}</p>
+                                <p class="text-2xl font-semibold text-red-600">{{ formatCurrency(data.summary.total_debt) }}</p>
                             </div>
                         </div>
                     </div>
@@ -99,7 +118,7 @@
                             </div>
                             <div class="ml-4">
                                 <p class="text-sm font-medium text-gray-500">Total Paid</p>
-                                <p class="text-2xl font-semibold text-green-600">{{ data.summary.total_paid | currency:'KES ':'symbol':'1.0-0' }}</p>
+                                <p class="text-2xl font-semibold text-green-600">{{ formatCurrency(data.summary.total_paid) }}</p>
                             </div>
                         </div>
                     </div>
@@ -119,7 +138,58 @@
                                     </p>
                                     <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
                                         <div class="bg-blue-600 h-2 rounded-full"
-                                            [style.width]="(data.summary.payment_completion * 100) + '%'"></div>
+                                            [style.width]="data.summary.payment_completion + '%'"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white shadow-sm rounded-lg p-5">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 bg-purple-100 rounded-md p-2">
+                                <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-500">Avg Monthly Balance</p>
+                                <p class="text-2xl font-semibold text-purple-600">{{ formatCurrency(data.summary.average_monthly_balance) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Role Breakdown -->
+                <div *ngIf="getRoleBreakdownArray().length > 0" class="bg-white shadow-sm rounded-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900">Role-Based Summary</h2>
+                        <p class="mt-1 text-sm text-gray-500">Breakdown by roles held during membership</p>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            <div *ngFor="let roleData of getRoleBreakdownArray()" 
+                                 class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-sm font-medium text-gray-900 capitalize">{{ roleData.role }}</h3>
+                                    <span class="text-xs text-gray-500">{{ roleData.data.months_count }} months</span>
+                                </div>
+                                <div class="space-y-1">
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-500">Expected:</span>
+                                        <span class="font-medium">{{ formatCurrency(roleData.data.total_expected) }}</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-500">Paid:</span>
+                                        <span class="font-medium text-green-600">{{ formatCurrency(roleData.data.total_paid) }}</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-500">Balance:</span>
+                                        <span class="font-medium text-red-600">{{ formatCurrency(roleData.data.total_debt) }}</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-500">Avg/Month:</span>
+                                        <span class="font-medium">{{ formatCurrency(roleData.data.avg_monthly_expected) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -130,15 +200,27 @@
                 <!-- Monthly Reports Table -->
                 <div class="bg-white shadow-sm rounded-lg overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-lg font-medium text-gray-900">Monthly Breakdown</h2>
-                        <p class="mt-1 text-sm text-gray-500">Complete payment history since membership</p>
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h2 class="text-lg font-medium text-gray-900">Monthly Breakdown</h2>
+                                <p class="mt-1 text-sm text-gray-500">Complete payment history since membership</p>
+                            </div>
+                            <div class="mt-2 sm:mt-0 flex space-x-4 text-sm">
+                                <span class="text-gray-500">
+                                    Total Months: <span class="font-medium">{{ data.monthly_reports.length }}</span>
+                                </span>
+                                <span class="text-red-500" *ngIf="getOverdueMonthsCount() > 0">
+                                    Overdue: <span class="font-medium">{{ getOverdueMonthsCount() }}</span>
+                                </span>
+                            </div>
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Month
+                                        Month / Role
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Expected
@@ -153,41 +235,56 @@
                                         Status
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Overdue
+                                        Overdue Days
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Running Debt
                                     </th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                <tr *ngFor="let report of data.monthly_reports" class="hover:bg-gray-50">
+                                <tr *ngFor="let report of data.monthly_reports" 
+                                    class="hover:bg-gray-50"
+                                    [class.bg-blue-50]="isCurrentMonth(report.month)">
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">{{ report.month }}</div>
-                                        <div class="text-xs text-gray-500">
-                                            {{ report.month_start | date:'shortDate' }} - {{ report.month_end | date:'shortDate' }}
+                                        <div class="flex items-center">
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">{{ formatMonth(report.month) }}</div>
+                                                <div class="text-xs text-gray-500 flex items-center">
+                                                    <span class="capitalize bg-gray-100 px-2 py-1 rounded text-xs mr-2">{{ report.role }}</span>
+                                                    <span *ngIf="isCurrentMonth(report.month)" class="text-blue-600 font-medium">Current</span>
+                                                </div>
+                                                <div *ngIf="report.role_changes_in_month && report.role_changes_in_month.length > 1" 
+                                                     class="text-xs text-orange-600 mt-1">
+                                                    {{ getRoleChangesSummary(report.role_changes_in_month) }}
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
                                         {{ report.formatted_expected_amount }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">{{ report.formatted_amount_paid }}</div>
+                                        <div class="text-sm text-gray-900 font-medium">{{ report.formatted_amount_paid }}</div>
                                         <div class="text-xs text-gray-400">
-                                            {{ formatPercentage(report.payment_percentage) }}
+                                            {{ formatPercentage(report.payment_percentage) }} completed
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"
                                         [class.text-red-600]="report.monthly_balance > 0"
                                         [class.text-green-600]="report.monthly_balance <= 0">
-                                        {{ report.monthly_balance | currency:'KES':'symbol':'1.0-0' }}
+                                        {{ formatCurrency(report.monthly_balance) }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
                                             [class]="getPaymentStatusClass(report.payment_status)">
-                                            {{ report.payment_status.replace('_', ' ') | titlecase }}
+                                            {{ getPaymentStatusText(report.payment_status) }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
-                                            <span class="text-sm" [class.text-red-600]="report.is_overdue"
+                                            <span class="text-sm" 
+                                                [class.text-red-600]="report.is_overdue"
                                                 [class.text-gray-500]="!report.is_overdue">
                                                 {{ report.days_overdue }} days
                                             </span>
@@ -200,9 +297,47 @@
                                             </span>
                                         </div>
                                     </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-600">
+                                        {{ formatCurrency(report.running_debt) }}
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <!-- Additional Information Panel -->
+                <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900">Report Information</h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Earliest Eligible Role</dt>
+                                <dd class="mt-1 text-sm text-gray-900 capitalize">{{ data.report_parameters.earliest_eligible_role }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Current Role</dt>
+                                <dd class="mt-1 text-sm text-gray-900 capitalize">{{ data.report_parameters.latest_role }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">First Reporting Month</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ data.report_parameters.first_reporting_month | date:'mediumDate' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Months Analyzed</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ data.report_parameters.months_reported }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Eligibility Status</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ data.report_parameters.eligibility_status }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Report Generated</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ data.report_parameters.report_date | date:'medium' }}</dd>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

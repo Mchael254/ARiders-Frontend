@@ -9,10 +9,11 @@ const ROLE_PERMISSIONS = {
   secretary: ['view_all', 'edit_meetings', 'manage_documents', 'view_users'],
   treasurer: ['view_all', 'financial_reports', 'manage_finances', 'view_users'],
   user: ['view_own', 'edit_own'],
-  member: ['view_limited']
+  member: ['view_limited'],
+  developer: ['view_all', 'edit_all', 'delete_all', 'manage_users', 'financial_reports', 'manage_meetings', 'manage_documents']
 };
 
-const ADMIN_ROLES = ['chairman', 'secretary', 'treasurer'];
+const ADMIN_ROLES = ['chairman', 'secretary', 'treasurer','developer'];
 
 const ROUTE_PERMISSIONS = {
   '/admin': ['view_all'],
@@ -56,10 +57,12 @@ export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
       if (!hasPermission) {
         if (ADMIN_ROLES.includes(role as string)) {
           router.navigate(['/admin']);
-        } else if (role === 'user' || role === 'member') {
+        } else if (role === 'user') {
+          router.navigate(['/registration']);
+        } else if (role === 'member') {
           router.navigate(['/dashboard']);
         } else {
-          router.navigate(['/home']);
+          router.navigate(['/landing']);
         }
         return false;
       }
@@ -84,13 +87,15 @@ export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
 
 
 export function getRedirectPath(role: string): string {
-  const adminRoles = ['chairman', 'secretary', 'treasurer'];
+  const adminRoles = ['chairman', 'secretary', 'treasurer','developer'];
 
   if (adminRoles.includes(role)) {
     return '/admin';
-  } else if (role === 'user' || role === 'member') {
+  } else if (role === 'user') {
+    return '/registration';
+  } else if (role === 'member') {
     return '/dashboard';
   } else {
-    return '/home';
+    return '/landing';
   }
 }

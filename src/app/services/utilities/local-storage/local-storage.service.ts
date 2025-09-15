@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { EncryptionService } from './encryption.service';
+import { EncryptionService } from '../encryption/encryption.service';
+
 
 
 @Injectable({

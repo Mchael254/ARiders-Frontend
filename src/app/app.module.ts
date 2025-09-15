@@ -67,7 +67,9 @@ import { AccordionModule } from 'primeng/accordion';
 import { MembershippComponent } from './membershipp/membershipp.component';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from 'src/environments/environment.development';
-
+import { RegistrationComponent } from './registration/registration.component';
+import { TermsComponent } from './terms/terms.component';
+import { PaymentRecordsComponent } from './payment-records/payment-records.component';
 
 
 @NgModule({
@@ -100,9 +102,13 @@ import { environment } from 'src/environments/environment.development';
     PartnersComponent,
     ResetPasswordComponent,
     MembershippComponent,
+    RegistrationComponent,
+    TermsComponent,
+    PaymentRecordsComponent,
 
   ],
   imports: [
+    DropdownModule,
     BrowserModule,
     AppRoutingModule,
     FontAwesomeModule,
@@ -135,6 +141,8 @@ import { environment } from 'src/environments/environment.development';
     NgxSpinnerComponent,
     PasswordModule,
     AccordionModule,
+
+    
 
     NgxSpinnerModule.forRoot({ type: 'ball-clip-rotate-multiple' }),
     ToastrModule.forRoot({

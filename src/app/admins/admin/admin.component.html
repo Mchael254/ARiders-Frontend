@@ -54,8 +54,11 @@
                         Settings
                     </a>
                 </li>
-                <li class="mt-4"><a class="block p-2 rounded hover:bg-red-600 cursor-pointer"
-                        (click)="logOut()">Logout</a></li>
+                <li class="mt-4">
+                    <a class="block p-2 rounded hover:bg-red-600 cursor-pointer" (click)="showLogoutDialog()">
+                        Logout
+                    </a>
+                </li>
             </ul>
         </div>
     </div>
@@ -140,8 +143,12 @@
                             Settings
                         </a>
                     </li>
-                    <li class="mt-4"><a class="block p-2 rounded hover:bg-red-600 cursor-pointer"
-                            (click)="logOut(); toggleSideNav()">Logout</a></li>
+                    <li class="mt-4">
+                        <a class="block p-2 rounded hover:bg-red-600 cursor-pointer" (click)="showLogoutDialog()">
+                            Logout
+                        </a>
+                    </li>
+
                 </ul>
             </div>
         </div>
@@ -183,4 +190,20 @@
             </div>
         </div>
     </div>
+
+    <!-- Logout Confirmation Dialog -->
+    <p-dialog header="Confirm Logout" [(visible)]="logoutDialogVisible" [modal]="true" [closable]="false"
+        [dismissableMask]="true" [style]="{width: '350px'}" [contentStyle]="{'padding': '1.5rem'}">
+
+        <p style="margin: 0 0 1.5rem 0; line-height: 1.5;">Are you sure you want to log out?</p>
+
+        <ng-template pTemplate="footer">
+            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                <button pButton type="button" label="Cancel" icon="pi pi-times" (click)="logoutDialogVisible=false"
+                    class="p-button-text bg-gray-300" style="padding: 0.5rem 1rem;"></button>
+                <button pButton type="button" label="Logout" icon="pi pi-sign-out" (click)="confirmLogout()"
+                    class="p-button-danger bg-red-400 text-black font-semibold" style="padding: 0.5rem 1rem;"></button>
+            </div>
+        </ng-template>
+    </p-dialog>
 </div>

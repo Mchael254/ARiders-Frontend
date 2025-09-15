@@ -80,6 +80,10 @@ interface CurrentMonthInsights {
   riskLevel: 'Low' | 'Medium' | 'High' | 'Critical';
   dailyTargetRemaining?: number;
   progressPercentage?: number;
+  expectedDaily: number;
+  actualDailyRate?: number;
+  onTrackForTarget?: boolean;
+  projectedShortfall?: number;
 }
 
 interface MonthComparison {
@@ -148,6 +152,7 @@ export class ContributionsComponent implements OnInit {
   maxDate: Date;
   currentMonth: any;
   currentMonthAnalysis: CurrentMonthAnalysis | null = null;
+  currentMonthAmount:number = 0;
 
   constructor(private contributionService: ContributionService, private fb: FormBuilder,
     private spinner: NgxSpinnerService
@@ -193,6 +198,8 @@ export class ContributionsComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           this.data = response;
+          console.log("this is contribution data>>", this.data);
+
           this.currentMonthAnalysis = this.analyzeCurrentMonth();
           console.log('Current Month Analysis:', this.currentMonthAnalysis);
         } else {
@@ -246,7 +253,10 @@ export class ContributionsComponent implements OnInit {
           isCompleteMonth: false,
           projectedCollection: 0,
           improvementNeeded: 0,
-          riskLevel: 'Critical'
+          riskLevel: 'Critical',
+          dailyTargetRemaining: 0,
+          progressPercentage: 0,
+          expectedDaily: 0
         },
         comparison: null
       };
@@ -258,10 +268,32 @@ export class ContributionsComponent implements OnInit {
     // Compare with previous months
     const comparison = this.compareWithPreviousMonths(currentMonthData);
 
+    // Generate a more accurate status message
+    const collectedAmount = parseFloat(currentMonthData.collected.replace(/[^\d.]/g, ''));
+    const expectedAmount = parseFloat(currentMonthData.expected.replace(/[^\d.]/g, ''));
+    this.currentMonthAmount =expectedAmount
+        
+    const shortfall = expectedAmount - collectedAmount;
+
+    let status = '';
+    if (insights.riskLevel === 'Critical') {
+      if (insights.daysRemaining > 0) {
+        status = `Critical: Need KES ${shortfall.toFixed(0)} more (KES ${insights.dailyTargetRemaining}/day for ${insights.daysRemaining} days)`;
+      } else {
+        status = `Month complete: KES ${shortfall.toFixed(0)} shortfall`;
+      }
+    } else if (insights.riskLevel === 'High') {
+      status = `High risk: KES ${shortfall.toFixed(0)} still needed`;
+    } else if (insights.riskLevel === 'Medium') {
+      status = `On track: KES ${shortfall.toFixed(0)} remaining`;
+    } else {
+      status = `Excellent progress: Only KES ${shortfall.toFixed(0)} remaining`;
+    }
+
     return {
-      isCurrentMonth: true, 
+      isCurrentMonth: true,
       monthName: currentMonthData.monthName || currentMonthName,
-      status: this.getCurrentMonthStatus(currentMonthData, insights),
+      status: status,
       data: currentMonthData,
       insights,
       comparison
@@ -276,11 +308,21 @@ export class ContributionsComponent implements OnInit {
     const totalDaysInMonth = this.getTotalDaysInCurrentMonth();
     const daysPassed = totalDaysInMonth - daysRemaining;
 
-    const expectedDaily = parseFloat(monthData.expected.replace(/[^\d.]/g, '')) / totalDaysInMonth;
-    const actualDaily = parseFloat(monthData.collected.replace(/[^\d.]/g, '')) / daysPassed;
+    const expectedAmount = parseFloat(monthData.expected.replace(/[^\d.]/g, ''));
+    const collectedAmount = parseFloat(monthData.collected.replace(/[^\d.]/g, ''));
 
+    // Calculate daily rates
+    const expectedDaily = expectedAmount / totalDaysInMonth;
+    const actualDaily = daysPassed > 0 ? collectedAmount / daysPassed : 0;
+
+    // Project what we'll collect if we continue at current rate
     const projectedCollection = actualDaily * totalDaysInMonth;
-    const improvementNeeded = parseFloat(monthData.expected.replace(/[^\d.]/g, '')) - projectedCollection;
+
+    // The remaining amount needed to meet target
+    const remainingNeeded = Math.max(0, expectedAmount - collectedAmount);
+
+    // What we need to collect daily for the remaining days to meet target
+    const dailyTargetRemaining = daysRemaining > 0 ? remainingNeeded / daysRemaining : 0;
 
     let riskLevel: 'Low' | 'Medium' | 'High' | 'Critical';
     const collectionRate = parseFloat(monthData.collection_rate.replace('%', ''));
@@ -294,13 +336,17 @@ export class ContributionsComponent implements OnInit {
       daysRemaining,
       isCompleteMonth: daysRemaining === 0,
       projectedCollection: Math.round(projectedCollection),
-      improvementNeeded: Math.max(0, Math.round(improvementNeeded)),
+      improvementNeeded: Math.round(remainingNeeded), // This should be the actual shortfall
       riskLevel,
-      dailyTargetRemaining: daysRemaining > 0 ? Math.round(improvementNeeded / daysRemaining) : 0,
-      progressPercentage: (daysPassed / totalDaysInMonth) * 100
+      dailyTargetRemaining: Math.round(dailyTargetRemaining),
+      progressPercentage: (daysPassed / totalDaysInMonth) * 100,
+      // Additional helpful metrics
+      expectedDaily: Math.round(expectedDaily),
+      actualDailyRate: Math.round(actualDaily),
+      onTrackForTarget: projectedCollection >= expectedAmount,
+      projectedShortfall: Math.max(0, expectedAmount - projectedCollection)
     };
   }
-
   /**
    * Compares current month with previous months
    */

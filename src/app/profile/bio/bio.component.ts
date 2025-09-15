@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { select, Store } from '@ngrx/store';
 import { distinctUntilChanged, filter, Observable, Subject, take, takeUntil } from 'rxjs';
-import { ResponsesService } from 'src/app/services/utilities/responses.service';
+import { ResponsesService } from 'src/app/services/utilities/toaster/responses.service';
 import { clearUpdateRiderTypeStatus, loadRiderTypes, updateProfileImage, updateRiderType, updateUserProfileSection } from 'src/app/store/auth/auth.actions';
 import { AuthState } from 'src/app/store/auth/auth.reducer';
 import { format } from 'date-fns';
@@ -44,7 +44,8 @@ export class BioComponent implements OnInit {
   selectedFile: File | null = null;
   isUploading = false;
   profileId: string | null = null;
-  email: string | null = null
+  email: string | null = null;
+ 
 
   originalProfile: any;
   genderOptions = [
@@ -77,7 +78,7 @@ export class BioComponent implements OnInit {
           this.originalProfile = profile;
           this.profileId = profile.user?.id || null;
           this.email = profile.user?.email || null;
-          
+
 
           this.basicForm = this.fb.group({
             first_name: [profile.user?.first_name || ''],

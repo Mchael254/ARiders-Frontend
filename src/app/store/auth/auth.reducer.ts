@@ -31,6 +31,7 @@ export interface AuthState {
   membership_status?: string;
   emergency_number?: string;
   dob?: string;
+  
 }
 
 export const initialState: AuthState = {
@@ -58,9 +59,9 @@ export const authReducer = createReducer(
     error: null
   })),
 
-  on(AuthActions.loginSuccess, (state, { user, token, role, profile_image, city, county, phone_number, emergency_phone, work_phone, first_name, last_name, middle_name, gender, membership_status, dob }) => ({
+  on(AuthActions.loginSuccess, (state, { user, token, role, profile_image, city, county, phone_number, emergency_phone, work_phone, first_name, last_name, middle_name, gender, membership_status, dob, role_activated }) => ({
     ...state,
-    user,
+    user: { ...user, role_activated },
     token,
     role,
     isAuthenticated: true,
@@ -76,7 +77,7 @@ export const authReducer = createReducer(
     middle_name,
     gender,
     membership_status,
-    dob,
+    dob
   })),
 
   on(AuthActions.loginFailure, (state, { error }) => ({
@@ -87,9 +88,9 @@ export const authReducer = createReducer(
 
   on(AuthActions.logout, () => initialState),
 
-  on(AuthActions.loadSessionSuccess, (state, { user, token, role, profile_image, city, county, phone_number, emergency_phone, work_phone, first_name, last_name, middle_name, gender, membership_status, dob }) => ({
+  on(AuthActions.loadSessionSuccess, (state, { user, token, role, profile_image, city, county, phone_number, emergency_phone, work_phone, first_name, last_name, middle_name, gender, membership_status, dob, role_activated }) => ({
     ...state,
-    user,
+    user: { ...user, role_activated },
     token,
     role,
     isAuthenticated: true,

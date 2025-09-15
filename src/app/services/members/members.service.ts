@@ -1,14 +1,18 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Member } from '../../interfaces/members';
+import { catchError, firstValueFrom, map, Observable, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment.development';
+import { handleError } from '../utilities/error-handler/error-handler';
+import { Member } from 'src/app/interfaces/members';
+import { ApiResponse, ChangeMemberRoleRequest, ChangeMemberRoleResponse, Role, updateRolePayload } from '../types/memberService';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class MembersService {
   private baseApiUrl = `${environment.localUrl}/api/members`;
+  roles: Role[] = [];
 
   constructor(private http: HttpClient) { }
 
@@ -36,21 +40,45 @@ export class MembersService {
     );
   }
 
-  // update member role or status
-  updateMemberRoleStatus(id: string, data: { role?: string; membership_status?: string }) {
-    return this.http.patch(`${this.baseApiUrl}/members/${id}`, data).toPromise();
+  async deactivateMember(id: string, deactivatedBy: string, reason: string, permanent = false): Promise<any> {
+    const payload = {
+      member_id: id,
+      deactivated_by: deactivatedBy,
+      initiator: 'admin', 
+      reason,
+      permanent
+    };
+
+    return firstValueFrom(
+      this.http.post<any>(`${this.baseApiUrl}/deactivate`, payload)
+    );
   }
 
-  //deactivate member
-  deactivateMember(id: string) {
-    return this.http.patch(`${this.baseApiUrl}/members/${id}`, { membership_status: 'inactive' }).toPromise();
-  }
+
+
 
   //activate member
   markMemberAsActive(id: string) {
     return this.http.patch(`${this.baseApiUrl}/members/${id}`, {
       membership_status: 'active',
     }).toPromise();
+  }
+
+  getRoles(): Observable<Role[]> {
+    return this.http.get<ApiResponse<any[]>>(`${this.baseApiUrl}/allRoles`).pipe(
+      map(response => {
+        return response.data.map(role => ({
+          value: role.id,
+          label: role.name
+        }));
+      })
+    );
+  }
+
+  updateMemberRole(updateRolePayload: updateRolePayload): Observable<any> {
+    return this.http.post(`${this.baseApiUrl}/change-role`, updateRolePayload).pipe(
+      catchError(handleError)
+    );
   }
 
 

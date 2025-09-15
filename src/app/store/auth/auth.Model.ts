@@ -52,6 +52,7 @@ export interface AuthSession {
   membership_status?: string;
   dob?: string;
   rider_type_id: string | null;
+  role_activated:boolean
 }
 
 export interface AppUser {
@@ -71,4 +72,5 @@ export interface AppUser {
   membership_status?: string;
   dob?: string;
   rider_type_id: string;
+  role_activated: boolean;
 }

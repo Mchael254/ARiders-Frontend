@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { ToastrService } from 'ngx-toastr';
 import { catchError, Observable, of, Subject, takeUntil } from 'rxjs';
 import { DebtService } from 'src/app/services/debt/debt.service';
+import { PaymentService } from 'src/app/services/payment/payment.service';
 
 
 
@@ -75,30 +77,61 @@ export class MembershipComponent {
   loading: boolean = false;
   error: string | null = null;
   showPaymentModal = false;
-  currentYear:any;
+  currentYear: any;
+  // paymentTypeId: string = "63538f70-39e1-4590-84db-1329c9591785"
+  paymentTypeId: string = ""
+  paymentTypeMap: { [key: string]: string } = {};
+  paymentTypes: { id: string; name: string; description: string }[] = [];
+  paymentTypeName: string = '';
+
+
 
   constructor(
     private store: Store<{ auth: AuthState }>,
     private debtService: DebtService,
     private spinner: NgxSpinnerService,
+    private paymentService: PaymentService,
+    private toastr: ToastrService
   ) {
     this.profile$ = this.store.pipe(select('auth'));
   }
 
-
-  openPaymentModal() {
-    this.showPaymentModal = true;
-  }
-
   ngOnInit(): void {
+    this.paymentTypeName = sessionStorage.getItem("selectedPaymentTypeName") || '';
+    this.paymentService.getAllPaymentTypes().subscribe(types => {
+      this.paymentTypes = types;
+      this.paymentTypeMap = types.reduce((acc, type) => {
+        acc[type.name.toLowerCase()] = type.id;
+        return acc;
+      }, {} as { [key: string]: string });
+    });
+
     this.profile$
       .pipe(takeUntil(this.destroy$))
       .subscribe((profile) => {
         if (profile && profile.user?.id) {
           this.profileId = profile.user.id;
+          this.paymentTypeId = this.paymentTypeId
           this.loadMemberDebtSummary();
         }
       });
+  }
+
+  openPaymentModalFor(typeName: string): void {
+    const id = this.paymentTypeMap[typeName.toLowerCase()];
+    if (!id) {
+      this.toastr.error(`Payment type "${typeName}" not found`);
+      return;
+    }
+
+    this.paymentTypeId = id;
+    
+    const paymentType = this.paymentTypes.find(t => t.id === id);
+    if (paymentType) {
+      sessionStorage.setItem("selectedPaymentTypeName", paymentType.name);
+      console.log("Selected Payment Type:", this.paymentTypeName);
+    }
+    this.showPaymentModal = true;
   }
 
   ngOnDestroy(): void {
@@ -117,8 +150,8 @@ export class MembershipComponent {
       .subscribe({
         next: (response: DebtSummaryResponse) => {
           this.debtSummary = response;
-          console.log('this is debt summary>>>',this.debtSummary);
-          
+          console.log('this is debt summary>>>', this.debtSummary);
+
           this.spinner.hide();
         },
         error: (error) => {
@@ -134,9 +167,9 @@ export class MembershipComponent {
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
     this.currentYear = currentYear;
-    const currentMonth = currentDate.getMonth() + 1; 
+    const currentMonth = currentDate.getMonth() + 1;
 
-    
+
     return currentMonth;
   }
 
@@ -151,7 +184,7 @@ export class MembershipComponent {
   initiatePayment(): void {
     const amount = this.getLatestRunningDebt();
     console.log('Initiating payment for latest running debt:', amount);
-   
+
   }
 
 

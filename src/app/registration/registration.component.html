@@ -1,0 +1,106 @@
+<div class="min-h-screen bg-gray-50 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md space-y-8">
+        <div class="bg-white p-8 rounded-lg shadow-md">
+            <!-- Header -->
+            <div class="text-center">
+                <h2 class="mt-6 text-3xl font-bold text-gray-900">Account Activation</h2>
+
+            </div>
+
+            <!-- Status Section -->
+            <div *ngIf="!activationSuccess && !roleActivated" class="mt-8 space-y-6">
+                <p class="mt-2 text-sm text-gray-600">
+                    Complete your membership activation
+                </p>
+                <div class="text-center">
+                    <h3 class="text-lg font-medium text-gray-700">Current Status</h3>
+                    <div
+                        class="mt-2 inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
+                        <svg class="-ml-1 mr-2 h-5 w-5 text-amber-500" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Not Member Yet
+                        <button class="ml-2" (click)=" refreshUserProfile()"><span
+                                class="pi pi-refresh"></span></button>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <p class="text-sm text-blue-700">
+                        Activate your account to access all member benefits and features.
+                    </p>
+                </div>
+
+                <!-- Activation Form -->
+                <form [formGroup]="activationForm" (ngSubmit)="openPaymentModalFor('registration')"
+                    class="mt-6 space-y-6">
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="agreeTerms" formControlName="agreeTerms" type="checkbox"
+                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="agreeTerms" class="font-medium text-gray-700">I agree to the </label>
+                            <a routerLink="/terms" class="text-indigo-600 hover:text-indigo-500">terms and
+                                conditions</a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button type="submit" [disabled]="activationForm.invalid"
+                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#a27929] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                            Subscribe now
+
+                        </button>
+                        <a routerLink="/landing">
+                            <div class="flex justify-center mt-3">
+                                <i class="pi pi-home text-[#a27929]" style="font-size: 2rem; cursor:pointer"></i>
+                            </div>
+                        </a>
+
+                        <app-payment [(visible)]="showPaymentModal" [paymentTypeId]="paymentTypeId"
+                            [paymentTypeName]="currentPaymentTypeName" [prefilledAmount]="registrationAmount"
+                            (paymentSuccess)="handlePaymentSuccess()" (paymentClosed)="onPaymentClosed()">
+                        </app-payment>
+
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- Success Section -->
+            <div *ngIf="activationSuccess || roleActivated" class="text-center py-8">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                    <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <h3 class="mt-3 text-lg font-medium text-gray-900">Activation Successful!</h3>
+                <div class="mt-2">
+                    <p class="text-sm text-gray-500">Your new status:</p>
+                    <span
+                        class="inline-flex items-center mt-2 px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        <svg class="-ml-1 mr-2 h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Active Member
+                    </span>
+                </div>
+                <div class="mt-6 bg-[#a27929]">
+                    <button type="submit" (click)="newMember()"
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#a27929] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Sign in to get started as a member
+
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

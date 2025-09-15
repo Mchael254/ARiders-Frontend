@@ -1,18 +1,28 @@
 import { Component, ViewChild } from '@angular/core';
+import { select, Store } from '@ngrx/store';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { MessageService } from 'primeng/api';
-import { Table } from 'primeng/table';
+import { NgxSpinner, NgxSpinnerService } from 'ngx-spinner';
+import { ToastrService } from 'ngx-toastr';
+import { Observable, Subject, takeUntil } from 'rxjs';
 import { Member } from 'src/app/interfaces/members';
 import { MembersService } from 'src/app/services/members/members.service';
-import { ResponsesService } from 'src/app/services/utilities/responses.service';
+import { ChangeMemberRoleRequest, Role } from 'src/app/services/types/memberService';
+import { AuthState } from 'src/app/store/auth/auth.reducer';
+
 
 @Component({
   selector: 'app-members',
   templateUrl: './members.component.html',
-  styleUrls: ['./members.component.css']
+  styleUrls: ['./members.component.css'],
 })
 export class MembersComponent {
+  profile$: Observable<AuthState>;
+  private destroy$ = new Subject<void>();
+  authorizer_id: string | null = null;
+
+  visible: boolean = false;
+
   members: Member[] = [];
   loading: boolean = false;
   member: any
@@ -21,8 +31,10 @@ export class MembersComponent {
   selectedRoleMemberId: string | null = null;
   pdfTitle: string = '';
   displayedMembers: Member[] = [];
-  noData: boolean = false
+  noData: boolean = false;
+  roles: Role[] = [];
 
+  currentUser: any;
   currentPage = 1;
   pageSize = 10;
   totalPages = 0;
@@ -32,18 +44,22 @@ export class MembersComponent {
   }
 
 
-  roles = [
-    { label: 'Member', value: 'member' },
-    { label: 'Admin', value: 'admin' },
-    { label: 'Secretary', value: 'secretary' },
-    { label: 'Treasurer', value: 'treasurer' }
-  ];
-
-
-  constructor(private memberService: MembersService, private response: ResponsesService) { }
+  constructor(private memberService: MembersService,
+    private toastr: ToastrService,
+    private store: Store<{ auth: AuthState }>,
+    private spinner: NgxSpinnerService) {
+    this.profile$ = this.store.pipe(select('auth'));
+  }
 
   ngOnInit(): void {
+    this.profile$.pipe(takeUntil(this.destroy$))
+      .subscribe((profile) => {
+        if (profile) {
+          this.authorizer_id = profile.user?.id || null;
+        }
+      })
     this.fetchMembers();
+    this.loadRoles();
   }
 
   fetchMembers(): void {
@@ -52,7 +68,7 @@ export class MembersComponent {
     this.memberService.getAllMembers().subscribe({
       next: (res) => {
         this.loading = false;
-        this.members = res.data;
+        this.members = res.data.filter(member => member.role !== 'developer')
         this.totalCount = res.count;
         this.calculatePagination();
 
@@ -113,7 +129,7 @@ export class MembersComponent {
         this.calculatePagination();
       },
       error: (err) => {
-        this.response.showError('search failed', err);
+        this.toastr.error('search failed', err)
         console.error('Search failed', err);
       },
     });
@@ -125,66 +141,95 @@ export class MembersComponent {
     return this.selectedMembers?.some((m: any) => m.id === member.id);
   }
 
-  //change role
-  async onRoleChange(member: any) {
-    try {
-      const response = await this.memberService.updateMemberRoleStatus(member.id, { role: member.tempRole });
-      this.response.showSuccess('Role updated successfully');
+  //get roles
+  loadRoles() {
+    this.memberService.getRoles().subscribe({
+      next: (res) => {
+        this.roles = res.filter(role => role.label !== 'user')
+      },
+      error: (err) => {
+        console.log(err);
+        this.toastr.error("unable to load roles")
 
-      // Optional: update local role after success
-      member.role = member.tempRole;
-      delete member.tempRole;
-    } catch (error) {
-      this.response.showError('Failed to update role');
-      console.log(error);
-
-    }
+      }
+    });
   }
 
   //update role
   updateRole(member: Member) {
-    this.memberService.updateMemberRoleStatus(member.id, { role: member.role })
-      .then(() => {
-        this.selectedRoleMemberId = null; // Hide dropdown
-        this.response.showSuccess('Role updated successfully');
-      })
-      .catch(() => {
-        this.response.showError('Failed to update role');
-      });
-  }
+    if (!member.role) return;
+    console.log(member.role);
 
+    const updateRolePayload = {
+      role_id: member.role,
+      member_authorized_id: member.id,
+      authorizer_id: this.authorizer_id
+    }
 
-  //delete memeber
-  async deleteSelectedMembers() {
-    if (!this.selectedMembers?.length) return;
+    // console.log(updateRolePayload);
+    this.spinner.show();
 
-    const confirmDelete = confirm('Mark selected members as inactive?');
-    if (!confirmDelete) return;
-
-    for (const member of this.selectedMembers) {
-      try {
-        await this.memberService.deactivateMember(member.id);
-        member.membership_status = 'inactive'; // Update the local state
-      } catch (error) {
-        this.response.showError('failed to deactivate')
-        console.error('Failed to deactivate:', member.email, error);
+    this.memberService.updateMemberRole(updateRolePayload).subscribe({
+      next: (res) => {
+        this.spinner.hide();
+        this.selectedRoleMemberId = null;
+        member.role_label = res.data?.new_role || member.role_label;
+        this.toastr.success("role updated successfully")
+      },
+      error: (err) => {
+        console.error('Failed to update role', err);
+        this.spinner.hide();
+        this.toastr.error("failed to update role");
       }
-    }
-
-    this.response.showSuccess('Members marked inactive');
-    this.selectedMembers = [];
+    });
   }
 
-  //activate member
-  async activateMember(member: Member) {
+
+  //deactivate member memeber
+  deactivateDialogVisible = false;
+  selectedMember: Member | null = null;
+  deactivationReason: string = '';
+  warningMessage:  boolean = false;
+  paymentStatus: boolean = false
+
+  openDeactivateDialog(member: Member) {
+    this.selectedMember = member;
+    this.deactivationReason = '';
+    this.deactivateDialogVisible = true;
+  }
+
+  async confirmDeactivate() {
+    if (!this.selectedMember) return;
+
+    if (!this.deactivationReason.trim()) {
+      this.warningMessage = true
+      setTimeout(() => this.warningMessage = false,5000)
+      return;
+    }
+
     try {
-      await this.memberService.markMemberAsActive(member.id);
-      member.membership_status = 'active';
-      this.response.showSuccess('member activated');
+      const currentUserId = this.authorizer_id ?? '';
+      const reason = this.deactivationReason.trim();
+
+      await this.memberService.deactivateMember(
+        this.selectedMember.id,
+        currentUserId,
+        reason,
+        false
+      );
+
+      this.selectedMember.membership_status = 'inactive';
+      this.toastr.success('Member deactivated');
+      this.deactivateDialogVisible = false;
+      this.warningMessage = false;
+
     } catch (err) {
-      this.response.showError('Could not reactivate member');
+      this.toastr.error('Failed to deactivate member');
+      console.error('Deactivation error:', err);
     }
   }
+
+
 
   //clear select
   clearSelection(): void {
@@ -195,7 +240,7 @@ export class MembersComponent {
   //export to pdf
   exportSelectedMembersToPDF() {
     if (!this.selectedMembers || !this.selectedMembers.length) {
-      this.response.showError('No members selected for export');
+      this.toastr.error('No members selected for export');
       return;
     }
 
@@ -257,7 +302,7 @@ export class MembersComponent {
     };
 
     img.onerror = () => {
-      this.response.showError('Could not load logo image');
+      this.toastr.error('Could not load logo image');
     };
   }
 

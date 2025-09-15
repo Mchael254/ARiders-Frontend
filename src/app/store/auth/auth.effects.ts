@@ -8,11 +8,10 @@ import { Router } from '@angular/router';
 import { AuthSession } from './auth.Model';
 import { updateUserProfileFailure, updateUserProfileSection, updateUserProfileSuccess } from './auth.actions';
 import { HttpClient } from '@angular/common/http';
-import { ResponsesService } from 'src/app/services/utilities/responses.service';
-import { LocalStorageService } from 'src/app/services/utilities/local-storage.service';
 import { environment } from 'src/environments/environment.development';
 import { UserService } from 'src/app/services/members/user.service';
 import { ToastrService } from 'ngx-toastr';
+import { LocalStorageService } from 'src/app/services/utilities/local-storage/local-storage.service';
 
 
 @Injectable()
@@ -56,9 +55,10 @@ export class AuthEffects {
               last_name: profile.last_name,
               middle_name: profile.middle_name,
               gender: profile.gender,
-              dob:profile.dob,
+              dob: profile.dob,
               membership_status: profile.membership_status,
-              rider_type_id: profile.rider_type_id
+              rider_type_id: profile.rider_type_id,
+              role_activated: profile.role_activated
             };
 
             return AuthActions.loginSuccess({
@@ -75,9 +75,10 @@ export class AuthEffects {
               last_name: profile.last_name,
               middle_name: profile.middle_name,
               gender: profile.gender,
-              dob:profile.dob,
+              dob: profile.dob,
               membership_status: profile.membership_status,
-              rider_type_id: profile.rider_type_id
+              rider_type_id: profile.rider_type_id,
+              role_activated: profile.role_activated
             });
           }),
           catchError((err) => {
@@ -86,9 +87,12 @@ export class AuthEffects {
             let message = 'Login failed';
             if (err.message) {
               message = err.message;
+              this.toastr.error(message)
             } else if (err.error && err.error.message) {
+                this.toastr.error(message)
               message = err.error.message;
             } else if (typeof err === 'string') {
+              this.toastr.error(message)
               message = err;
             }
 
@@ -197,6 +201,26 @@ export class AuthEffects {
       )
     )
   );
+
+
+  //refresh profile
+  refreshUserProfile$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.refreshUserProfile),
+      switchMap(({ memberId }) =>
+        this.userService.getUserProfile(memberId).pipe(
+          map(updatedData =>
+            AuthActions.refreshUserProfileSuccess({ updatedData })
+          ),
+          catchError(error => {
+            console.error('[RefreshUserProfile Effect] Error:', error); // <-- Add this
+            return of(AuthActions.refreshUserProfileFailure({ error }));
+          })
+        )
+      )
+    )
+  );
+
 
 
 

@@ -15,11 +15,6 @@
         <p>{{ error }}</p>
       </div>
 
-
-      <!-- data area -->
-
-
-
       <!-- Main Content -->
       <div *ngIf="data" class="space-y-6">
         <!-- Header and Date Controls -->
@@ -82,9 +77,9 @@
               <fa-icon [icon]="faBullseye" class="text-blue-500"></fa-icon>
               Total Expected
             </h3>
-            <p class="text-3xl font-bold text-blue-600 mb-1 relative z-10">{{
-              data.summary['total_expected_contributions']
-              }}</p>
+            <p class="text-3xl font-bold text-blue-600 mb-1 relative z-10">
+              {{data.summary['total_expected_contributions']}}
+            </p>
             <div class="flex items-center text-sm text-gray-500 mt-1 relative z-10">
               <fa-icon [icon]="faChartBar" class="mr-1"></fa-icon>
               <span>For {{ data.summary.quartersIncluded }} quarters</span>
@@ -153,8 +148,6 @@
               </div>
             </ng-template>
           </div>
-
-
 
         </div>
 
@@ -262,6 +255,12 @@
               <span class="font-semibold text-xs sm:text-sm text-blue-800">KES {{
                 currentMonthAnalysis.insights.dailyTargetRemaining |
                 number:'1.0-0' }}</span>
+            </div>
+            <!-- Total Expected -->
+            <div class="flex justify-between items-center p-2 sm:p-3 bg-orange-50 rounded-lg">
+              <span class="text-xs sm:text-sm text-blue-700">Total Expected:</span>
+              <span class="font-semibold text-xs sm:text-sm text-green-800">
+                KES {{currentMonthAmount}}</span>
             </div>
           </div>
 
@@ -406,11 +405,11 @@
         </div>
 
 
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden p-1">
 
 
           <!-- Monthly Trend -->
-          <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
+          <h2 class="text-lg sm:text-xl font-semibold text-gray-800 ms-1 mb-3 sm:mb-4 flex items-center">
             <fa-icon [icon]="faChartLine" class="mr-2 text-sm sm:text-base"></fa-icon>
             Monthly Trend
           </h2>

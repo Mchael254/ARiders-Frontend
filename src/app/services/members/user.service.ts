@@ -1,7 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, throwError } from 'rxjs';
+import { UserProfile } from 'src/app/interfaces/members';
 import { environment } from 'src/environments/environment.development';
+import { handleError } from '../utilities/error-handler/error-handler';
 
 @Injectable({
   providedIn: 'root'
@@ -32,4 +34,15 @@ export class UserService {
     return this.http.get<{ data: { id: string, type_name: string }[] }>(`${this.baseUrl}/api/user/get-rider-types`)
       .pipe(map(response => response.data));
   }
+
+  getUserProfile(memberId: string): Observable<UserProfile> {
+    const url = `${this.baseUrl}/api/user/profile/${memberId}`;
+
+    return this.http.get<UserProfile>(url).pipe(
+      catchError(handleError)
+    );
+  }
+
+
+
 }

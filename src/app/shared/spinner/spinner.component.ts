@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ResponsesService } from 'src/app/services/utilities/responses.service';
+import { ResponsesService } from 'src/app/services/utilities/toaster/responses.service';
 
 @Component({
   selector: 'app-spinner',
