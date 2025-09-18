@@ -80,3 +80,26 @@ export interface updateRolePayload {
     member_authorized_id: string,
     role_id: string
 }
+
+export interface Receipt {
+  receipt_number: string;
+  amount: number;
+  payment_type: string;
+  transaction_date: string;
+  order_id: string;
+  phone_number: string;
+  status: string;
+}
+
+export interface Member {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+}
+
+export interface MemberReceiptsResponse {
+  member: Member;
+  receipts: Receipt[];
+  message: string;
+}

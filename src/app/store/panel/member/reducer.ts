@@ -8,7 +8,7 @@ export interface MemberPanelState {
 }
 
 export const initialState: MemberPanelState = {
-  currentView: 'profile',
+  currentView: 'events',
   selectedMemberId: null,
   viewData: {}
 };

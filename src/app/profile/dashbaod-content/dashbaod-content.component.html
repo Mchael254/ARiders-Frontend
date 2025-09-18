@@ -1,0 +1,390 @@
+<div class="bg-[#f8f9fa] px-4 py-1 md:p-8" style="height: 85vh;overflow-y:auto">
+    <!-- Loading State -->
+    <div *ngIf="loading && !debtSummary" class="flex items-center justify-center py-12">
+        <div class="flex items-center gap-3 text-gray-600">
+            <svg class="animate-spin w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                </path>
+            </svg>
+            <span>Loading dashboard...</span>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="text-red-700">{{ error }}</span>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto" *ngIf="!loading || debtSummary">
+        <!-- Welcome Header -->
+        <div class="mb-8" *ngIf="profile$ | async as profile">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Welcome back, {{ welcomeName }}!</h1>
+        </div>
+
+        <!-- Quick Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Membership Status Card -->
+            <div class="bg-gradient-to-r from-[#d4a72c] to-[#b38d25] rounded-xl shadow-md p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-white/80 mb-1">Membership Status</p>
+                        <p class="text-2xl font-bold">{{ membershipStatus | titlecase }}</p>
+                        <p class="text-xs text-white/70 mt-1">Since {{ memberSinceYear | date:'mediumDate' }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Outstanding Debt Card -->
+            <div class="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Outstanding Debt</p>
+                        <p class="text-2xl font-bold text-red-600">KES {{ formatCurrency(outstandingDebt) }}</p>
+                        <p class="text-xs text-gray-500 mt-1" *ngIf="overdueMonthsCount > 0">{{ overdueMonthsCount }}
+                            month{{ overdueMonthsCount > 1 ? 's' : '' }} overdue</p>
+                        <p class="text-xs text-green-600 mt-1" *ngIf="outstandingDebt === 0">All payments up to date
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1" *ngIf="outstandingDebt > 0 && overdueMonthsCount === 0">
+                            Current balance due</p>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Paid Card -->
+            <div class="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Total Paid ({{ currentYear }})</p>
+                        <p class="text-2xl font-bold text-green-600">KES {{ formatCurrency(totalPaid) }}</p>
+                        <p class="text-xs text-gray-500 mt-1">{{ paymentCompletion }}% complete</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Events Card -->
+            <div class="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 mb-1">Next Event</p>
+                        <p class="text-lg font-bold text-blue-600">{{ getNextEvent().name }}</p>
+                        <p class="text-xs text-gray-500 mt-1">{{ getNextEvent().date }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Profile Summary Card -->
+            <div class="lg:col-span-1 bg-white rounded-xl shadow-md border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-[#d4a72c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    Profile Summary
+                </h3>
+
+                <div class="text-center mb-6" *ngIf="profile$ | async as profile">
+                    <img [src]="profile.user?.profile_image || '../../assets/ariders.jpg'" alt="Profile"
+                        class="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-[#d4a72c]">
+                    <h4 class="text-lg font-semibold text-gray-900">{{ profile.user?.first_name }} {{
+                        profile.user?.last_name }}</h4>
+                    <p class="text-sm text-gray-600">Member since {{ memberSinceYear | date:'mediumDate'}}</p>
+                    <div
+                        class="mt-2 bg-[#d4a72c]/10 text-[#b38d25] px-3 py-1 rounded-full inline-block text-sm font-medium">
+                        {{ profile.user?.role | titlecase }} Member
+                    </div>
+                </div>
+
+                <div class="space-y-3" *ngIf="profile$ | async as profile">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-600">Phone:</span>
+                        <span class="font-medium">{{ profile.user?.phone_number || 'Not provided' }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-600">City:</span>
+                        <span class="font-medium">{{ profile.user?.city || 'Not provided' }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-600">County:</span>
+                        <span class="font-medium">{{ profile.user?.county || 'Not provided' }}</span>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <button (click)="navigateToProfile()"
+                        class="w-full bg-[#d4a72c] hover:bg-[#b38d25] text-white py-2 px-4 rounded-lg transition-colors duration-200">
+                        Edit Profile
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Activity & Financial Overview -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Payment Status Overview -->
+                <div class="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                            </path>
+                        </svg>
+                        {{ currentYear }} Payment Progress
+                    </h3>
+
+                    <!-- Progress Bar -->
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm text-gray-600 mb-2">
+                            <span>Annual Progress</span>
+                            <span>{{ paymentCompletion }}% Complete</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full"
+                                [style.width.%]="paymentCompletion"></div>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Payment Grid -->
+                    <div class="grid grid-cols-6 gap-2 mb-4">
+                        <div *ngFor="let month of monthNames; let i = index" class="rounded p-2 text-center border"
+                            [ngClass]="{
+                                'bg-green-100 border-green-200': getMonthlyPaymentStatus(i).color === 'green',
+                                'bg-red-100 border-red-200': getMonthlyPaymentStatus(i).color === 'red',
+                                'bg-yellow-100 border-yellow-200': getMonthlyPaymentStatus(i).color === 'yellow',
+                                'bg-blue-100 border-blue-200': getMonthlyPaymentStatus(i).color === 'blue',
+                                'bg-gray-100 border-gray-200': getMonthlyPaymentStatus(i).color === 'gray'
+                             }">
+                            <div class="text-xs font-medium" [ngClass]="{
+                                    'text-green-800': getMonthlyPaymentStatus(i).color === 'green',
+                                    'text-red-800': getMonthlyPaymentStatus(i).color === 'red',
+                                    'text-yellow-800': getMonthlyPaymentStatus(i).color === 'yellow',
+                                    'text-blue-800': getMonthlyPaymentStatus(i).color === 'blue',
+                                    'text-gray-500': getMonthlyPaymentStatus(i).color === 'gray'
+                                 }">
+                                {{ month }}
+                            </div>
+                            <div class="text-xs" [ngClass]="{
+                                    'text-green-600': getMonthlyPaymentStatus(i).color === 'green',
+                                    'text-red-600': getMonthlyPaymentStatus(i).color === 'red',
+                                    'text-yellow-600': getMonthlyPaymentStatus(i).color === 'yellow',
+                                    'text-blue-600': getMonthlyPaymentStatus(i).color === 'blue',
+                                    'text-gray-400': getMonthlyPaymentStatus(i).color === 'gray'
+                                 }" [title]="getMonthTooltip(i)">
+                                {{ getMonthlyPaymentStatus(i).icon }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Status Legend -->
+                    <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+                        <div class="text-xs text-gray-600 mb-2 font-medium">Payment Status Legend:</div>
+                        <div class="flex flex-wrap gap-4 text-xs">
+                            <div class="flex items-center gap-1">
+                                <span class="text-green-600">✓</span>
+                                <span>Fully Paid</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="text-yellow-600">◐</span>
+                                <span>Partial Payment</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="text-red-600">!</span>
+                                <span>Overdue</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="text-yellow-600">⏳</span>
+                                <span>Current/Pending</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="text-blue-600">○</span>
+                                <span>Upcoming</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="text-gray-400">N/A</span>
+                                <span>Not Applicable</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm text-gray-600">
+                            <span class="text-green-600 font-medium">{{ paidMonthsCount }} month{{ paidMonthsCount !== 1
+                                ? 's' : '' }} fully paid</span> •
+                            <span class="text-red-600 font-medium">{{ overdueMonthsCount }} month{{ overdueMonthsCount
+                                !== 1 ? 's' : '' }} overdue</span>
+                        </div>
+                        <button (click)="openPaymentModal()" *ngIf="outstandingDebt > 0"
+                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition-colors duration-200">
+                            Make Payment
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Recent Activity
+                    </h3>
+
+                    <div class="space-y-4">
+                        <!-- Dynamic Recent Activities -->
+                        <div *ngFor="let activity of recentActivities" class="flex items-start gap-3 p-3 rounded-lg"
+                            [ngClass]="{
+                                'bg-green-50': activity.color === 'green',
+                                'bg-blue-50': activity.color === 'blue',
+                                'bg-yellow-50': activity.color === 'yellow',
+                                'bg-purple-50': activity.color === 'purple'
+                             }">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center" [ngClass]="{
+                                    'bg-green-100': activity.color === 'green',
+                                    'bg-blue-100': activity.color === 'blue',
+                                    'bg-yellow-100': activity.color === 'yellow',
+                                    'bg-purple-100': activity.color === 'purple'
+                                 }">
+                                <!-- Check icon for payments -->
+                                <svg *ngIf="activity.icon === 'check'" class="w-4 h-4" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24" [ngClass]="{
+                                        'text-green-600': activity.color === 'green',
+                                        'text-blue-600': activity.color === 'blue',
+                                        'text-yellow-600': activity.color === 'yellow',
+                                        'text-purple-600': activity.color === 'purple'
+                                     }">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <!-- Calendar icon for events -->
+                                <svg *ngIf="activity.icon === 'calendar'" class="w-4 h-4" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24" [ngClass]="{
+                                        'text-green-600': activity.color === 'green',
+                                        'text-blue-600': activity.color === 'blue',
+                                        'text-yellow-600': activity.color === 'yellow',
+                                        'text-purple-600': activity.color === 'purple'
+                                     }">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                <!-- User icon for profile updates -->
+                                <svg *ngIf="activity.icon === 'user'" class="w-4 h-4" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24" [ngClass]="{
+                                        'text-green-600': activity.color === 'green',
+                                        'text-blue-600': activity.color === 'blue',
+                                        'text-yellow-600': activity.color === 'yellow',
+                                        'text-purple-600': activity.color === 'purple'
+                                     }">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">{{ activity.title }}</p>
+                                <p class="text-xs text-gray-600">{{ activity.description }}</p>
+                                <p class="text-xs text-gray-500">{{ activity.date }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Empty state when no activities -->
+                        <div *ngIf="recentActivities.length === 0" class="text-center py-8">
+                            <p class="text-sm text-gray-500">No recent activities to display</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Bar -->
+        <div class="mt-8 bg-white rounded-xl shadow-md border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button (click)="openPaymentModal()"
+                    class="flex flex-col items-center p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors duration-200 border border-green-200">
+                    <svg class="w-8 h-8 text-green-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z">
+                        </path>
+                    </svg>
+                    <span class="text-sm font-medium text-green-800">Make Payment</span>
+                </button>
+
+                <button (click)="navigateToEvents()"
+                    class="flex flex-col items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200 border border-blue-200">
+                    <svg class="w-8 h-8 text-blue-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                    <span class="text-sm font-medium text-blue-800">View Events</span>
+                </button>
+
+                <button (click)="navigateToMembership()"
+                    class="flex flex-col items-center p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors duration-200 border border-purple-200">
+                    <svg class="w-8 h-8 text-purple-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                        </path>
+                    </svg>
+                    <span class="text-sm font-medium text-purple-800">View Membership</span>
+                </button>
+
+                <button (click)="navigateToProfile()"
+                    class="flex flex-col items-center p-4 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors duration-200 border border-yellow-200">
+                    <svg class="w-8 h-8 text-yellow-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    <span class="text-sm font-medium text-yellow-800">Edit Profile</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!debtSummary && !loading && !error" class="text-center py-12">
+        <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+            </path>
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No Data Available</h3>
+        <p class="text-gray-600">Unable to load dashboard data at this time.</p>
+    </div>
+</div>

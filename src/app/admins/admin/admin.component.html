@@ -35,8 +35,8 @@
                 </li>
                 <li>
                     <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
-                        [ngClass]="{'bg-yellow-700 text-white':(currentView$ | async) === 'events'}"
-                        (click)="setView('events')">
+                        [ngClass]="{'bg-yellow-700 text-white':(currentView$ | async) === 'admin-events'}"
+                        (click)="setView('admin-events')">
                         Events
                     </a>
                 </li>
@@ -124,8 +124,8 @@
                     </li>
                     <li>
                         <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
-                            [ngClass]="{'bg-yellow-700 text-white':(currentView$ | async) === 'events'}"
-                            (click)="setView('events')">
+                            [ngClass]="{'bg-yellow-700 text-white':(currentView$ | async) === 'admin-events'}"
+                            (click)="setView('admin-events')">
                             Events
                         </a>
                     </li>
@@ -191,19 +191,76 @@
         </div>
     </div>
 
-    <!-- Logout Confirmation Dialog -->
-    <p-dialog header="Confirm Logout" [(visible)]="logoutDialogVisible" [modal]="true" [closable]="false"
-        [dismissableMask]="true" [style]="{width: '350px'}" [contentStyle]="{'padding': '1.5rem'}">
+    <!-- Logout Confirmation Modal -->
+    <div *ngIf="logoutDialogVisible"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+        (click)="closeLogoutDialog()">
+        <div class="relative w-full max-w-md mx-auto bg-white rounded-xl shadow-2xl transform transition-all duration-300 ease-out"
+            (click)="$event.stopPropagation()">
 
-        <p style="margin: 0 0 1.5rem 0; line-height: 1.5;">Are you sure you want to log out?</p>
-
-        <ng-template pTemplate="footer">
-            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
-                <button pButton type="button" label="Cancel" icon="pi pi-times" (click)="logoutDialogVisible=false"
-                    class="p-button-text bg-gray-300" style="padding: 0.5rem 1rem;"></button>
-                <button pButton type="button" label="Logout" icon="pi pi-sign-out" (click)="confirmLogout()"
-                    class="p-button-danger bg-red-400 text-black font-semibold" style="padding: 0.5rem 1rem;"></button>
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
+                        <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900">Confirm Logout</h3>
+                </div>
+                <button (click)="closeLogoutDialog()" class="text-gray-400 hover:text-gray-600 transition-colors p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
             </div>
-        </ng-template>
-    </p-dialog>
+
+            <!-- Modal Body -->
+            <div class="p-6">
+                <div class="text-center">
+                    <div
+                        class="w-16 h-16 bg-gradient-to-r from-yellow-700 to-yellow-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                            </path>
+                        </svg>
+                    </div>
+                    <h4 class="text-lg font-semibold text-gray-900 mb-2">Ready to Leave?</h4>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Are you sure you want to log out of your A Riders admin account? You'll need to sign in again to
+                        access the dashboard.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex flex-col sm:flex-row gap-3 p-6 border-t border-gray-200">
+                <button (click)="closeLogoutDialog()"
+                    class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200">
+                    <span class="flex items-center justify-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Cancel
+                    </span>
+                </button>
+                <button (click)="confirmLogout()"
+                    class="flex-1 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-yellow-700 to-yellow-500 rounded-lg hover:from-yellow-800 hover:to-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200 transform hover:scale-105">
+                    <span class="flex items-center justify-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                            </path>
+                        </svg>
+                        Logout
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
