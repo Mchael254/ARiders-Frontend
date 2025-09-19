@@ -52,12 +52,18 @@
 
           <!-- Current Status -->
           <div *ngIf="currentStatus" class="mb-4 p-3 rounded-md" [class.bg-green-100]="currentStatus.includes('✅')"
-            [class.bg-yellow-100]="currentStatus.includes('⌛') || currentStatus.includes('📲')"
-            [class.bg-red-100]="currentStatus.includes('❌') || currentStatus.includes('🚫')"
+            [class.bg-yellow-100]="currentStatus.includes('⌛') || currentStatus.includes('📲') || currentStatus.includes('🔄')"
+            [class.bg-red-100]="currentStatus.includes('❌') || currentStatus.includes('🚫') || currentStatus.includes('⏰')"
             [class.text-green-800]="currentStatus.includes('✅')"
-            [class.text-yellow-800]="currentStatus.includes('⌛') || currentStatus.includes('📲')"
-            [class.text-red-800]="currentStatus.includes('❌') || currentStatus.includes('🚫')">
+            [class.text-yellow-800]="currentStatus.includes('⌛') || currentStatus.includes('📲') || currentStatus.includes('🔄')"
+            [class.text-red-800]="currentStatus.includes('❌') || currentStatus.includes('🚫') || currentStatus.includes('⏰')">
             <p class="text-sm font-medium">{{ currentStatus }}</p>
+            <div *ngIf="currentStatus.includes('🔄')" class="text-xs mt-2 text-gray-600">
+              Connection issues detected. Checking payment status automatically...
+            </div>
+            <div *ngIf="currentStatus.includes('⏰')" class="text-xs mt-2 text-gray-600">
+              Please check your M-Pesa messages or try initiating the payment again.
+            </div>
           </div>
 
           <button type="submit" [disabled]="paymentForm.invalid || loading"

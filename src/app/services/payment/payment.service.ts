@@ -12,7 +12,7 @@ export class PaymentService {
 
   constructor(private http: HttpClient) { }
 
-  initiateSTKPush(payload: { phone: string; amount: number; Order_ID: string }): Observable<any> {
+  initiateSTKPush(payload: { phone: string; amount: number; Order_ID: string, memberId?: string, payment_type_id?: string, eventId?: string }): Observable<any> {
     return this.http.post(`${this.paymentUrl}/api/stkPush`, payload);
   }
 
@@ -22,11 +22,15 @@ export class PaymentService {
   }
 
   getAllPaymentTypes(): Observable<{ id: string, name: string, description: string }[]> {
-    return this.http.get<{ id: string, name: string, description: string }[]>(`${this.baseUrl}/api/mpesa/getPaymentTypes`);
+    return this.http.get<{ id: string, name: string, description: string }[]>(`${this.baseUrl}/api/payment/getPaymentTypes`);
   }
 
   warmupMpesa(): Observable<any> {
     return this.http.post(`${this.paymentUrl}/api/warmupMpesa`, {});
+  }
+
+  getPaymentStatus(orderId: string): Observable<any> {
+    return this.http.get(`${this.paymentUrl}/api/paymentStatus/${orderId}`);
   }
 
 }

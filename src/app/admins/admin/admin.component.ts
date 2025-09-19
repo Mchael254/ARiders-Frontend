@@ -66,7 +66,7 @@ export class AdminComponent implements OnInit {
       requiredRoles: ['chairman', 'treasurer', 'developer']
     },
     {
-      id: 'events',
+      id: 'admin-events',
       label: 'Events',
       requiredRoles: ['chairman', 'secretary', 'developer']
     },
@@ -84,6 +84,11 @@ export class AdminComponent implements OnInit {
       id: 'memberDebt',
       label: "memberDebt",
       requiredRoles: ['chairman', 'treasurer', 'developer']
+    },
+    {
+      id: 'eventDetails',
+      label: "Event Details",
+      requiredRoles: ['chairman', 'secretary', 'treasurer', 'developer']
     }
   ];
 
@@ -127,6 +132,10 @@ export class AdminComponent implements OnInit {
 
   showLogoutDialog() {
     this.logoutDialogVisible = true;
+  }
+
+  closeLogoutDialog() {
+    this.logoutDialogVisible = false;
   }
 
   confirmLogout() {

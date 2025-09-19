@@ -4,6 +4,7 @@ import { catchError, map, Observable, throwError } from 'rxjs';
 import { UserProfile } from 'src/app/interfaces/members';
 import { environment } from 'src/environments/environment.development';
 import { handleError } from '../utilities/error-handler/error-handler';
+import { MemberReceiptsResponse } from '../types/memberService';
 
 @Injectable({
   providedIn: 'root'
@@ -41,6 +42,10 @@ export class UserService {
     return this.http.get<UserProfile>(url).pipe(
       catchError(handleError)
     );
+  }
+
+  getMemberReceipts(memberId: string): Observable<MemberReceiptsResponse> {
+    return this.http.get<MemberReceiptsResponse>(`${this.baseUrl}/api/user/receipts/${memberId}`);
   }
 
 
