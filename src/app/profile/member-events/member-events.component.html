@@ -951,4 +951,11 @@
             </div>
         </div>
     </div>
+
+    <!-- Payment Modal -->
+    <app-payment [(visible)]="showPaymentModal" [paymentTypeId]="paymentTypeId"
+        [paymentTypeName]="currentPaymentTypeName" [prefilledAmount]="selectedMemberEventForPayment?.fee || null"
+        [eventId]="selectedMemberEventForPayment?.event_id || null" (paymentSuccess)="handleEventPaymentSuccess()"
+        (paymentClosed)="onEventPaymentClosed()">
+    </app-payment>
 </div>

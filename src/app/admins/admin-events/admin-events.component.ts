@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store, select } from '@ngrx/store';
 import { Observable, Subject, takeUntil } from 'rxjs';
@@ -32,6 +32,7 @@ interface EventType {
 export class AdminEventsComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
   @ViewChild('createEventModal') createEventModal!: ElementRef;
+  @Output() viewEventDetails = new EventEmitter<{ eventId: string; event: Event }>();
 
   profile$: Observable<AuthState>;
   private destroy$ = new Subject<void>();
@@ -41,19 +42,13 @@ export class AdminEventsComponent implements OnInit, OnDestroy {
   showCreateModal = false;
   isSubmitting = false;
 
-  // View event modal state
-  showViewModal = false;
-  selectedEvent: Event | null = null;
+
 
   // Image enlargement modal state
   showImageModal = false;
   enlargedImageUrl: string | null = null;
 
-  // Delete event modal state
-  showDeleteModal = false;
-  eventToDelete: Event | null = null;
-  deleteReason: string = '';
-  isDeleting = false;
+
 
   // Participants view state
   showParticipantsView = false;
@@ -67,12 +62,8 @@ export class AdminEventsComponent implements OnInit, OnDestroy {
     if (event.key === 'Escape') {
       if (this.showImageModal) {
         this.closeImageModal();
-      } else if (this.showDeleteModal) {
-        this.closeDeleteModal();
       } else if (this.showParticipantsView) {
         this.closeParticipantsView();
-      } else if (this.showViewModal) {
-        this.closeViewModal();
       } else if (this.showCreateModal) {
         this.closeCreateModal();
       }
@@ -288,15 +279,9 @@ export class AdminEventsComponent implements OnInit, OnDestroy {
     this.resetImageUpload();
   }
 
-  // View event modal methods
-  openViewModal(event: Event): void {
-    this.selectedEvent = event;
-    this.showViewModal = true;
-  }
-
-  closeViewModal(): void {
-    this.showViewModal = false;
-    this.selectedEvent = null;
+  // Navigate to event details page
+  navigateToEventDetails(event: Event): void {
+    this.viewEventDetails.emit({ eventId: event.id, event: event });
   }
 
   // Image enlargement modal methods
@@ -310,24 +295,11 @@ export class AdminEventsComponent implements OnInit, OnDestroy {
     this.enlargedImageUrl = null;
   }
 
-  // Delete event modal methods
-  openDeleteModal(event: Event): void {
-    this.eventToDelete = event;
-    this.deleteReason = '';
-    this.showDeleteModal = true;
-  }
 
-  closeDeleteModal(): void {
-    this.showDeleteModal = false;
-    this.eventToDelete = null;
-    this.deleteReason = '';
-    this.isDeleting = false;
-  }
 
   // Participants view methods
   viewParticipants(event: Event): void {
     this.participantsEvent = event;
-    this.closeViewModal(); // Close the view event modal
     this.loadParticipants(event.id);
     this.showParticipantsView = true;
   }
@@ -949,42 +921,5 @@ export class AdminEventsComponent implements OnInit, OnDestroy {
     return 'Event updated';
   }
 
-  deleteEvent(): void {
-    if (!this.eventToDelete || !this.currentUserId) {
-      this.toastr.error('Unable to delete event. Missing information.');
-      return;
-    }
 
-    if (!this.deleteReason.trim()) {
-      this.toastr.error('Please provide a reason for deletion.');
-      return;
-    }
-
-    this.isDeleting = true;
-
-    this.eventsService.deleteEvent(
-      this.currentUserId,
-      this.eventToDelete.id,
-      this.deleteReason.trim()
-    ).subscribe({
-      next: (response) => {
-        this.toastr.success(response.message || 'Event deleted successfully');
-
-        // Remove the event from the local array
-        this.events = this.events.filter(event => event.id !== this.eventToDelete!.id);
-
-        // Close the delete modal
-        this.closeDeleteModal();
-
-        // Always close the view modal after successful deletion
-        // since deletion is only accessible from the view modal
-        this.closeViewModal();
-      },
-      error: (error) => {
-        console.error('Error deleting event:', error);
-        this.toastr.error(error.error?.message || 'Failed to delete event. Please try again.');
-        this.isDeleting = false;
-      }
-    });
-  }
 }

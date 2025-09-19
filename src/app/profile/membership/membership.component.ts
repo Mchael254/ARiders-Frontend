@@ -109,7 +109,6 @@ export class MembershipComponent {
   }
 
   ngOnInit(): void {
-    this.paymentTypeName = sessionStorage.getItem("selectedPaymentTypeName") || '';
     this.paymentService.getAllPaymentTypes().subscribe(types => {
       this.paymentTypes = types;
       this.paymentTypeMap = types.reduce((acc, type) => {
@@ -186,7 +185,7 @@ export class MembershipComponent {
 
     const paymentType = this.paymentTypes.find(t => t.id === id);
     if (paymentType) {
-      sessionStorage.setItem("selectedPaymentTypeName", paymentType.name);
+      this.paymentTypeName = paymentType.name;
       console.log("Selected Payment Type:", this.paymentTypeName);
     }
     this.showPaymentModal = true;

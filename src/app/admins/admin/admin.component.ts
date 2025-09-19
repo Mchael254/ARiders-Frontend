@@ -84,6 +84,11 @@ export class AdminComponent implements OnInit {
       id: 'memberDebt',
       label: "memberDebt",
       requiredRoles: ['chairman', 'treasurer', 'developer']
+    },
+    {
+      id: 'eventDetails',
+      label: "Event Details",
+      requiredRoles: ['chairman', 'secretary', 'treasurer', 'developer']
     }
   ];
 

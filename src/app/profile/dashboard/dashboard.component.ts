@@ -22,6 +22,7 @@ export class DashboardComponent {
 
   sideNavOpen = false;
   faBars = faBars;
+  logoutDialogVisible = false;
 
   constructor(private store: Store) { }
 
@@ -36,10 +37,17 @@ export class DashboardComponent {
 
   ngOnInit() { }
 
-  logOut() {
-    if (confirm('Are you sure you want to logout?')) {
-      this.store.dispatch(AuthActions.logout());
-    }
+  showLogoutDialog() {
+    this.logoutDialogVisible = true;
+  }
+
+  closeLogoutDialog() {
+    this.logoutDialogVisible = false;
+  }
+
+  confirmLogout() {
+    this.logoutDialogVisible = false;
+    this.store.dispatch(AuthActions.logout());
   }
 
 

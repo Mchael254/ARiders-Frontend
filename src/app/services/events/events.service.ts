@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CreateEventPayload, CreateEventResponse, Event, EventDetails, EventParticipant, EventRegistration, EventTypesResponse, EventsResponse } from '../types/event.model';
+import { CreateEventPayload, CreateEventResponse, Event, EventDetails, EventParticipant, EventRegistration, EventTypesResponse, EventsResponse, EventSummaryResponse } from '../types/event.model';
 import { environment } from 'src/environments/environment.development';
 
 
@@ -60,6 +60,10 @@ export class EventsService {
         body: { memberId }
       }
     );
+  }
+
+  getEventSummary(eventId: string): Observable<EventSummaryResponse> {
+    return this.http.get<EventSummaryResponse>(`${this.baseUrl}/api/events/${eventId}/summary`);
   }
 
 

@@ -72,6 +72,7 @@ import { TermsComponent } from './terms/terms.component';
 import { PaymentRecordsComponent } from './payment-records/payment-records.component';
 import { DashbaodContentComponent } from './profile/dashbaod-content/dashbaod-content.component';
 import { MemberEventsComponent } from './profile/member-events/member-events.component';
+import { EventDetailsComponent } from './admins/event-details/event-details.component';
 
 
 @NgModule({
@@ -109,6 +110,7 @@ import { MemberEventsComponent } from './profile/member-events/member-events.com
     PaymentRecordsComponent,
     DashbaodContentComponent,
     MemberEventsComponent,
+    EventDetailsComponent,
 
   ],
   imports: [

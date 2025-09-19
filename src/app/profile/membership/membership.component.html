@@ -116,7 +116,8 @@
           </svg>
           Pay Now
         </button>
-        <app-payment [(visible)]="showPaymentModal" [paymentTypeId]="paymentTypeId"></app-payment>
+        <app-payment [(visible)]="showPaymentModal" [paymentTypeId]="paymentTypeId"
+          [paymentTypeName]="paymentTypeName"></app-payment>
       </div>
 
       <!-- Total Paid Card -->

@@ -6,6 +6,7 @@ import { Store, select } from '@ngrx/store';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
 import { EventsService } from '../../services/events/events.service';
+import { PaymentService } from '../../services/payment/payment.service';
 import { Event as APIEvent, EventType, EventTypesResponse, EventsResponse, EventRegistration, EventDetails } from 'src/app/services/types/event.model';
 
 // Interfaces
@@ -87,9 +88,11 @@ export class MemberEventsComponent implements OnInit, OnDestroy {
   showRegisterModal = false;
   showEventModal = false;
   showImageModal = false;
+  showPaymentModal = false;
   selectedEvent: Event | null = null;
   enlargedImageUrl: string | null = null;
   isModalFromMyEvents = false;
+  selectedMemberEventForPayment: EventDetails | null = null;
 
   // Registration state
   registrationForm!: FormGroup;
@@ -125,12 +128,18 @@ export class MemberEventsComponent implements OnInit, OnDestroy {
     }
   };
 
+  // Payment properties
+  paymentTypeId: string = '';
+  paymentTypeMap: { [key: string]: string } = {};
+  currentPaymentTypeName: string = '';
+
   constructor(
     private store: Store<{ auth: AuthState }>,
     private fb: FormBuilder,
     private spinner: NgxSpinnerService,
     private toastr: ToastrService,
-    private eventsService: EventsService
+    private eventsService: EventsService,
+    private paymentService: PaymentService
   ) {
     this.profile$ = this.store.pipe(select('auth'));
   }
@@ -139,6 +148,7 @@ export class MemberEventsComponent implements OnInit, OnDestroy {
     this.initializeRegistrationForm();
     this.loadEventTypes();
     this.loadEvents();
+    this.loadPaymentTypes();
 
     // Get current user info
     this.profile$
@@ -244,6 +254,22 @@ export class MemberEventsComponent implements OnInit, OnDestroy {
             { id: '3', name: 'Social' },
             { id: '4', name: 'Charity' }
           ];
+        }
+      });
+  }
+
+  loadPaymentTypes(): void {
+    this.paymentService.getAllPaymentTypes()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (types) => {
+          this.paymentTypeMap = types.reduce((acc, type) => {
+            acc[type.name.toLowerCase()] = type.id;
+            return acc;
+          }, {} as { [key: string]: string });
+        },
+        error: (error) => {
+          console.error('Error loading payment types:', error);
         }
       });
   }
@@ -632,46 +658,34 @@ export class MemberEventsComponent implements OnInit, OnDestroy {
           }
         });
     }
-  }
-
-  payForEvent(memberEvent: EventDetails): void {
+  } payForEvent(memberEvent: EventDetails): void {
     if (!this.currentUserId) {
       this.toastr.error('User not authenticated');
       return;
     }
 
-    // Show confirmation dialog
-    if (confirm(`Proceed to pay $${memberEvent.fee} for "${memberEvent.event_name}"?`)) {
-      this.spinner.show();
-
-      // TODO: Implement payment integration (e.g., M-Pesa, Stripe, etc.)
-      // For now, we'll simulate payment processing
-
-      setTimeout(() => {
-        // Simulate successful payment
-        this.toastr.success('Payment processed successfully!');
-        this.loadMemberEvents(); // Refresh member events to update payment status
-        this.spinner.hide();
-
-        // TODO: Replace this simulation with actual payment service call
-        // Example:
-        // this.paymentService.processPayment({
-        //   userId: this.currentUserId,
-        //   eventId: memberEvent.event_id,
-        //   amount: memberEvent.fee,
-        //   description: `Payment for ${memberEvent.event_name}`
-        // }).subscribe({
-        //   next: (response) => {
-        //     this.toastr.success('Payment processed successfully!');
-        //     this.loadMemberEvents();
-        //   },
-        //   error: (error) => {
-        //     console.error('Payment error:', error);
-        //     this.toastr.error('Payment failed. Please try again.');
-        //   }
-        // });
-
-      }, 2000); // Simulate 2-second processing time
+    // Set up payment type for event payment
+    const eventPaymentTypeId = this.paymentTypeMap['event_fee'];
+    if (!eventPaymentTypeId) {
+      this.toastr.error('Event payment type not found');
+      return;
     }
+
+    this.paymentTypeId = eventPaymentTypeId;
+    this.currentPaymentTypeName = 'Event Fee';
+    this.selectedMemberEventForPayment = memberEvent;
+    this.showPaymentModal = true;
+  }
+
+  handleEventPaymentSuccess(): void {
+    this.toastr.success('Event fee payment successful!');
+    this.loadMemberEvents(); // Refresh member events to update payment status
+  }
+
+  onEventPaymentClosed(): void {
+    this.showPaymentModal = false;
+    this.selectedMemberEventForPayment = null;
+    this.currentPaymentTypeName = '';
+    this.loadMemberEvents(); // Refresh to get updated payment status
   }
 }

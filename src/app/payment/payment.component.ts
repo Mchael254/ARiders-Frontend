@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { catchError, Observable, Subject, Subscription, switchMap, takeUntil, throwError } from 'rxjs';
+import { catchError, Observable, Subject, Subscription, switchMap, takeUntil, throwError, interval, timer } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 import { ResponsesService } from 'src/app/services/utilities/toaster/responses.service';
 import { SocketService } from 'src/app/services/utilities/socket-io/socket.service';
@@ -17,7 +17,7 @@ import autoTable from 'jspdf-autotable';
   templateUrl: './payment.component.html',
   styleUrls: ['./payment.component.css']
 })
-export class PaymentComponent implements OnInit, OnDestroy {
+export class PaymentComponent implements OnInit, OnDestroy, OnChanges {
   profile$: Observable<AuthState>;
   paymentForm: FormGroup;
   displayConfirmDialog = false;
@@ -27,6 +27,11 @@ export class PaymentComponent implements OnInit, OnDestroy {
   pdfTitle: string = ''
   private currentOrderId: string | null = null;
   private socketSub: Subscription | null = null;
+  private reconnectionSub: Subscription | null = null;
+  private pollingSubscription: Subscription | null = null;
+  private timeoutSubscription: Subscription | null = null;
+  private readonly PAYMENT_TIMEOUT_MS = 30000;
+  private readonly POLLING_INTERVAL_MS = 10000; // 10 seconds
   @Input() visible: boolean = false;
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() paymentSuccess = new EventEmitter<void>();
@@ -35,6 +40,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
   @Input() paymentTypeId!: string;
   @Input() paymentTypeName: string = '';
+  @Input() eventId: string | null = null;
   memberId = '';
   private destroy$ = new Subject<void>();
   get isAmountPrefilled(): boolean {
@@ -62,9 +68,11 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.paymentTypeName = sessionStorage.getItem("selectedPaymentTypeName") || 'General Payment';
+    // Don't rely on session storage - use the input property directly
     if (this.prefilledAmount) {
       this.paymentForm.patchValue({ amount: this.prefilledAmount });
+      // Disable amount field when prefilled
+      this.paymentForm.get('amount')?.disable();
     }
 
     this.profile$
@@ -73,6 +81,16 @@ export class PaymentComponent implements OnInit, OnDestroy {
         if (profile) {
           this.memberId = profile.user?.id || '';
 
+        }
+      });
+
+    // Monitor reconnection state and start polling if needed
+    this.reconnectionSub = this.socketService.getReconnectingState()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((isReconnecting) => {
+        if (isReconnecting && this.currentOrderId && this.loading) {
+          console.log('🔄 Socket reconnecting during payment, starting fallback polling...');
+          this.startPaymentStatusPolling();
         }
       });
 
@@ -96,6 +114,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
       switch (data.status) {
         case 'success':
+          this.stopPaymentStatusPolling();
+          this.stopPaymentTimeout();
+
           this.transactionDetails = {
             receipt: data.receipt,
             transactionId: data.transactionId,
@@ -114,10 +135,13 @@ export class PaymentComponent implements OnInit, OnDestroy {
             this.socketService.leavePaymentRoom(this.currentOrderId);
           }
           this.currentOrderId = null;
-          console.log('💳 Transaction completed:', this.transactionDetails);
+          console.log('💳 Transaction completed via websocket:', this.transactionDetails);
           break;
 
         case 'failed':
+          this.stopPaymentStatusPolling();
+          this.stopPaymentTimeout();
+
           this.currentStatus = `❌ ${data.message}`;
           this.response.showError(data.message);
 
@@ -136,16 +160,21 @@ export class PaymentComponent implements OnInit, OnDestroy {
     });
   }
 
-   ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes['prefilledAmount'] && changes['prefilledAmount'].currentValue !== null) {
       const amount = changes['prefilledAmount'].currentValue;
       this.paymentForm.patchValue({ amount: amount });
-      
+
       if (this.isAmountPrefilled) {
         this.paymentForm.get('amount')?.disable();
       } else {
         this.paymentForm.get('amount')?.enable();
       }
+    }
+
+    // Handle paymentTypeName changes
+    if (changes['paymentTypeName'] && changes['paymentTypeName'].currentValue) {
+      this.paymentTypeName = changes['paymentTypeName'].currentValue;
     }
   }
 
@@ -164,6 +193,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
     const orderId = uuidv4();
     this.currentOrderId = orderId;
 
+    // Start payment timeout
+    this.startPaymentTimeout();
+
     // ⬇️ Step 1: Warm up first
     this.paymentService.warmupMpesa().pipe(
       catchError((err) => {
@@ -180,6 +212,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
           Order_ID: orderId,
           memberId: this.memberId,
           payment_type_id: this.paymentTypeId,
+          ...(this.eventId && { eventId: this.eventId })
         };
 
         console.log('🚀 Initiating payment with payload:', payload);
@@ -192,6 +225,14 @@ export class PaymentComponent implements OnInit, OnDestroy {
         if (res.CheckoutRequestID) {
           this.currentStatus = "📲 Check your phone and enter your M-Pesa PIN to complete payment.";
           this.toastr.success('Payment request sent! Check your phone.');
+
+          // Start fallback polling after 30 seconds if no websocket response
+          timer(30000).pipe(takeUntil(this.destroy$)).subscribe(() => {
+            if (this.loading && this.currentOrderId && !this.pollingSubscription) {
+              console.log('⏰ 30 seconds elapsed, starting fallback polling...');
+              this.startPaymentStatusPolling();
+            }
+          });
         } else {
           this.failWithMessage("❌ Failed to initiate payment. Please try again.");
         }
@@ -205,6 +246,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   private failWithMessage(message: string): void {
+    this.stopPaymentStatusPolling();
+    this.stopPaymentTimeout();
     this.loading = false;
     this.currentStatus = message;
     this.response.showError(message);
@@ -247,6 +290,129 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.paymentClosed.emit();
   }
 
+  private startPaymentStatusPolling(): void {
+    if (this.pollingSubscription || !this.currentOrderId) {
+      return;
+    }
+
+    console.log(`🔄 Starting payment status polling for Order_ID: ${this.currentOrderId}`);
+    this.currentStatus = "🔄 Connection issue detected. Checking payment status...";
+
+    this.pollingSubscription = interval(this.POLLING_INTERVAL_MS)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.currentOrderId && this.loading) {
+          this.checkPaymentStatus();
+        } else {
+          this.stopPaymentStatusPolling();
+        }
+      });
+  }
+
+  private stopPaymentStatusPolling(): void {
+    if (this.pollingSubscription) {
+      this.pollingSubscription.unsubscribe();
+      this.pollingSubscription = null;
+      console.log('⏹️ Stopped payment status polling');
+    }
+  }
+
+  private checkPaymentStatus(): void {
+    if (!this.currentOrderId) return;
+
+    this.paymentService.getPaymentStatus(this.currentOrderId).subscribe({
+      next: (response) => {
+        console.log('📊 Polling response:', response);
+
+        if (response.status === 'success') {
+          this.handlePaymentSuccess(response);
+        } else if (response.status === 'failed') {
+          this.handlePaymentFailure(response);
+        }
+        // If still pending, continue polling
+      },
+      error: (error) => {
+        console.error('❌ Error polling payment status:', error);
+        // Continue polling on error unless it's a 404
+        if (error.status === 404) {
+          this.handlePaymentFailure({ message: 'Payment not found' });
+        }
+      }
+    });
+  }
+
+  private handlePaymentSuccess(data: any): void {
+    this.stopPaymentStatusPolling();
+    this.stopPaymentTimeout();
+    this.loading = false;
+    this.response.hideSpinner();
+
+    this.transactionDetails = {
+      receipt: data.receipt,
+      transactionId: data.transactionId,
+      amount: data.amount,
+      phoneNumber: data.phoneNumber,
+      transactionDate: data.transactionDate,
+    };
+
+    this.currentStatus = `✅ Payment successful! Receipt: ${data.receipt}`;
+    this.response.showSuccess('Payment completed successfully!');
+    this.paymentForm.reset();
+    this.paymentSuccess.emit();
+
+    if (this.currentOrderId) {
+      this.socketService.leavePaymentRoom(this.currentOrderId);
+    }
+    this.currentOrderId = null;
+    console.log('💳 Transaction completed via polling:', this.transactionDetails);
+  }
+
+  private handlePaymentFailure(data: any): void {
+    this.stopPaymentStatusPolling();
+    this.stopPaymentTimeout();
+    this.loading = false;
+    this.response.hideSpinner();
+
+    this.currentStatus = `❌ ${data.message}`;
+    this.response.showError(data.message);
+
+    if (this.currentOrderId) {
+      this.socketService.leavePaymentRoom(this.currentOrderId);
+    }
+    this.currentOrderId = null;
+    this.transactionDetails = null;
+  }
+
+  private startPaymentTimeout(): void {
+    this.timeoutSubscription = timer(this.PAYMENT_TIMEOUT_MS)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        console.warn('⏰ Payment timeout reached');
+        this.handlePaymentTimeout();
+      });
+  }
+
+  private stopPaymentTimeout(): void {
+    if (this.timeoutSubscription) {
+      this.timeoutSubscription.unsubscribe();
+      this.timeoutSubscription = null;
+    }
+  }
+
+  private handlePaymentTimeout(): void {
+    this.stopPaymentStatusPolling();
+    this.loading = false;
+    this.response.hideSpinner();
+
+    this.currentStatus = `⏰ Payment timeout. Please check your transaction status or try again.`;
+    this.response.showError('Payment processing timeout. Please verify your transaction.');
+
+    if (this.currentOrderId) {
+      this.socketService.leavePaymentRoom(this.currentOrderId);
+    }
+    this.currentOrderId = null;
+  }
+
   closePayment() {
 
   }
@@ -263,12 +429,12 @@ export class PaymentComponent implements OnInit, OnDestroy {
       const receipt = this.transactionDetails;
 
       // Colors
-      const primaryColor = '#2C3E50'; 
-      const secondaryColor = '#30B54A'; 
-      const lightColor = '#7F8C8D';     
+      const primaryColor = '#2C3E50';
+      const secondaryColor = '#30B54A';
+      const lightColor = '#7F8C8D';
 
       // Logo and Header
-      doc.addImage(img, 'JPEG', centerX - 10, 10, 20, 20); 
+      doc.addImage(img, 'JPEG', centerX - 10, 10, 20, 20);
       doc.setFontSize(18);
       doc.setTextColor(primaryColor);
       doc.setFont('helvetica', 'bold');
@@ -297,7 +463,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
         margin: { left: 20, right: 20 },
         headStyles: {
           fillColor: primaryColor,
-          textColor: 255, 
+          textColor: 255,
           fontStyle: 'bold'
         },
         body: receiptData.map(([label, value]) => [label, value]),
@@ -326,7 +492,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
       const pageHeight = doc.internal.pageSize.getHeight();
       const footerY = pageHeight - 20;
 
-      doc.setDrawColor(220); 
+      doc.setDrawColor(220);
       doc.line(20, footerY - 10, pageWidth - 20, footerY - 10);
 
       doc.setFontSize(8);
@@ -354,7 +520,15 @@ export class PaymentComponent implements OnInit, OnDestroy {
       this.socketService.leavePaymentRoom(this.currentOrderId);
     }
 
+    // Clean up all subscriptions
     this.socketSub?.unsubscribe();
+    this.reconnectionSub?.unsubscribe();
+    this.stopPaymentStatusPolling();
+    this.stopPaymentTimeout();
+
+    this.destroy$.next();
+    this.destroy$.complete();
+
     this.socketService.disconnect();
   }
 }
