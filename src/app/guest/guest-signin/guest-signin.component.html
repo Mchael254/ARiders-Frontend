@@ -1,0 +1,179 @@
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="flex justify-center">
+            <!-- Logo container with orange circle background -->
+            <div
+                class="w-32 h-32 bg-gray-50 rounded-full flex items-center justify-center overflow-hidden p-0 shadow-md">
+                <img class="h-35 w-auto rounded-full" src="../../assets/ariders.jpg" alt="ariders" />
+            </div>
+        </div>
+
+        <div class="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <h2 class="text-center text-3xl font-extrabold text-gray-900 mb-2">
+                Welcome Guest
+            </h2>
+
+            <p class="text-center text-sm text-gray-600 mb-2">
+                Sign in to your guest account
+            </p>
+
+            <!-- Guest Info Banner -->
+            <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <h4 class="text-sm font-semibold text-blue-900 mb-1">Guest Access</h4>
+                        <p class="text-xs text-blue-700">
+                            As a guest, you can register for most public events. For exclusive member benefits and
+                            priority booking, consider becoming a member.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="line" *ngIf="loadingLine"></p>
+
+            <form class="space-y-6" #guestSigninFormRef="ngForm" [formGroup]="guestSigninForm"
+                (ngSubmit)="onGuestSignIn()">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
+                    <input id="email" type="email" placeholder="Enter your email" formControlName="email" pInputText
+                        style="font-size: medium;"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
+                        [class.border-red-300]="guestSigninForm.get('email')?.invalid && (guestSigninForm.get('email')?.touched)">
+
+                    <p class="mt-2 text-sm text-red-600"
+                        *ngIf="guestSigninForm.get('email')?.touched && guestSigninForm.get('email')?.hasError('required')">
+                        Email is required.
+                    </p>
+                    <p class="mt-2 text-sm text-red-600"
+                        *ngIf="guestSigninForm.get('email')?.touched && guestSigninForm.get('email')?.hasError('pattern')">
+                        Invalid email format
+                    </p>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+
+                    <div class="relative mt-1 rounded-md shadow-sm">
+                        <p-password id="password" [(ngModel)]="passwordValue" formControlName="password"
+                            [toggleMask]="true" [feedback]="false" [style]="{width: '100%'}"
+                            inputStyleClass="w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 sm:text-sm"
+                            [inputStyle]="{'font-size': 'medium', 'padding-right': '2.5rem'}"
+                            [class.border-red-300]="guestSigninForm.get('password')?.invalid && (guestSigninForm.get('password')?.touched)">
+                        </p-password>
+                    </div>
+
+                    <p class="mt-2 text-sm text-red-600"
+                        *ngIf="guestSigninForm.get('password')?.touched && guestSigninForm.get('password')?.hasError('required')">
+                        Password is required
+                    </p>
+                    <p class="mt-2 text-sm text-red-600"
+                        *ngIf="guestSigninForm.get('password')?.touched && guestSigninForm.get('password')?.hasError('minlength')">
+                        Password must be at least 8 characters long
+                    </p>
+
+                </div>
+
+                <div>
+                    <button type="submit" [disabled]="guestSigninForm.invalid || isLoading" data-cy="guest-signin-btn"
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#a27929] hover:bg-[#8c6d3f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8c6d3f] disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span *ngIf="!isLoading">Sign in as Guest</span>
+                        <span *ngIf="isLoading" class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            Signing in...
+                        </span>
+                    </button>
+                </div>
+
+                <div class="text-sm text-center">
+                    <span class="text-gray-600">Don't have a guest account? </span>
+                    <a routerLink="/guest-signup"
+                        class="font-medium text-[#a27929] hover:text-[#8c6d3f] transition-all duration-300 ml-1 hover:font-bold hover:text-lg">
+                        Sign up as Guest
+                    </a>
+                </div>
+
+                <!-- Member Option -->
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">or</span>
+                    </div>
+                </div>
+
+                <div class="text-sm text-center">
+                    <span class="text-gray-600">Want member benefits? </span>
+                    <a routerLink="/signin"
+                        class="font-medium text-blue-600 hover:text-blue-500 transition-all duration-300 ml-1 hover:font-bold hover:text-lg">
+                        Sign in as Member
+                    </a>
+                </div>
+            </form>
+
+            <!-- forgot password and home navigation -->
+            <div class="text-sm text-center mt-6">
+                <span routerLink="/landing"
+                    class="underline text-[#a27929] mr-3 cursor-pointer hover:underline">Home</span>
+                <p-button label="Forgot password?" (click)="showDialog()"
+                    styleClass="p-button-link !text-[#a17b28] hover:!text-[#8c6d3f] font-medium transition-all duration-300 ml-1 hover:font-bold hover:text-lg"
+                    [text]="true">
+                </p-button>
+            </div>
+
+            <!-- Forgot Password Dialog -->
+            <p-dialog header="Recover your guest password" [(visible)]="visible" [modal]="true"
+                [style]="{width: '450px'}" [breakpoints]="{'960px': '75vw', '640px': '90vw'}" [draggable]="false"
+                [resizable]="false" styleClass="shadow-lg rounded-lg">
+
+                <div class="flex flex-col gap-4" [formGroup]="forgotPasswordForm">
+                    <p>You will receive an email to recover your guest account password.</p>
+
+                    <div class="field">
+                        <label for="forgotEmail" class="block text-base font-medium text-gray-700 mb-1">Email</label>
+                        <input id="forgotEmail" type="email" formControlName="email"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                            [class.border-red-300]="forgotPasswordForm.get('email')?.invalid && forgotPasswordForm.get('email')?.touched"
+                            style="font-size: medium;" placeholder="Your guest account email" />
+
+                        <!-- Validation Error Messages -->
+                        <p class="mt-2 text-sm text-red-600"
+                            *ngIf="forgotPasswordForm.get('email')?.touched && forgotPasswordForm.get('email')?.hasError('required')">
+                            Email is required.
+                        </p>
+                        <p class="mt-2 text-sm text-red-600"
+                            *ngIf="forgotPasswordForm.get('email')?.touched && forgotPasswordForm.get('email')?.hasError('pattern')">
+                            Invalid email format
+                        </p>
+                    </div>
+                </div>
+
+                <ng-template pTemplate="footer">
+                    <div class="flex justify-end gap-6 m-2">
+                        <p-button label="Cancel" (click)="closeDialog()"
+                            class="p-2 bg-gray-200 hover:bg-gray-400 rounded-lg">
+                        </p-button>
+                        <button label="Submit" (click)="onForgotPasswordSubmit()"
+                            [disabled]="forgotPasswordForm.invalid"
+                            class="bg-[#8c6d3f] font-bold text-white p-2 rounded-lg hover:!bg-[#a27929] !border-[#a27929] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8c6d3f] disabled:opacity-50 disabled:cursor-not-allowed">
+                            Submit
+                        </button>
+                    </div>
+                </ng-template>
+            </p-dialog>
+        </div>
+    </div>
+</div>

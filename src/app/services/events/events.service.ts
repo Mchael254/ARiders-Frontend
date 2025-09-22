@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CreateEventPayload, CreateEventResponse, Event, EventDetails, EventParticipant, EventRegistration, EventTypesResponse, EventsResponse, EventSummaryResponse } from '../types/event.model';
+import { CreateEventPayload, CreateEventResponse, EditEventPayload, EditEventResponse, Event, EventDetails, EventParticipant, EventRegistration, EventTypesResponse, EventsResponse, EventSummaryResponse } from '../types/event.model';
 import { environment } from 'src/environments/environment.development';
 
 
@@ -24,6 +24,10 @@ export class EventsService {
 
   getEvents(): Observable<EventsResponse> {
     return this.http.get<EventsResponse>(`${this.baseUrl}/api/events/all`);
+  }
+
+  editEvent(payload: EditEventPayload): Observable<EditEventResponse> {
+    return this.http.put<EditEventResponse>(`${this.baseUrl}/api/events/edit`, payload);
   }
 
   deleteEvent(adminId: string, eventId: string, reason?: string): Observable<{ message: string }> {

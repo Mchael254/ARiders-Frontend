@@ -73,6 +73,11 @@ import { PaymentRecordsComponent } from './payment-records/payment-records.compo
 import { DashbaodContentComponent } from './profile/dashbaod-content/dashbaod-content.component';
 import { MemberEventsComponent } from './profile/member-events/member-events.component';
 import { EventDetailsComponent } from './admins/event-details/event-details.component';
+import { GuestSignupComponent } from './guest/guest-signup/guest-signup.component';
+import { GuestSigninComponent } from './guest/guest-signin/guest-signin.component';
+import { EventsComponent } from './events/events.component';
+import { GuestDashboardComponent } from './guest/guest-dashboard/guest-dashboard.component';
+import { GuestMainComponent } from './guest/guest-main/guest-main.component';
 
 
 @NgModule({
@@ -111,6 +116,11 @@ import { EventDetailsComponent } from './admins/event-details/event-details.comp
     DashbaodContentComponent,
     MemberEventsComponent,
     EventDetailsComponent,
+    GuestSignupComponent,
+    GuestSigninComponent,
+    EventsComponent,
+    GuestDashboardComponent,
+    GuestMainComponent,
 
   ],
   imports: [

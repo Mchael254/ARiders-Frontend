@@ -32,6 +32,19 @@ export class AuthService {
 
   }
 
+  registerGuest(userData: any): Observable<any> {
+    const url = `https://aidnxywieovjglfrcwty.supabase.co/functions/v1/hyper-function`;
+
+    return this.http.post(url, userData, {
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': this.supabaseKey,
+        'Authorization': `Bearer ${this.supabaseKey}`
+      }
+    });
+  }
+
+
   // Login with supabase
   login(loginData: { email: string; password: string }): Observable<any> {
     return from(this.supabase.auth.signInWithPassword(loginData)).pipe(

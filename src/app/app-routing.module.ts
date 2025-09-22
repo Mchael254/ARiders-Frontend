@@ -15,6 +15,10 @@ import { authGuard } from './guards/auth/auth.guard';
 import { RegistrationComponent } from './registration/registration.component';
 import { TermsComponent } from './terms/terms.component';
 import { PaymentRecordsComponent } from './payment-records/payment-records.component';
+import { GuestSignupComponent } from './guest/guest-signup/guest-signup.component';
+import { EventsComponent } from './events/events.component';
+import { GuestSigninComponent } from './guest/guest-signin/guest-signin.component';
+import { GuestMainComponent } from './guest/guest-main/guest-main.component';
 
 
 const routes: Routes = [
@@ -24,19 +28,29 @@ const routes: Routes = [
   { path: 'signup', component: SignupComponent },
   { path: 'signin', component: SigninComponent },
   { path: 'registration', component: RegistrationComponent },
-  {path:'terms', component:TermsComponent},
+  { path: 'terms', component: TermsComponent },
 
   // member
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'membership', component: MembershipComponent, canActivate: [authGuard] },
   { path: 'bio', component: BioComponent, canActivate: [authGuard] },
-  { path: 'payment', component: PaymentComponent},
-  {path: 'payment-records', component:PaymentRecordsComponent},
+  { path: 'payment', component: PaymentComponent },
+  { path: 'payment-records', component: PaymentRecordsComponent },
 
 
   // shared
   { path: 'spinner', component: SpinnerComponent },
   { path: 'footer', component: FooterComponent },
+
+
+  //guest
+  { path: 'guest-signup', component: GuestSignupComponent },
+  { path: 'guest-signin', component: GuestSigninComponent },
+  { path: 'guest-dashboard', component: GuestMainComponent },
+
+
+  { path: 'events', component: EventsComponent },
+
 
   //admin
   { path: 'admin', component: AdminComponent, canActivate: [authGuard] },
