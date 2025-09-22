@@ -32,6 +32,24 @@ export interface CreateEventPayload {
   image: string;
 }
 
+export interface EditEventPayload {
+  adminId: string;
+  eventId: string;
+  eventTypeId: string;
+  name: string;
+  description?: string;
+  startDate: string;
+  endDate?: string;
+  location?: string;
+  isPaid: boolean;
+  fee?: number;
+  image?: string;
+}
+
+export interface EditEventResponse {
+  message: string;
+}
+
 export interface EventType {
   id: string;
   name: string;
@@ -110,6 +128,7 @@ export interface EventCreator {
 export interface EventSummaryEvent {
   id: string;
   name: string;
+  description?: string;
   start_date: string;
   end_date: string;
   location: string;
@@ -118,6 +137,7 @@ export interface EventSummaryEvent {
   image: string;
   created_at: string;
   created_by: EventCreator;
+  event_type: EventType;
 }
 
 export interface EventSummaryParticipants {

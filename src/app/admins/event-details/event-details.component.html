@@ -3,7 +3,7 @@
         <!-- Header with Back Button -->
         <div class="mb-6">
             <button (click)="goBackToEvents()"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#d4a72c] transition-colors duration-200">
+                class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-amber-600 to-amber-500 rounded-lg hover:from-amber-700 hover:to-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all duration-200 transform hover:scale-105">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
@@ -65,7 +65,7 @@
                         <p class="text-gray-900">{{ formatCurrency(displayEvent.fee || 0) }}</p>
                     </div>
                 </div>
-                <div *ngIf="displayEvent.description" class="mt-4">
+                <div *ngIf="displayEvent?.description" class="mt-4">
                     <span class="text-sm font-medium text-gray-600">Description:</span>
                     <p class="text-gray-700 mt-1">{{ displayEvent.description }}</p>
                 </div>
@@ -286,6 +286,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- Event Details Card -->
             <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
                 <!-- Event Image -->
@@ -300,9 +301,9 @@
                     <div class="mb-6">
                         <div class="flex items-center justify-between mb-4">
                             <h1 class="text-2xl font-bold text-gray-900">{{ eventSummary.event.name }}</h1>
-                            <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                Active
+                            <span *ngIf="displayEvent"
+                                [class]="'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ' + getEventStatus(displayEvent).class">
+                                {{ getEventStatus(displayEvent).status }}
                             </span>
                         </div>
 
@@ -371,6 +372,25 @@
                             </div>
                             <p class="ml-6 text-sm text-gray-900">{{ eventSummary.event.location || 'Location not
                                 specified' }}</p>
+                        </div>
+
+                        <!-- Event Type -->
+                        <div class="space-y-2">
+                            <div class="flex items-center text-sm font-medium text-gray-600">
+                                <svg class="w-4 h-4 mr-2 text-[#d4a72c]" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z">
+                                    </path>
+                                </svg>
+                                Event Type
+                            </div>
+                            <div class="ml-6">
+                                <p class="text-sm font-medium text-gray-900">{{ eventSummary.event.event_type.name }}
+                                </p>
+                                <p *ngIf="eventSummary.event.event_type.description" class="text-xs text-gray-600">{{
+                                    eventSummary.event.event_type.description }}</p>
+                            </div>
                         </div>
 
                         <!-- Registration Fee -->
@@ -696,27 +716,10 @@
                 </div>
             </div>
 
-            <!-- Additional Information (if description is long) -->
-            <div *ngIf="displayEvent?.description" class="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Full Description</h3>
-                <div class="prose prose-sm max-w-none text-gray-700">
-                    <p>{{ displayEvent?.description }}</p>
-                </div>
-            </div>
-
             <!-- Actions -->
             <div class="bg-white rounded-xl shadow-md border border-gray-200 p-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
                 <div class="flex flex-wrap gap-3">
-                    <button
-                        class="inline-flex items-center px-4 py-2 bg-[#d4a72c] text-white rounded-lg hover:bg-[#b38d25] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#d4a72c] transition-colors duration-200">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
-                            </path>
-                        </svg>
-                        Edit Event
-                    </button>
                     <button (click)="openDeleteModal()"
                         class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -725,6 +728,14 @@
                             </path>
                         </svg>
                         Delete Event
+                    </button>
+                    <button *ngIf="eventSummary?.event && currentUserId"
+                        (click)="openEditModal()"
+                        class="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5h6M11 9h6M11 13h6M5 5h.01M5 9h.01M5 13h.01"></path>
+                        </svg>
+                        Edit Event
                     </button>
                 </div>
             </div>
@@ -893,6 +904,78 @@
     </div>
 
 </div>
+
+
+<!-- Edit Event Modal -->
+<div *ngIf="showEditModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50" (click)="closeEditModal()">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-2xl mx-4" (click)="$event.stopPropagation()">
+        <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-800">Edit Event</h3>
+            <button (click)="closeEditModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-full">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <form [formGroup]="editForm" (ngModelChange)="onEditFormChange()" class="px-5 py-4 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Event Type</label>
+                    <select formControlName="eventTypeId" class="w-full px-3 py-2 border rounded-md">
+                        <option [ngValue]="null">Select type</option>
+                        <option *ngFor="let t of eventTypes" [value]="t.id">{{ t.name }}</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <input formControlName="name" type="text" class="w-full px-3 py-2 border rounded-md" />
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea formControlName="description" rows="3" class="w-full px-3 py-2 border rounded-md"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                    <input formControlName="startDate" type="datetime-local" class="w-full px-3 py-2 border rounded-md" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                    <input formControlName="endDate" type="datetime-local" class="w-full px-3 py-2 border rounded-md" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                    <input formControlName="location" type="text" class="w-full px-3 py-2 border rounded-md" />
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <input formControlName="isPaid" type="checkbox" id="isPaid" class="h-4 w-4" />
+                    <label for="isPaid" class="text-sm text-gray-700">Paid Event</label>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Fee</label>
+                    <input formControlName="fee" type="number" min="0" class="w-full px-3 py-2 border rounded-md" />
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" (click)="closeEditModal()" class="px-4 py-2 border rounded-md">Cancel</button>
+                <button type="button" (click)="saveEditEvent()" [disabled]="isEditingEvent || editForm.invalid" class="px-4 py-2 bg-amber-600 text-white rounded-md">
+                    <svg *ngIf="isEditingEvent" class="animate-spin w-4 h-4 mr-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v4m0 8v4m8-8h-4M4 12H0"></path></svg>
+                    {{ isEditingEvent ? 'Saving...' : 'Save Changes' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
 
 <!-- Delete Event Confirmation Modal -->
 <div *ngIf="showDeleteModal && eventSummary"

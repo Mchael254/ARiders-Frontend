@@ -1,8 +1,9 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store, select } from '@ngrx/store';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { Event, EventSummaryResponse } from 'src/app/services/types/event.model';
+import { Event, EventSummaryResponse, EventType } from 'src/app/services/types/event.model';
 import { EventsService } from 'src/app/services/events/events.service';
 
 // Interface for auth state
@@ -49,6 +50,14 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
   deleteReason: string = '';
   isDeleting = false;
 
+  // Edit event modal & form
+  showEditModal = false;
+  editForm: FormGroup;
+  eventTypes: EventType[] = [];
+  isEditingEvent = false;
+  hasUnsavedChanges = false;
+
+
   private destroy$ = new Subject<void>();
 
   // User info
@@ -57,9 +66,21 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     private eventsService: EventsService,
     private store: Store<{ auth: AuthState }>,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private fb: FormBuilder
   ) {
     this.profile$ = this.store.pipe(select('auth'));
+
+    this.editForm = this.fb.group({
+      eventTypeId: [null, Validators.required],
+      name: ['', Validators.required],
+      description: [''],
+      startDate: ['', Validators.required],
+      endDate: [''],
+      location: [''],
+      isPaid: [false],
+      fee: [0]
+    });
   }
 
   // Keyboard event handler
@@ -90,6 +111,9 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
         this.currentUserId = profile.user?.id || null;
       });
 
+    // Initialize edit form
+    // Editing features removed
+
     // Add keyboard event listener for modal closing
     document.addEventListener('keydown', this.handleKeydown);
   }
@@ -111,6 +135,110 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
 
     // Remove keyboard event listener
     document.removeEventListener('keydown', this.handleKeydown);
+  }
+
+  // --- Edit event helpers ---
+
+  openEditModal(): void {
+    if (!this.eventSummary?.event) {
+      this.toastr.error('Event data is not available for editing');
+      return;
+    }
+
+    // Load event types if not already
+    if (this.eventTypes.length === 0) {
+      this.eventsService.getEventTypes().pipe(takeUntil(this.destroy$)).subscribe({
+        next: (resp) => this.eventTypes = resp.eventTypes || [],
+        error: () => { /* non-blocking */ }
+      });
+    }
+
+    const e = this.eventSummary.event;
+    this.editForm.patchValue({
+      eventTypeId: e.event_type?.id || null,
+      name: e.name || '',
+      description: e.description || '',
+      startDate: this.isoToDatetimeLocal(e.start_date),
+      endDate: e.end_date ? this.isoToDatetimeLocal(e.end_date) : '',
+      location: e.location || '',
+      isPaid: !!e.is_paid,
+      fee: e.fee ?? 0
+    });
+
+    this.hasUnsavedChanges = false;
+    this.showEditModal = true;
+  }
+
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.isEditingEvent = false;
+    this.hasUnsavedChanges = false;
+    this.editForm.markAsPristine();
+  }
+
+  onEditFormChange(): void {
+    this.hasUnsavedChanges = true;
+  }
+
+  saveEditEvent(): void {
+    if (!this.eventSummary?.event || !this.currentUserId) {
+      this.toastr.error('Missing event or user information');
+      return;
+    }
+
+    if (this.editForm.invalid) {
+      this.toastr.error('Please fix validation errors before saving');
+      this.editForm.markAllAsTouched();
+      return;
+    }
+
+    const fv = this.editForm.value;
+
+    const payload = {
+      adminId: this.currentUserId,
+      eventId: this.eventSummary.event.id,
+      eventTypeId: fv.eventTypeId,
+      name: fv.name,
+      description: fv.description,
+      startDate: this.datetimeLocalToIso(fv.startDate),
+      endDate: fv.endDate ? this.datetimeLocalToIso(fv.endDate) : undefined,
+      location: fv.location,
+      isPaid: !!fv.isPaid,
+      fee: fv.isPaid ? (fv.fee || 0) : 0
+    };
+
+    this.isEditingEvent = true;
+
+    this.eventsService.editEvent(payload).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+        this.toastr.success(res?.message || 'Event updated successfully');
+        // Refresh summary
+        this.loadEventSummary(this.eventSummary!.event.id);
+        this.closeEditModal();
+      },
+      error: (err) => {
+        console.error('Error updating event:', err);
+        this.toastr.error(err.error?.message || 'Failed to update event.');
+        this.isEditingEvent = false;
+      }
+    });
+  }
+
+  // Helpers to convert between ISO and input[type=datetime-local]
+  private isoToDatetimeLocal(iso?: string): string {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+  private datetimeLocalToIso(value: string): string {
+    const d = new Date(value);
+    return d.toISOString();
   }
 
   loadEventSummary(eventId: string): void {
@@ -161,6 +289,7 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
       return {
         id: this.eventSummary.event.id,
         name: this.eventSummary.event.name,
+        description: this.eventSummary.event.description,
         start_date: this.eventSummary.event.start_date,
         end_date: this.eventSummary.event.end_date,
         location: this.eventSummary.event.location,
@@ -169,8 +298,8 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
         image: this.eventSummary.event.image,
         created_at: this.eventSummary.event.created_at,
         created_by: this.eventSummary.event.created_by.id,
-        // Fill required fields with defaults
-        event_type_id: ''
+        event_type_id: this.eventSummary.event.event_type.id,
+        event_type_name: this.eventSummary.event.event_type.name
       } as Event;
     }
     return this.event;
@@ -213,6 +342,20 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
       .join('')
       .substring(0, 2)
       .toUpperCase();
+  }
+
+  getEventStatus(event: Event): { status: string; class: string } {
+    const now = new Date();
+    const startDate = new Date(event.start_date);
+    const endDate = new Date(event.end_date || event.start_date);
+
+    if (now < startDate) {
+      return { status: 'Upcoming', class: 'bg-blue-100 text-blue-800' };
+    } else if (now >= startDate && now <= endDate) {
+      return { status: 'Ongoing', class: 'bg-green-100 text-green-800' };
+    } else {
+      return { status: 'Completed', class: 'bg-gray-100 text-gray-800' };
+    }
   }
 
   // Participants filtering and pagination methods
@@ -347,6 +490,9 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
   }
+
+  // Edit event methods
+  // Editing features removed
 
   // Helper method for template
   min(a: number, b: number): number {

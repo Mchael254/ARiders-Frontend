@@ -27,8 +27,21 @@ export interface ViewDataMap {
   [key: string]: any;
 }
 
-export interface AdminPanelState {
+// Guest Panel Interfaces
+export interface GuestPanelState {
   currentView: string;
-  viewData: ViewDataMap;
-  selectedMemberId: string | null;
+  viewData: GuestViewDataMap;
+}
+
+export const initialGuestPanelState: GuestPanelState = {
+  currentView: 'dashboard',
+  viewData: {}
+};
+
+export interface GuestViewDataMap {
+  dashboard?: any;
+  events?: any;
+  profile?: any;
+  registrations?: any;
+  [key: string]: any;
 }

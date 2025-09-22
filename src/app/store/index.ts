@@ -6,20 +6,21 @@ import { AES, enc } from 'crypto-js';
 
 import { adminPanelReducer, AdminPanelState } from './panel/admin/reducer';
 import { memberPanelReducer, MemberPanelState } from './panel/member/reducer';
+import { guestPanelReducer, GuestPanelState } from './panel/guest/reducer';
 
 
 export interface AppState {
   auth: fromAuth.AuthState;
   adminPanel: AdminPanelState;
   memberPanel: MemberPanelState;
-
+  guestPanel: GuestPanelState;
 }
 
 export const reducers: ActionReducerMap<AppState> = {
   auth: fromAuth.authReducer,
   adminPanel: adminPanelReducer,
-  memberPanel: memberPanelReducer
-
+  memberPanel: memberPanelReducer,
+  guestPanel: guestPanelReducer
 };
 
 
