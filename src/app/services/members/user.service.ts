@@ -2,9 +2,9 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { UserProfile } from 'src/app/interfaces/members';
-import { environment } from 'src/environments/environment.development';
 import { handleError } from '../utilities/error-handler/error-handler';
 import { MemberReceiptsResponse } from '../types/memberService';
+import { environment } from 'src/environments/environment.development';
 
 @Injectable({
   providedIn: 'root'

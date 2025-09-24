@@ -1,10 +1,12 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store, select } from '@ngrx/store';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { Event, EventSummaryResponse, EventType } from 'src/app/services/types/event.model';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Event, EventSummaryResponse, EventType, EditEventPayload } from 'src/app/services/types/event.model';
 import { EventsService } from 'src/app/services/events/events.service';
+import { UserService } from 'src/app/services/members/user.service';
 
 // Interface for auth state
 interface AuthState {
@@ -50,13 +52,17 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
   deleteReason: string = '';
   isDeleting = false;
 
-  // Edit event modal & form
+  // Edit event modal state
   showEditModal = false;
-  editForm: FormGroup;
+  editEventForm!: FormGroup;
   eventTypes: EventType[] = [];
-  isEditingEvent = false;
-  hasUnsavedChanges = false;
+  loadingEventTypes = false;
+  formHasChanges = false;
+  originalFormValues: any = null;
 
+  // Image upload state for edit modal
+  selectedFile: File | null = null;
+  previewImage: string | null = null;
 
   private destroy$ = new Subject<void>();
 
@@ -67,20 +73,11 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
     private eventsService: EventsService,
     private store: Store<{ auth: AuthState }>,
     private toastr: ToastrService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private userService: UserService,
+    private spinner: NgxSpinnerService
   ) {
     this.profile$ = this.store.pipe(select('auth'));
-
-    this.editForm = this.fb.group({
-      eventTypeId: [null, Validators.required],
-      name: ['', Validators.required],
-      description: [''],
-      startDate: ['', Validators.required],
-      endDate: [''],
-      location: [''],
-      isPaid: [false],
-      fee: [0]
-    });
   }
 
   // Keyboard event handler
@@ -88,6 +85,8 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
     if (event.key === 'Escape') {
       if (this.showDeleteModal) {
         this.closeDeleteModal();
+      } else if (this.showEditModal) {
+        this.closeEditModal();
       } else if (this.isParticipantModalOpen) {
         this.closeParticipantModal();
       }
@@ -96,6 +95,13 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit(): void {
     console.log('EventDetailsComponent ngOnInit - eventId:', this.eventId, 'event:', this.event);
+    
+    // Initialize edit form first
+    this.initializeEditForm();
+    
+    // Load event types for edit form
+    this.loadEventTypes();
+    
     if (this.eventId) {
       this.loadEventSummary(this.eventId);
     } else if (this.event) {
@@ -110,9 +116,6 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
       .subscribe((profile) => {
         this.currentUserId = profile.user?.id || null;
       });
-
-    // Initialize edit form
-    // Editing features removed
 
     // Add keyboard event listener for modal closing
     document.addEventListener('keydown', this.handleKeydown);
@@ -137,109 +140,7 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
     document.removeEventListener('keydown', this.handleKeydown);
   }
 
-  // --- Edit event helpers ---
 
-  openEditModal(): void {
-    if (!this.eventSummary?.event) {
-      this.toastr.error('Event data is not available for editing');
-      return;
-    }
-
-    // Load event types if not already
-    if (this.eventTypes.length === 0) {
-      this.eventsService.getEventTypes().pipe(takeUntil(this.destroy$)).subscribe({
-        next: (resp) => this.eventTypes = resp.eventTypes || [],
-        error: () => { /* non-blocking */ }
-      });
-    }
-
-    const e = this.eventSummary.event;
-    this.editForm.patchValue({
-      eventTypeId: e.event_type?.id || null,
-      name: e.name || '',
-      description: e.description || '',
-      startDate: this.isoToDatetimeLocal(e.start_date),
-      endDate: e.end_date ? this.isoToDatetimeLocal(e.end_date) : '',
-      location: e.location || '',
-      isPaid: !!e.is_paid,
-      fee: e.fee ?? 0
-    });
-
-    this.hasUnsavedChanges = false;
-    this.showEditModal = true;
-  }
-
-  closeEditModal(): void {
-    this.showEditModal = false;
-    this.isEditingEvent = false;
-    this.hasUnsavedChanges = false;
-    this.editForm.markAsPristine();
-  }
-
-  onEditFormChange(): void {
-    this.hasUnsavedChanges = true;
-  }
-
-  saveEditEvent(): void {
-    if (!this.eventSummary?.event || !this.currentUserId) {
-      this.toastr.error('Missing event or user information');
-      return;
-    }
-
-    if (this.editForm.invalid) {
-      this.toastr.error('Please fix validation errors before saving');
-      this.editForm.markAllAsTouched();
-      return;
-    }
-
-    const fv = this.editForm.value;
-
-    const payload = {
-      adminId: this.currentUserId,
-      eventId: this.eventSummary.event.id,
-      eventTypeId: fv.eventTypeId,
-      name: fv.name,
-      description: fv.description,
-      startDate: this.datetimeLocalToIso(fv.startDate),
-      endDate: fv.endDate ? this.datetimeLocalToIso(fv.endDate) : undefined,
-      location: fv.location,
-      isPaid: !!fv.isPaid,
-      fee: fv.isPaid ? (fv.fee || 0) : 0
-    };
-
-    this.isEditingEvent = true;
-
-    this.eventsService.editEvent(payload).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (res) => {
-        this.toastr.success(res?.message || 'Event updated successfully');
-        // Refresh summary
-        this.loadEventSummary(this.eventSummary!.event.id);
-        this.closeEditModal();
-      },
-      error: (err) => {
-        console.error('Error updating event:', err);
-        this.toastr.error(err.error?.message || 'Failed to update event.');
-        this.isEditingEvent = false;
-      }
-    });
-  }
-
-  // Helpers to convert between ISO and input[type=datetime-local]
-  private isoToDatetimeLocal(iso?: string): string {
-    if (!iso) return '';
-    const d = new Date(iso);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const hours = String(d.getHours()).padStart(2, '0');
-    const minutes = String(d.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  }
-
-  private datetimeLocalToIso(value: string): string {
-    const d = new Date(value);
-    return d.toISOString();
-  }
 
   loadEventSummary(eventId: string): void {
     console.log('loadEventSummary called with eventId:', eventId);
@@ -297,9 +198,9 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
         fee: this.eventSummary.event.fee,
         image: this.eventSummary.event.image,
         created_at: this.eventSummary.event.created_at,
-        created_by: this.eventSummary.event.created_by.id,
-        event_type_id: this.eventSummary.event.event_type.id,
-        event_type_name: this.eventSummary.event.event_type.name
+        created_by: this.eventSummary.event.created_by?.id,
+        event_type_id: this.eventSummary.event.event_type?.id,
+        event_type_name: this.eventSummary.event.event_type?.name
       } as Event;
     }
     return this.event;
@@ -360,7 +261,7 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
 
   // Participants filtering and pagination methods
   get filteredParticipants(): any[] {
-    if (!this.eventSummary?.details) return [];
+    if (!this.eventSummary?.details || !Array.isArray(this.eventSummary.details)) return [];
 
     let filtered = this.eventSummary.details.filter(participant => {
       // Search filter
@@ -491,11 +392,296 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  // Edit event methods
-  // Editing features removed
+
 
   // Helper method for template
   min(a: number, b: number): number {
     return Math.min(a, b);
+  }
+
+  // Edit form initialization
+  initializeEditForm(): void {
+    try {
+      this.editEventForm = this.fb.group({
+        eventTypeId: ['', Validators.required],
+        name: ['', [Validators.required, Validators.minLength(3)]],
+        description: [''],
+        startDate: ['', Validators.required],
+        endDate: [''],
+        location: [''],
+        isPaid: [false],
+        fee: [0, [Validators.min(0)]]
+      });
+
+      // Watch isPaid to conditionally require fee
+      this.editEventForm.get('isPaid')?.valueChanges
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(isPaid => {
+          const feeControl = this.editEventForm.get('fee');
+          if (isPaid) {
+            feeControl?.setValidators([Validators.required, Validators.min(1)]);
+          } else {
+            feeControl?.setValidators([Validators.min(0)]);
+            feeControl?.setValue(0);
+          }
+          feeControl?.updateValueAndValidity();
+        });
+
+      // Watch for form changes
+      this.editEventForm.valueChanges
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          this.checkFormChanges();
+        });
+
+      console.log('Edit form initialized successfully');
+    } catch (error) {
+      console.error('Error initializing edit form:', error);
+    }
+  }
+
+  // Load event types for edit form
+  loadEventTypes(): void {
+    this.loadingEventTypes = true;
+    
+    this.eventsService.getEventTypes()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.eventTypes = response.eventTypes || [];
+          this.loadingEventTypes = false;
+        },
+        error: (error) => {
+          console.error('Error loading event types:', error);
+          this.loadingEventTypes = false;
+          this.toastr.error('Failed to load event types');
+        }
+      });
+  }
+
+  // Check if event can be edited (only upcoming events can be edited)
+  canEditEvent(): boolean {
+    if (!this.displayEvent) return false;
+    
+    const eventStatus = this.getEventStatus(this.displayEvent);
+    
+    // Only allow editing if the event is upcoming
+    return eventStatus.status === 'Upcoming';
+  }
+
+  // Get tooltip text for edit button
+  getEditTooltip(): string {
+    if (!this.displayEvent) return 'Event not available';
+    
+    if (this.canEditEvent()) {
+      return 'Edit Event';
+    }
+    
+    const eventStatus = this.getEventStatus(this.displayEvent).status;
+    return `Cannot edit ${eventStatus.toLowerCase()} event. Only upcoming events can be edited.`;
+  }
+
+  // Open edit modal
+  openEditModal(): void {
+    if (!this.displayEvent || !this.canEditEvent()) {
+      const eventStatus = this.displayEvent ? this.getEventStatus(this.displayEvent).status : 'unknown';
+      this.toastr.error(`This event cannot be edited because it is ${eventStatus.toLowerCase()}. Only upcoming events can be edited.`);
+      return;
+    }
+
+    // Ensure form is initialized
+    if (!this.editEventForm) {
+      this.initializeEditForm();
+    }
+
+    // Reset form first
+    this.editEventForm.reset();
+
+    // Populate form with current event data
+    setTimeout(() => {
+      const formValues = {
+        eventTypeId: this.displayEvent?.event_type_id,
+        name: this.displayEvent?.name,
+        description: this.displayEvent?.description || '',
+        startDate: this.displayEvent?.start_date ? this.formatDateForInput(this.displayEvent.start_date) : '',
+        endDate: this.displayEvent?.end_date ? this.formatDateForInput(this.displayEvent.end_date) : '',
+        location: this.displayEvent?.location || '',
+        isPaid: this.displayEvent?.is_paid || false,
+        fee: this.displayEvent?.fee || 0
+      };
+
+      this.editEventForm.patchValue(formValues);
+
+      // Store original values for change detection
+      this.originalFormValues = { ...formValues };
+      this.formHasChanges = false;
+
+      console.log('Edit form populated with:', this.editEventForm.value);
+      console.log('Display event data:', this.displayEvent);
+    }, 0);
+
+    this.showEditModal = true;
+  }
+
+  // Close edit modal
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.formHasChanges = false;
+    this.originalFormValues = null;
+    this.resetImageUpload();
+    if (this.editEventForm) {
+      this.editEventForm.reset();
+    }
+  }
+
+  // Format date for HTML input
+  formatDateForInput(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
+  }
+
+  // Check if form has changes
+  checkFormChanges(): void {
+    if (!this.editEventForm || !this.originalFormValues) {
+      this.formHasChanges = false;
+      return;
+    }
+
+    const currentValues = this.editEventForm.value;
+    const formChanged = JSON.stringify(currentValues) !== JSON.stringify(this.originalFormValues);
+    const imageChanged = !!this.selectedFile; // True if a new image was selected
+
+    this.formHasChanges = formChanged || imageChanged;
+  }
+
+  // Update event
+  async updateEvent(): Promise<void> {
+    if (!this.editEventForm || !this.editEventForm.valid || !this.displayEvent || !this.currentUserId) {
+      this.toastr.error('Please fill in all required fields');
+      console.log('Form validation failed:', {
+        formExists: !!this.editEventForm,
+        formValid: this.editEventForm?.valid,
+        displayEvent: !!this.displayEvent,
+        currentUserId: !!this.currentUserId,
+        formErrors: this.editEventForm?.errors
+      });
+      return;
+    }
+
+    this.spinner.show();
+
+    try {
+      // Upload image if a new one was selected
+      let imageUrl = this.displayEvent.image; // Keep existing image by default
+      if (this.selectedFile) {
+        const uploadedUrl = await this.uploadImage();
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        }
+      }
+
+      const formValue = this.editEventForm.value;
+      
+      const payload: EditEventPayload = {
+        adminId: this.currentUserId,
+        eventId: this.displayEvent.id,
+        eventTypeId: formValue.eventTypeId,
+        name: formValue.name?.trim(),
+        description: formValue.description?.trim(),
+        startDate: formValue.startDate,
+        endDate: formValue.endDate || null,
+        location: formValue.location?.trim(),
+        isPaid: formValue.isPaid,
+        fee: formValue.isPaid ? formValue.fee : undefined,
+        image: imageUrl
+      };
+
+      console.log('Updating event with payload:', payload);
+
+      this.eventsService.editEvent(payload)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            this.toastr.success(response.message || 'Event updated successfully');
+            this.closeEditModal();
+            
+            // Reload event summary to get updated data
+            if (this.displayEvent) {
+              this.loadEventSummary(this.displayEvent.id);
+            }
+            this.spinner.hide();
+          },
+          error: (error) => {
+            console.error('Error updating event:', error);
+            this.toastr.error(error.error?.message || 'Failed to update event. Please try again.');
+            this.spinner.hide();
+          }
+        });
+    } catch (error) {
+      console.error('Error updating event:', error);
+      this.toastr.error('Failed to update event. Please try again.');
+      this.spinner.hide();
+    }
+  }
+
+  // Helper method to check if description needs scrolling (rough estimate)
+  needsScrolling(text: string): boolean {
+    if (!text) return false;
+    // Rough calculation: if text has more than 4-5 lines worth of content
+    const estimatedLines = text.split('\n').length + Math.floor(text.length / 80);
+    return estimatedLines > 5;
+  }
+
+  // Image upload methods for edit modal
+  onImageSelected(event: any): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        this.toastr.error('Please select an image file');
+        return;
+      }
+
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        this.toastr.error('Image size must be less than 5MB');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.previewImage = reader.result as string;
+        this.checkFormChanges(); // Trigger change detection
+      };
+      reader.readAsDataURL(file);
+
+      this.selectedFile = file;
+    }
+  }
+
+  cancelImageUpload(): void {
+    this.resetImageUpload();
+    this.checkFormChanges(); // Trigger change detection
+  }
+
+  resetImageUpload(): void {
+    this.previewImage = null;
+    this.selectedFile = null;
+  }
+
+  async uploadImage(): Promise<string | null> {
+    if (!this.selectedFile || !this.currentUserId) return null;
+
+    try {
+      const response = await this.userService.uploadProfileImage(this.currentUserId, this.selectedFile).toPromise();
+      if (response) {
+        return response.imageUrl;
+      }
+      return null;
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      this.toastr.error('Failed to upload image');
+      return null;
+    }
   }
 }

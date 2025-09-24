@@ -108,8 +108,13 @@ export class EventsComponent implements OnInit, OnDestroy {
   getDaysUntilEvent(event: Event): string {
     const now = new Date();
     const startDate = new Date(event.start_date);
-    const diffTime = startDate.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    // Compare dates only (not time) to avoid timezone issues
+    const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const eventDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+    
+    const diffTime = eventDate.getTime() - nowDate.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays > 0) {
       return `${diffDays} day${diffDays === 1 ? '' : 's'} to go`;

@@ -1,10 +1,10 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, firstValueFrom, map, Observable, throwError } from 'rxjs';
-import { environment } from 'src/environments/environment.development';
 import { handleError } from '../utilities/error-handler/error-handler';
 import { Member } from 'src/app/interfaces/members';
 import { ApiResponse, ChangeMemberRoleRequest, ChangeMemberRoleResponse, Role, updateRolePayload } from '../types/memberService';
+import { environment } from 'src/environments/environment.development';
 
 
 @Injectable({

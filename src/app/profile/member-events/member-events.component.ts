@@ -448,8 +448,13 @@ export class MemberEventsComponent implements OnInit, OnDestroy {
   getDaysUntilEvent(event: Event): number {
     const now = new Date();
     const startDate = new Date(event.start_date);
-    const diffTime = startDate.getTime() - now.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    // Compare dates only (not time) to avoid timezone issues
+    const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const eventDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+    
+    const diffTime = eventDate.getTime() - nowDate.getTime();
+    return Math.round(diffTime / (1000 * 60 * 60 * 24));
   }
 
   // Filter and search methods

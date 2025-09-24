@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { Observable} from 'rxjs';
 import { DebtSummaryRequest } from 'src/app/interfaces/debts';
 import { environment } from 'src/environments/environment.development';
+
 
 
 @Injectable({
