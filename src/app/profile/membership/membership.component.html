@@ -32,60 +32,39 @@
 
   <!-- Main Content -->
   <div *ngIf="debtSummary && !loading">
-    <!-- Member Information Section -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-        </svg>
-        Member Information
-      </h3>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div>
-          <p class="text-sm font-medium text-gray-600 mb-1">Full Name</p>
-          <p class="text-gray-900">{{ debtSummary.member_info.full_name }}</p>
+    <!-- Report INformation-->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-8">
+      <!-- Mobile Layout (< sm) -->
+      <div class="sm:hidden">
+        <div class="flex flex-col gap-1">
+          <h3 class="text-base font-medium text-blue-900">{{currentYear}} Membership Report</h3>
+          <div class="flex items-center gap-1 text-xs text-blue-700">
+            <span class="font-medium">As of:</span>
+            <span>{{ debtSummary.report_parameters.report_date | date:'shortDate' }}</span>
+          </div>
         </div>
-        <div>
-          <p class="text-sm font-medium text-gray-600 mb-1">Email</p>
-          <p class="text-gray-900">{{ debtSummary.member_info.email }}</p>
-        </div>
-        <div>
-          <p class="text-sm font-medium text-gray-600 mb-1">Member Since</p>
-          <p class="text-gray-900">{{ debtSummary.member_info.joined_date| date:'mediumDate' }}</p>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Report Parameters -->
-    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
-
-      <div class="flex justify-between items-center gap-3 mb-4">
-        <h3 class="text-lg xs:text-xl font-semibold text-blue-900 whitespace-nowrap">{{currentYear}} Membership Report
-        </h3>
-        <button (click)="refreshDebtSummary()" [disabled]="loading"
-          class="px-3 py-1.5 xs:px-4 xs:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2 text-sm xs:text-base min-w-[120px] justify-center">
-          <svg class="w-3 h-3 xs:w-4 xs:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-            [class.animate-spin]="loading">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-            </path>
-          </svg>
-          {{ loading ? 'Refreshing...' : 'Refresh' }}
-        </button>
       </div>
 
-      <!-- Report Details Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 text-sm">
-        <div class="flex flex-wrap">
-          <span class="text-blue-700 font-medium">Report Date:</span>
-          <span class="text-blue-900 ml-2">{{ debtSummary.report_parameters.report_date | date:'mediumDate' }}</span>
-        </div>
-        <div class="flex flex-wrap">
-          <span class="text-blue-700 font-medium">Months Reported:</span>
-          <span class="text-blue-900 ml-2">{{ debtSummary.report_parameters.months_reported }}</span>
+      <!-- Desktop Layout (>= sm) -->
+      <div class="hidden sm:flex justify-between items-center gap-4">
+        <h3 class="text-lg font-semibold text-blue-900">{{currentYear}} Membership Report</h3>
+
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 text-sm text-blue-700">
+            <span class="font-medium">As of:</span>
+            <span>{{ debtSummary.report_parameters.report_date | date:'mediumDate' }}</span>
+          </div>
+
+          <button (click)="refreshDebtSummary()" [disabled]="loading"
+            class="ml-4 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center gap-2 text-sm min-w-[100px] justify-center">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" [class.animate-spin]="loading">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+              </path>
+            </svg>
+            {{ loading ? 'Refreshing...' : 'Refresh' }}
+          </button>
         </div>
       </div>
     </div>
@@ -127,8 +106,8 @@
           <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
             <i class="pi pi-dollar text-green-600 text-xl"></i>
           </div>
-          <p class="text-2xl font-bold text-green-600">{{ debtSummary.summary.total_paid | currency:'KES
-            ':'symbol':'1.2-2':'en-KE' }}</p>
+          <p class="text-2xl font-bold text-green-600">{{ debtSummary.summary.total_paid |
+            currency:'KES':'symbol':'1.2-2':'en-KE' }}</p>
 
         </div>
       </div>
@@ -304,6 +283,7 @@
 
     <!-- Receipts Section -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mt-8">
+      <!-- receipt herder -->
       <div class="px-6 py-4 border-b border-gray-200">
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -333,9 +313,11 @@
       </div>
 
       <!-- Recent Receipts List -->
-      <div *ngIf="!loadingReceipts && getSuccessfulReceipts().length > 0" class="divide-y divide-gray-200">
+      <div *ngIf="!loadingReceipts && getSuccessfulReceipts().length > 0"
+        class="receipts-container max-h-96 overflow-y-auto divide-y divide-gray-200">
         <div *ngFor="let receipt of getSuccessfulReceipts(); let i = index; trackBy: trackByReceiptId"
-          class="px-6 py-4 hover:bg-gray-50 transition-colors duration-200">
+          class="px-6 py-4 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+          (click)="viewReceiptDetails(receipt)" title="Click to view receipt details">
           <div class="flex items-center justify-between">
             <div class="flex-1">
               <div class="flex items-center gap-3 mb-2">
@@ -424,20 +406,15 @@
 
 <!-- Receipt Details Dialog -->
 <p-dialog [(visible)]="showReceiptDetailsDialog" [header]="'Receipt Details'" [modal]="true"
-  [style]="{width: '40vw', minWidth: '380px'}" [draggable]="false" [resizable]="false"
-  styleClass="receipt-details-dialog">
+  [style]="{width: '30vw', minWidth: '320px'}" [draggable]="false" [resizable]="false" [dismissableMask]="true"
+  [closable]="true" styleClass="receipt-details-dialog" (onHide)="closeReceiptModal()">
 
   <div *ngIf="selectedReceipt" class="receipt-details-content">
     <!-- Receipt Header -->
-    <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-5 rounded-t-lg">
+    <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-4 rounded-t-lg">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="text-xl font-bold mb-1">Payment Receipt</h3>
-        </div>
-        <div class="flex items-center bg-white bg-opacity-15 rounded-lg px-3 py-1.5 backdrop-blur-sm">
-          <i class="pi pi-check-circle text-emerald-500 text-lg mr-1.5"></i>
-          <span class="text-xs font-medium text-emerald-500">#{{ selectedReceipt.receipt_number ||
-            selectedReceipt.order_id }}</span>
+          <h3 class="text-lg font-bold mb-1">Payment Receipt</h3>
         </div>
       </div>
     </div>
@@ -481,28 +458,24 @@
             <span class="text-gray-600 text-sm font-medium">Payment Type:</span>
             <span class="text-gray-900 text-sm">{{ selectedReceipt.payment_type || 'General Payment' }}</span>
           </div>
-
-          <div class="flex justify-between items-center py-1.5 border-t border-gray-100">
-            <span class="text-gray-600 text-sm font-medium">Status:</span>
-            <span
-              class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-              <i class="pi pi-check-circle mr-1"></i>
-              {{ selectedReceipt.status }}
-            </span>
-          </div>
         </div>
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex flex-col sm:flex-row gap-2 justify-end pt-4 border-t border-gray-200">
+      <div class="flex gap-3 justify-between pt-4 border-t border-gray-200">
+        <button
+          class="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-sm shadow-sm hover:shadow"
+          (click)="closeReceiptModal()">
+          Close
+        </button>
         <button
           class="px-4 py-2 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-sm shadow-sm hover:shadow"
           (click)="downloadReceipt(selectedReceipt)">
           <i class="pi pi-download"></i>
           Download Receipt
         </button>
-
       </div>
+
     </div>
   </div>
 </p-dialog>

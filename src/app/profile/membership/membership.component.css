@@ -442,12 +442,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c7d2fe;
+  background:#d4a72c;;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a5b4fc;
+  background:#d4a72c;;
 }
 
 /* Additional utilities for proper spacing */
@@ -493,4 +493,28 @@
 /* Additional positioning */
 .mt-auto {
   margin-top: auto;
+}
+
+/* Custom scrollbar for receipts container */
+.receipts-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.receipts-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.receipts-container::-webkit-scrollbar-thumb {
+  background: #d4a72c;
+  border-radius: 3px;
+}
+
+.receipts-container::-webkit-scrollbar-thumb:hover {
+  background: #d4a72c;
+}
+
+/* Ensure smooth scrolling */
+.receipts-container {
+  scroll-behavior: smooth;
 }

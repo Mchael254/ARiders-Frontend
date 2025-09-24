@@ -1,239 +1,388 @@
-<div class="main">
-    <div class="min-h-screen bg-gray-50 p-4">
-        <p-toast></p-toast>
+<div class="bg-[#f8f9fa] min-h-screen p-4 md:p-8">
 
-        <!-- Sticky Toolbar -->
-        <div class="sticky top-0 z-10 bg-black text-[#c9941d] shadow-sm mb-4 p-4 rounded-lg transition-colors">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <!-- Left Section - Delete Button -->
+    <div class="max-w-7xl mx-auto">
+        <!-- Header Section -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <button [disabled]="!selectedMembers.length"
-                        class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
-                        <i class="pi pi-trash"></i>
-                        <span>Delete</span>
+                    <h1 class="text-3xl font-bold text-gray-900">Member Management</h1>
+                    <p class="text-gray-600 mt-1">Manage and monitor all club members</p>
+                </div>
+                <div class="flex gap-3">
+                    <button *ngIf="selectedMembers.length > 0" (click)="visible = true"
+                        class="text-sm font-medium text-white bg-gradient-to-r from-yellow-700 to-yellow-500 rounded-lg hover:from-yellow-800 hover:to-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200 transform hover:scale-105 px-6 py-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
+                        </svg>
+                        Export Selected ({{selectedMembers.length}})
                     </button>
                 </div>
+            </div>
+        </div>
 
-                <!-- Center Section - Search -->
-                <div class="flex-1 max-w-2xl">
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="pi pi-search text-gray-400"></i>
-                        </div>
-                        <input type="text" (input)="filterGlobal($event)" placeholder="Search members..."
-                            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
-                        <button (click)="clearSelection()" [disabled]="!selectedMembers.length"
-                            class="absolute right-2 inset-y-0 flex items-center pr-2 text-gray-500 hover:text-gray-700 disabled:opacity-50">
-                            <i class="pi pi-times"></i>
-                        </button>
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Total Members</h3>
+                        <p class="text-3xl font-bold text-blue-600 mt-2">{{totalCount}}</p>
+                        <p class="text-sm text-gray-500 mt-1">All registered members</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        </svg>
                     </div>
                 </div>
+            </div>
 
-                <!-- Right Section - Export -->
-                <div class="flex items-center gap-3">
-                    <span *ngIf="selectedMembers?.length" class="text-sm text-white">
-                        {{ selectedMembers.length }} selected
+            <div class="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Active Members</h3>
+                        <p class="text-3xl font-bold text-green-600 mt-2">{{getActiveMembers()}}</p>
+                        <p class="text-sm text-gray-500 mt-1">Currently active</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Inactive Members</h3>
+                        <p class="text-3xl font-bold text-red-600 mt-2">{{getInactiveMembers()}}</p>
+                        <p class="text-sm text-gray-500 mt-1">Currently inactive</p>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">New This Month</h3>
+                        <p class="text-3xl font-bold text-purple-600 mt-2">{{getNewMembersThisMonth()}}</p>
+                        <p class="text-sm text-gray-500 mt-1">Recently joined</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-8">
+            <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+                <div class="flex flex-col sm:flex-row gap-4 flex-1">
+                    <!-- Search -->
+                    <div class="relative flex-1 max-w-md">
+                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <input 
+                            type="text" 
+                            [(ngModel)]="searchTerm"
+                            (input)="onSearchChange($any($event.target).value)"
+                            placeholder="Search members..." 
+                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d4a72c] focus:border-transparent transition-all duration-200"
+                        />
+                        <button *ngIf="searchTerm" (click)="onSearchChange('')" 
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <select [(ngModel)]="selectedStatus" (change)="onStatusFilterChange(selectedStatus)"
+                        class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d4a72c] focus:border-transparent bg-white min-w-[150px]">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+
+                    <!-- Role Filter -->
+                    <select [(ngModel)]="selectedRole" (change)="onRoleFilterChange(selectedRole)"
+                        class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d4a72c] focus:border-transparent bg-white min-w-[150px]">
+                        <option value="">All Roles</option>
+                        <option *ngFor="let role of roles" [value]="role.label">{{role.label | titlecase}}</option>
+                    </select>
+
+                    <!-- Clear Filters Button -->
+                    <button *ngIf="searchTerm || selectedStatus || selectedRole" (click)="clearFilters()"
+                        class="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg border border-gray-300 transition-colors whitespace-nowrap">
+                        Clear Filters
+                    </button>
+                </div>
+
+                <!-- Selection Actions -->
+                <div class="flex items-center gap-2">
+                    <span *ngIf="selectedMembers.length > 0" class="text-sm text-gray-600 bg-blue-50 px-3 py-2 rounded-lg">
+                        {{selectedMembers.length}} selected
                     </span>
-
-                    <input *ngIf="selectedMembers?.length" type="text" [(ngModel)]="pdfTitle" placeholder="PDF title..."
-                        class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 w-40 md:w-48">
-
-                    <button (click)="exportSelectedMembersToPDF()" [disabled]="!selectedMembers.length"
-                        class="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors">
-                        <i class="pi pi-upload"></i>
-                        <span class="hidden sm:inline">Export</span>
+                    <button *ngIf="selectedMembers.length > 0" (click)="clearSelection()"
+                        class="text-sm text-red-600 hover:text-red-800 px-3 py-2 rounded-lg border border-red-200 hover:bg-red-50 transition-colors">
+                        Clear Selection
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Loading State -->
-        <div *ngIf="loading" class="flex flex-col items-center justify-center py-12 bg-white rounded-xl shadow-sm">
-            <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-amber-500 mb-4"></div>
-            <p class="text-gray-600">Loading members...</p>
-        </div>
-
-        <!-- No Data State -->
-        <div *ngIf="noData && !loading" class="p-8 text-center">
-            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100 mb-4">
-                <svg class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+        <!-- Members Table -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        Members
+                        <span *ngIf="searchTerm || selectedStatus || selectedRole" class="text-base font-normal text-gray-500">
+                            - {{totalFilteredMembers}} of {{totalCount}} members
+                        </span>
+                        <span *ngIf="!searchTerm && !selectedStatus && !selectedRole" class="text-base font-normal text-gray-500">
+                            - {{totalCount}} total members
+                        </span>
+                    </h3>
+                    <div *ngIf="searchTerm || selectedStatus || selectedRole"
+                        class="text-sm text-orange-600 bg-orange-50 px-3 py-1 rounded-full border border-orange-200">
+                        <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                        </svg>
+                        Filtered Results
+                    </div>
+                </div>
             </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-1">No members found</h3>
-            <p class="text-gray-500">There are no members to display at the moment.</p>
-            <div class="mt-6">
-                <button (click)="fetchMembers()"
-                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-700 hover:bg-yellow-500">
-                    <span aria-hidden="true" class="mr-2">↻</span> Retry
+
+            <!-- Loading State -->
+            <div *ngIf="loading" class="flex items-center justify-center py-12">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#d4a72c]"></div>
+                <span class="ml-3 text-gray-600">Loading members...</span>
+            </div>
+
+            <!-- No Data State -->
+            <div *ngIf="!loading && noData" class="p-6 text-center">
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                    <h4 class="text-lg font-medium text-gray-900 mb-2">No Members Found</h4>
+                    <p class="text-gray-600">
+                        <span *ngIf="searchTerm || selectedStatus || selectedRole">Try adjusting your filters to see more results.</span>
+                        <span *ngIf="!searchTerm && !selectedStatus && !selectedRole">No members have been added yet.</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Members Table -->
+            <div *ngIf="!loading && !noData" class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left">
+                                <label class="flex items-center">
+                                    <input type="checkbox" 
+                                        [checked]="isAllSelected()" 
+                                        (change)="toggleSelectAll()"
+                                        class="rounded border-gray-300 text-[#d4a72c] shadow-sm focus:border-[#d4a72c] focus:ring focus:ring-offset-0 focus:ring-[#d4a72c] focus:ring-opacity-50">
+                                    <span class="ml-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Select</span>
+                                </label>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Member</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr *ngFor="let member of filteredMembers; trackBy: trackByMemberId" 
+                            class="hover:bg-gray-50 transition-colors cursor-pointer"
+                            [class.bg-red-50]="member.membership_status === 'inactive'"
+                            (click)="navigateToMemberDetails(member)">
+                            
+                            <!-- Selection Checkbox -->
+                            <td class="px-6 py-4 whitespace-nowrap" (click)="$event.stopPropagation()">
+                                <input type="checkbox" 
+                                    [checked]="isSelected(member)" 
+                                    (change)="toggleSelection(member)"
+                                    class="rounded border-gray-300 text-[#d4a72c] shadow-sm focus:border-[#d4a72c] focus:ring focus:ring-offset-0 focus:ring-[#d4a72c] focus:ring-opacity-50">
+                            </td>
+
+                            <!-- Member Info -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <!-- Profile Image if exists, otherwise initials -->
+                                        <img *ngIf="member.profile_image" 
+                                             [src]="member.profile_image" 
+                                             [alt]="member.first_name + ' ' + member.last_name"
+                                             class="h-10 w-10 rounded-full object-cover border-2 border-gray-200">
+                                        <div *ngIf="!member.profile_image" 
+                                             class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                                            {{member.first_name.charAt(0)}}{{member.last_name.charAt(0)}}
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900 hover:text-[#d4a72c] transition-colors">
+                                            {{member.first_name}} {{member.last_name}}
+                                        </div>
+                                        <div class="text-sm text-gray-500">{{member.email}}</div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Contact -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{member.phone_number}}</div>
+                                <div class="text-sm text-gray-500" *ngIf="member.city || member.county">
+                                    {{member.city}}<span *ngIf="member.city && member.county">, </span>{{member.county}}
+                                </div>
+                            </td>
+
+                            <!-- Status -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                    [class]="getStatusClasses(member.membership_status)">
+                                    <span class="w-1.5 h-1.5 rounded-full mr-1.5"
+                                        [class.bg-green-400]="member.membership_status === 'active'"
+                                        [class.bg-gray-400]="member.membership_status === 'inactive'"
+                                        [class.bg-red-400]="member.membership_status === 'suspended'">
+                                    </span>
+                                    {{member.membership_status | titlecase}}
+                                </span>
+                            </td>
+
+                            <!-- Joined Date -->
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{member.joined | date:'MMM d, y'}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div *ngIf="!loading && !noData && totalPages > 1" class="bg-white px-6 py-3 border-t border-gray-200 flex items-center justify-between">
+                <!-- Mobile pagination -->
+                <div class="flex-1 flex justify-between sm:hidden">
+                    <button (click)="goToPreviousPage()" [disabled]="!canGoToPrevious"
+                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Previous
+                    </button>
+                    <span class="text-sm text-gray-700 self-center">
+                        Page {{currentPage}} of {{totalPages}}
+                    </span>
+                    <button (click)="goToNextPage()" [disabled]="!canGoToNext"
+                        class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Next
+                    </button>
+                </div>
+
+                <!-- Desktop pagination -->
+                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            Showing
+                            <span class="font-medium">{{getShowingFrom()}}</span>
+                            to
+                            <span class="font-medium">{{getShowingTo()}}</span>
+                            of
+                            <span class="font-medium">{{totalFilteredMembers}}</span>
+                            results
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                            <!-- Previous Button -->
+                            <button (click)="goToPreviousPage()" [disabled]="!canGoToPrevious"
+                                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+
+                            <!-- Page Numbers -->
+                            <button *ngFor="let page of pageNumbers" 
+                                (click)="goToPage(page)"
+                                class="relative inline-flex items-center px-4 py-2 border text-sm font-medium transition-colors"
+                                [class.bg-[#d4a72c]]="page === currentPage"
+                                [class.text-white]="page === currentPage"
+                                [class.border-[#d4a72c]]="page === currentPage"
+                                [class.bg-white]="page !== currentPage"
+                                [class.text-gray-500]="page !== currentPage"
+                                [class.border-gray-300]="page !== currentPage"
+                                [class.hover:bg-gray-50]="page !== currentPage">
+                                {{page}}
+                            </button>
+
+                            <!-- Next Button -->
+                            <button (click)="goToNextPage()" [disabled]="!canGoToNext"
+                                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export PDF Modal -->
+    <div *ngIf="visible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        (click)="visible = false">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4"
+            (click)="$event.stopPropagation()">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 class="text-xl font-semibold text-gray-900">Export Members to PDF</h3>
+                <button (click)="visible = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 space-y-4">
+                <p class="text-gray-600">Export {{selectedMembers.length}} selected members to PDF.</p>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Report Title (Optional)</label>
+                    <input type="text" [(ngModel)]="pdfTitle" placeholder="Enter report title..."
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d4a72c] focus:border-transparent">
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex justify-end gap-3 p-6 border-t border-gray-200">
+                <button (click)="visible = false"
+                    class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                    Cancel
+                </button>
+                <button (click)="exportSelectedMembersToPDF()"
+                    class="px-6 py-2 bg-[#d4a72c] hover:bg-[#b38d25] text-white rounded-lg font-medium transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Export PDF
                 </button>
             </div>
         </div>
-
-        <!-- Members Grid -->
-        <div *ngIf="!noData && !loading && members?.length" class="bg-white rounded-lg shadow overflow-hidden">
-            <!-- Summary -->
-            <div class="p-4 border-b border-gray-200 text-sm text-gray-600">
-                Total members: {{ totalCount || members.length }}
-            </div>
-
-            <!-- Grid Header (visible on larger screens) -->
-            <div
-                class="hidden md:grid grid-cols-12 gap-4 p-4 bg-gray-50 border-b border-gray-200 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <div class="col-span-1">
-                    <input type="checkbox" [checked]="isAllSelected()" (change)="toggleSelectAll()"
-                        class="h-4 w-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
-                </div>
-                <div class="col-span-2">Name</div>
-                <div class="col-span-1">Image</div>
-                <div class="col-span-3">Email</div>
-                <div class="col-span-2">Role</div>
-                <div class="col-span-3">Status</div>
-            </div>
-
-            <!-- Members List -->
-            <div class="divide-y divide-gray-200">
-                <div *ngFor="let member of displayedMembers"
-                    [class.bg-gray-50]="member.membership_status === 'inactive'"
-                    class="p-4 hover:bg-gray-50 transition-colors">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-4 items-center">
-
-                        <!-- Checkbox -->
-                        <div class="col-span-1 flex items-center">
-                            <input type="checkbox" [checked]="isSelected(member)" (change)="toggleSelection(member)"
-                                class="h-4 w-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
-                        </div>
-
-                        <!-- Name -->
-                        <div class="col-span-2">
-                            <div class="font-medium text-gray-900">{{ member.first_name }} {{ member.last_name }}</div>
-                        </div>
-
-                        <!-- Profile Image -->
-                        <div class="col-span-1">
-                            <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-200">
-                                <img [src]="member.profile_image || '../../../assets/ariders.jpg'"
-                                    alt="{{ member.first_name }}'s profile" class="w-full h-full object-cover">
-                            </div>
-                        </div>
-
-                        <!-- Email -->
-                        <div class="col-span-3">
-                            <div class="text-sm text-gray-500 truncate">{{ member.email }}</div>
-                        </div>
-
-                        <!-- Role -->
-                        <div class="col-span-2">
-                            <div *ngIf="selectedRoleMemberId === member.id; else showRole" class="relative z-10">
-                                <p-dropdown [options]="roles" [(ngModel)]="member.role" optionLabel="label"
-                                    optionValue="value" [disabled]="member.membership_status !== 'active'"
-                                    placeholder="Select Role" [appendTo]="'body'" (onChange)="updateRole(member)"
-                                    class="w-full">
-                                </p-dropdown>
-                            </div>
-                            <ng-template #showRole>
-                                <div class="flex items-center gap-2">
-                                    <span>{{ member.role_label || member.role }}</span>
-                                    <button *ngIf="member.membership_status === 'active'"
-                                        (click)="selectedRoleMemberId = member.id"
-                                        class="text-amber-600 hover:text-amber-800">
-                                        <i class="pi pi-pencil text-sm"></i>
-                                    </button>
-                                </div>
-                            </ng-template>
-                        </div>
-
-                        <!-- Status -->
-                        <div class="col-span-2 flex items-center gap-4">
-                            <span [class]="getStatusClasses(member.membership_status)">
-                                {{ member.membership_status }}
-                            </span>
-
-                            <!-- Deactivate button only if active -->
-                            <button *ngIf="member.membership_status === 'active'" (click)="openDeactivateDialog(member)"
-                                class="px-3 py-1 text-xs bg-red-100 text-red-800 rounded-full hover:bg-red-200 transition-colors"
-                                type="button">
-                                Deactivate
-                            </button>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <!-- Deactivate Dialog (outside the loop, preferably at root level of your template) -->
-            <div class="dialog-overlay" *ngIf="deactivateDialogVisible">
-                <div class="dialog-box">
-                    <!-- Header -->
-                    <div class="dialog-header">
-                        <h3>Deactivate Member</h3>
-                        <button class="dialog-close" (click)="deactivateDialogVisible = false">&times;</button>
-                    </div>
-
-                    <!-- Body -->
-                    <div class="dialog-body">
-                        <p>
-                            <span class="warning-icon">&#9888;</span>
-                            Please provide a reason for deactivating
-                            <strong>{{ selectedMember?.first_name }} {{ selectedMember?.last_name }}</strong>.
-                        </p>
-
-                        <div [class.invisible]="!warningMessage" class="warning-message flex justify-center align-center">
-                            <p>Please provide a reason for deletion</p>
-                        </div>
-
-                        <label for="deactivationReason">Reason</label>
-                        <textarea id="deactivationReason" [(ngModel)]="deactivationReason"
-                            placeholder="Enter reason..."></textarea>
-                    </div>
-
-                    <!-- Footer -->
-                    <div class="dialog-footer">
-                        <button class="btn btn-cancel" (click)="deactivateDialogVisible = false">Cancel</button>
-                        <button class="btn btn-confirm" (click)="confirmDeactivate()">Confirm</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Empty State -->
-            <div *ngIf="!members?.length" class="p-8 text-center text-gray-500">
-                <i class="pi pi-users text-4xl text-gray-300 mb-2"></i>
-                <p>No members found</p>
-            </div>
-
-            <div
-                class="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3 bg-white border-t border-gray-200 gap-3">
-                <div>
-                    <p class="text-sm text-gray-700 text-center sm:text-left">
-                        Showing
-                        <span class="font-medium">{{ getShowingFrom() }}</span>
-                        to
-                        <span class="font-medium">{{ getShowingTo() }}</span>
-                        of
-                        <span class="font-medium">{{ members.length }}</span>
-                        results
-                    </p>
-                </div>
-                <nav class="flex justify-center sm:justify-end space-x-1" aria-label="Pagination">
-                    <button (click)="prevPage()" [disabled]="currentPage === 1"
-                        class="inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <i class="pi pi-chevron-left"></i>
-                    </button>
-                    <ng-container *ngFor="let page of [].constructor(totalPages); let index = index">
-                        <button (click)="goToPage(index + 1)" [class.bg-amber-100]="currentPage === index + 1"
-                            class="inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
-                            {{ index + 1 }}
-                        </button>
-                    </ng-container>
-                    <button (click)="nextPage()" [disabled]="currentPage === totalPages"
-                        class="inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <i class="pi pi-chevron-right"></i>
-                    </button>
-                </nav>
-            </div>
-
-        </div>
     </div>
+
+
 
 </div>

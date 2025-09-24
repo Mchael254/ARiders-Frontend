@@ -34,4 +34,9 @@ export class PaymentService {
     return this.http.get(`${this.paymentUrl}/api/paymentStatus/${orderId}`);
   }
 
+  getMpesaReceipts(requesterId: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/api/payment/mpesaReceipts/${requesterId}`);
+  }
+
+
 }

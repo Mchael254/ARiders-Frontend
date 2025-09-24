@@ -54,6 +54,13 @@
                         Settings
                     </a>
                 </li>
+                <li>
+                    <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                        [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'mpesa-payments'}"
+                        (click)="setView('mpesa-payments')">
+                        M-Pesa Payments
+                    </a>
+                </li>
                 <li class="mt-4">
                     <a class="block p-2 rounded hover:bg-red-600 cursor-pointer" (click)="showLogoutDialog()">
                         Logout
@@ -143,6 +150,13 @@
                             Settings
                         </a>
                     </li>
+                    <li>
+                        <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                            [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'mpesa-payments'}"
+                            (click)="setView('mpesa-payments')">
+                            M-Pesa Payments
+                        </a>
+                    </li>
                     <li class="mt-4">
                         <a class="block p-2 rounded hover:bg-red-600 cursor-pointer" (click)="showLogoutDialog()">
                             Logout
@@ -160,7 +174,8 @@
             </div>
 
             <div *ngIf="(currentView$ | async) === 'members'">
-                <app-members (memberSelected)="setView('memberDebt', {memberId: $event})"></app-members>
+                <app-members (memberSelected)="setView('memberDebt', {memberId: $event})" 
+                           (viewMemberDetails)="setView('memberDetails', {memberDetails: {memberId: $event.memberId, member: $event.member}})"></app-members>
             </div>
 
             <div *ngIf="(currentView$ | async) === 'contributions'">
@@ -184,16 +199,11 @@
                 <app-settings></app-settings>
             </div>
 
-            <div *ngIf="(currentView$ | async) === 'eventDetails'">
-                <!-- Debug info -->
-                <!-- <div style="background: #f0f0f0; padding: 10px; margin: 10px; font-size: 12px;">
-                    <strong>Debug Info:</strong><br>
-                    viewData: {{ (viewData$ | async) | json }}<br>
-                    eventDetails: {{ (viewData$ | async)?.['eventDetails'] | json }}<br>
-                    eventId: {{ (viewData$ | async)?.['eventDetails']?.['eventDetails']?.eventId }}<br>
-                    event: {{ (viewData$ | async)?.['eventDetails']?.['eventDetails']?.event?.name }}
-                </div> -->
+            <div *ngIf="(currentView$ | async) === 'mpesa-payments'">
+                <app-mpesa-payments></app-mpesa-payments>
+            </div>
 
+            <div *ngIf="(currentView$ | async) === 'eventDetails'">
                 <app-event-details [eventId]="(viewData$ | async)?.['eventDetails']?.['eventDetails']?.eventId"
                     [event]="(viewData$ | async)?.['eventDetails']?.['eventDetails']?.event"
                     [viewData]="(viewData$ | async)?.['eventDetails']?.['eventDetails']"
@@ -205,6 +215,14 @@
                 <app-memberdebt [memberId]="(selectedMemberId$ | async)"
                     [viewData]="(viewData$ | async)?.['memberDebt']" (backToDebts)="setView('debts')">
                 </app-memberdebt>
+            </div>
+
+            <div *ngIf="(currentView$ | async) === 'memberDetails'">
+                <app-member-details [memberId]="(viewData$ | async)?.['memberDetails']?.['memberDetails']?.memberId"
+                    [member]="(viewData$ | async)?.['memberDetails']?.['memberDetails']?.member"
+                    [viewData]="(viewData$ | async)?.['memberDetails']?.['memberDetails']"
+                    (backToMembers)="setView('members')">
+                </app-member-details>
             </div>
         </div>
     </div>

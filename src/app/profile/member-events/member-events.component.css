@@ -17,6 +17,25 @@
     background: #b38d25;
 }
 
+/* Custom scrollbar for event description */
+.max-h-24::-webkit-scrollbar {
+    width: 4px;
+}
+
+.max-h-24::-webkit-scrollbar-track {
+    background: #f9f9f9;
+    border-radius: 2px;
+}
+
+.max-h-24::-webkit-scrollbar-thumb {
+    background: #d4a72c;
+    border-radius: 2px;
+}
+
+.max-h-24::-webkit-scrollbar-thumb:hover {
+    background: #b38d25;
+}
+
 /* Animation for loading spinner */
 @keyframes spin {
     0% { transform: rotate(0deg); }

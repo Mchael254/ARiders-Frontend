@@ -78,6 +78,8 @@ import { GuestSigninComponent } from './guest/guest-signin/guest-signin.componen
 import { EventsComponent } from './events/events.component';
 import { GuestDashboardComponent } from './guest/guest-dashboard/guest-dashboard.component';
 import { GuestMainComponent } from './guest/guest-main/guest-main.component';
+import { MemberDetailsComponent } from './admins/member-details/member-details.component';
+import { MpesaPaymentsComponent } from './admins/mpesa-payments/mpesa-payments.component';
 
 
 @NgModule({
@@ -121,6 +123,8 @@ import { GuestMainComponent } from './guest/guest-main/guest-main.component';
     EventsComponent,
     GuestDashboardComponent,
     GuestMainComponent,
+    MemberDetailsComponent,
+    MpesaPaymentsComponent,
 
   ],
   imports: [

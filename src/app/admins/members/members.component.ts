@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, Output, EventEmitter } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -17,6 +17,8 @@ import { AuthState } from 'src/app/store/auth/auth.reducer';
   styleUrls: ['./members.component.css'],
 })
 export class MembersComponent {
+  @Output() viewMemberDetails = new EventEmitter<{ memberId: string; member: Member }>();
+  
   profile$: Observable<AuthState>;
   private destroy$ = new Subject<void>();
   authorizer_id: string | null = null;
@@ -25,19 +27,23 @@ export class MembersComponent {
 
   members: Member[] = [];
   loading: boolean = false;
-  member: any
   selectedMembers: Member[] = [];
   totalCount = 0;
-  selectedRoleMemberId: string | null = null;
   pdfTitle: string = '';
-  displayedMembers: Member[] = [];
   noData: boolean = false;
   roles: Role[] = [];
 
+  // Filter and search properties
+  searchTerm: string = '';
+  selectedStatus: string = '';
+  selectedRole: string = '';
+
+  // Pagination properties
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
+  totalPages: number = 0;
+
   currentUser: any;
-  currentPage = 1;
-  pageSize = 10;
-  totalPages = 0;
 
   getRowClass(member: Member): string {
     return member.membership_status === 'inactive' ? 'inactive-row' : '';
@@ -68,8 +74,8 @@ export class MembersComponent {
     this.memberService.getAllMembers().subscribe({
       next: (res) => {
         this.loading = false;
-        this.members = res.data.filter(member => member.role !== 'developer')
-        this.totalCount = res.count;
+        this.members = res.data.filter(member => member.role !== 'developer' && member.role !== 'guest')
+        this.totalCount = this.members.length;
         this.calculatePagination();
 
         this.noData = this.members.length === 0;
@@ -83,56 +89,147 @@ export class MembersComponent {
     });
   }
 
+  // All filtered members (without pagination)
+  get allFilteredMembers(): Member[] {
+    let filtered = [...this.members];
+
+    // Apply search filter
+    if (this.searchTerm.trim()) {
+      const search = this.searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(member =>
+        member.first_name.toLowerCase().includes(search) ||
+        member.last_name.toLowerCase().includes(search) ||
+        member.email.toLowerCase().includes(search) ||
+        member.phone_number.includes(search) ||
+        (member.city && member.city.toLowerCase().includes(search)) ||
+        (member.county && member.county.toLowerCase().includes(search))
+      );
+    }
+
+    // Apply status filter
+    if (this.selectedStatus) {
+      filtered = filtered.filter(member => member.membership_status === this.selectedStatus);
+    }
+
+    // Apply role filter
+    if (this.selectedRole) {
+      filtered = filtered.filter(member => member.role === this.selectedRole);
+    }
+
+    // Update total pages
+    this.totalPages = Math.ceil(filtered.length / this.itemsPerPage) || 1;
+
+    // Reset to first page if current page is beyond total pages
+    if (this.currentPage > this.totalPages && this.totalPages > 0) {
+      this.currentPage = 1;
+    }
+
+    return filtered;
+  }
+
+  // Paginated filtered members for display
+  get filteredMembers(): Member[] {
+    const allFiltered = this.allFilteredMembers;
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return allFiltered.slice(startIndex, endIndex);
+  }
+
+  // Total filtered members count
+  get totalFilteredMembers(): number {
+    return this.allFilteredMembers.length;
+  }
+
   calculatePagination(): void {
-    this.totalPages = Math.ceil(this.members.length / this.pageSize) || 1;
-    this.updateDisplayedMembers();
+    // This method is now handled by the getters
+    // Keep for backward compatibility
   }
 
-  updateDisplayedMembers(): void {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.displayedMembers = this.members.slice(startIndex, endIndex);
-  }
-
+  // Pagination methods
   goToPage(page: number): void {
-    if (page < 1 || page > this.totalPages) return;
-    this.currentPage = page;
-    this.updateDisplayedMembers();
-  }
-
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.updateDisplayedMembers();
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
     }
   }
 
-  prevPage(): void {
+  goToPreviousPage(): void {
     if (this.currentPage > 1) {
       this.currentPage--;
-      this.updateDisplayedMembers();
     }
   }
 
-  getShowingFrom(): number { return (this.currentPage - 1) * this.pageSize + 1; }
-  getShowingTo(): number { return Math.min(this.currentPage * this.pageSize, this.members.length); }
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  // Pagination helper properties
+  get canGoToPrevious(): boolean {
+    return this.currentPage > 1;
+  }
+
+  get canGoToNext(): boolean {
+    return this.currentPage < this.totalPages;
+  }
+
+  // Get array of page numbers for pagination display
+  get pageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxVisiblePages = 5;
+    const totalPages = this.totalPages;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      const start = Math.max(1, this.currentPage - 2);
+      const end = Math.min(totalPages, start + maxVisiblePages - 1);
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+    }
+    
+    return pages;
+  }
+
+  getShowingFrom(): number { 
+    return this.totalFilteredMembers === 0 ? 0 : (this.currentPage - 1) * this.itemsPerPage + 1; 
+  }
+  
+  getShowingTo(): number { 
+    return Math.min(this.currentPage * this.itemsPerPage, this.totalFilteredMembers); 
+  }
 
 
+
+  // Filter and search methods
+  onSearchChange(searchTerm: string): void {
+    this.searchTerm = searchTerm;
+    this.currentPage = 1; // Reset to first page when searching
+  }
+
+  onStatusFilterChange(status: string): void {
+    this.selectedStatus = status;
+    this.currentPage = 1; // Reset to first page when filtering
+  }
+
+  onRoleFilterChange(role: string): void {
+    this.selectedRole = role;
+    this.currentPage = 1; // Reset to first page when filtering
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.selectedStatus = '';
+    this.selectedRole = '';
+    this.currentPage = 1; // Reset to first page when clearing filters
+  }
 
   filterGlobal(event: any): void {
-    const value = event.target.value;
-    this.memberService.getAllMembers(undefined, undefined, undefined, value).subscribe({
-      next: (res) => {
-        this.members = res.data;
-        this.totalCount = res.count;
-        this.currentPage = 1;
-        this.calculatePagination();
-      },
-      error: (err) => {
-        this.toastr.error('search failed', err)
-        console.error('Search failed', err);
-      },
-    });
+    this.onSearchChange(event.target.value);
   }
 
 
@@ -145,7 +242,7 @@ export class MembersComponent {
   loadRoles() {
     this.memberService.getRoles().subscribe({
       next: (res) => {
-        this.roles = res.filter(role => role.label !== 'user')
+        this.roles = res.filter(role => role.label !== 'user' && role.label !== 'guest')
       },
       error: (err) => {
         console.log(err);
@@ -154,82 +251,6 @@ export class MembersComponent {
       }
     });
   }
-
-  //update role
-  updateRole(member: Member) {
-    if (!member.role) return;
-    console.log(member.role);
-
-    const updateRolePayload = {
-      role_id: member.role,
-      member_authorized_id: member.id,
-      authorizer_id: this.authorizer_id
-    }
-
-    // console.log(updateRolePayload);
-    this.spinner.show();
-
-    this.memberService.updateMemberRole(updateRolePayload).subscribe({
-      next: (res) => {
-        this.spinner.hide();
-        this.selectedRoleMemberId = null;
-        member.role_label = res.data?.new_role || member.role_label;
-        this.toastr.success("role updated successfully")
-      },
-      error: (err) => {
-        console.error('Failed to update role', err);
-        this.spinner.hide();
-        this.toastr.error("failed to update role");
-      }
-    });
-  }
-
-
-  //deactivate member memeber
-  deactivateDialogVisible = false;
-  selectedMember: Member | null = null;
-  deactivationReason: string = '';
-  warningMessage:  boolean = false;
-  paymentStatus: boolean = false
-
-  openDeactivateDialog(member: Member) {
-    this.selectedMember = member;
-    this.deactivationReason = '';
-    this.deactivateDialogVisible = true;
-  }
-
-  async confirmDeactivate() {
-    if (!this.selectedMember) return;
-
-    if (!this.deactivationReason.trim()) {
-      this.warningMessage = true
-      setTimeout(() => this.warningMessage = false,5000)
-      return;
-    }
-
-    try {
-      const currentUserId = this.authorizer_id ?? '';
-      const reason = this.deactivationReason.trim();
-
-      await this.memberService.deactivateMember(
-        this.selectedMember.id,
-        currentUserId,
-        reason,
-        false
-      );
-
-      this.selectedMember.membership_status = 'inactive';
-      this.toastr.success('Member deactivated');
-      this.deactivateDialogVisible = false;
-      this.warningMessage = false;
-
-    } catch (err) {
-      this.toastr.error('Failed to deactivate member');
-      console.error('Deactivation error:', err);
-    }
-  }
-
-
 
   //clear select
   clearSelection(): void {
@@ -342,6 +363,33 @@ export class MembersComponent {
     } else {
       this.selectedMembers = [...this.members];
     }
+  }
+
+  // Helper methods for template
+  trackByMemberId(index: number, member: Member): string {
+    return member.id;
+  }
+
+  getActiveMembers(): number {
+    return this.members.filter(m => m.membership_status === 'active').length;
+  }
+
+  getInactiveMembers(): number {
+    return this.members.filter(m => m.membership_status === 'inactive').length;
+  }
+
+  getNewMembersThisMonth(): number {
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    return this.members.filter(m => {
+      const joinedDate = new Date(m.joined);
+      return joinedDate.getMonth() === currentMonth && joinedDate.getFullYear() === currentYear;
+    }).length;
+  }
+
+  // Navigate to member details page
+  navigateToMemberDetails(member: Member): void {
+    this.viewMemberDetails.emit({ memberId: member.id, member: member });
   }
 
 

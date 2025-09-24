@@ -440,7 +440,7 @@
 
                             <button *ngIf="!canRegister(event) && !isUserRegistered(event)" disabled
                                 class="flex-1 px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
-                                {{ getEventStatus(event).status === 'Completed' ? 'Completed' : 'Full' }}
+                                {{ getRegistrationButtonText(event) }}
                             </button>
                         </div>
                     </div>
@@ -551,8 +551,7 @@
 
                                 <button *ngIf="!canRegister(event) && !isUserRegistered(event)" disabled
                                     class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
-                                    {{ getEventStatus(event).status === 'Completed' ? 'Event Completed' : 'Registration
-                                    Full' }}
+                                    {{ getRegistrationButtonText(event) }}
                                 </button>
                             </div>
                         </div>
@@ -727,11 +726,9 @@
                         class="px-6 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
                         Cancel
                     </button>
-                    <button type="submit" [disabled]="registrationForm.invalid || isRegistering"
-                        class="px-6 py-2 text-sm font-medium text-white bg-[#d4a72c] hover:bg-[#b38d25] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                        <div *ngIf="isRegistering" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white">
-                        </div>
-                        {{ isRegistering ? 'Registering...' : 'Complete Registration' }}
+                    <button type="submit" [disabled]="registrationForm.invalid"
+                        class="px-6 py-2 text-sm font-medium text-white bg-[#d4a72c] hover:bg-[#b38d25] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        Complete Registration
                     </button>
                 </div>
             </form>
@@ -786,7 +783,7 @@
             <!-- Modal Body -->
             <div class="p-6">
                 <!-- Quick Info Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
                     <div class="text-center p-4 bg-gray-50 rounded-lg">
                         <svg class="w-8 h-8 text-[#d4a72c] mx-auto mb-2" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
@@ -799,25 +796,38 @@
                     </div>
 
                     <div class="text-center p-4 bg-gray-50 rounded-lg">
-                        <svg class="w-8 h-8 text-[#d4a72c] mx-auto mb-2" fill="none" stroke="currentColor"
+                        <svg class="w-8 h-8 text-green-600 mx-auto mb-2" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <p class="text-sm font-medium text-gray-900">{{ formatTime(selectedEvent.start_date) }}</p>
-                        <p class="text-xs text-gray-500">Time</p>
+                        <p class="text-xs text-gray-500">Start Time</p>
+                    </div>
+
+                    <div class="text-center p-4 bg-gray-50 rounded-lg">
+                        <svg class="w-8 h-8 text-red-600 mx-auto mb-2" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-sm font-medium text-gray-900">
+                            {{ selectedEvent.end_date ? formatTime(selectedEvent.end_date) : 'TBA' }}
+                        </p>
+                        <p class="text-xs text-gray-500">End Time</p>
                     </div>
 
                     <div class="text-center p-4 bg-gray-50 rounded-lg">
                         <svg class="w-8 h-8 text-[#d4a72c] mx-auto mb-2" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
                             </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
-                        <p class="text-sm font-medium text-gray-900">{{ getRegistrationCount(selectedEvent) }}{{
-                            selectedEvent.max_participants ? '/' + selectedEvent.max_participants : '' }}</p>
-                        <p class="text-xs text-gray-500">Participants</p>
+                        <p class="text-sm font-medium text-gray-900">{{ selectedEvent.location }}</p>
+                        <p class="text-xs text-gray-500">Location</p>
                     </div>
 
                     <div class="text-center p-4 bg-gray-50 rounded-lg">
@@ -837,10 +847,13 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900 mb-3">Event Description</h3>
-                        <p class="text-gray-600 mb-6">{{ selectedEvent.description }}</p>
+                        <div class="border border-gray-300 rounded-lg p-3 mb-6 max-h-25 overflow-y-auto">
+                            <p class="text-gray-600">{{ selectedEvent.description }}</p>
+                        </div>
 
                         <h3 class="text-lg font-semibold text-gray-900 mb-3">Event Details</h3>
                         <div class="space-y-3">
+                            <!-- location -->
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
@@ -852,15 +865,34 @@
                                 </svg>
                                 <span class="text-gray-700">{{ selectedEvent.location }}</span>
                             </div>
+
+                            <!-- Start Time -->
                             <div class="flex items-center">
-                                <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor"
+                                <svg class="w-5 h-5 text-green-600 mr-3" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                    </path>
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                <span class="text-gray-700">Created on {{ formatDate(selectedEvent.created_at) }}</span>
+                                <span class="text-gray-700">
+                                    <span class="font-medium text-green-600">Starts:</span>
+                                    {{ formatFullDate(selectedEvent.start_date) }}
+                                </span>
                             </div>
+
+                            <!-- End Time -->
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-red-600 mr-3" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span class="text-gray-700">
+                                    <span class="font-medium text-red-600">Ends:</span>
+                                    {{ selectedEvent.end_date ? formatFullDate(selectedEvent.end_date) : 'To be
+                                    announced' }}
+                                </span>
+                            </div>
+
                         </div>
                     </div>
 

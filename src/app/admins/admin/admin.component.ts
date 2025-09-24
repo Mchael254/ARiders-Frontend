@@ -81,6 +81,11 @@ export class AdminComponent implements OnInit {
       requiredRoles: ['chairman', 'developer']
     },
     {
+      id: 'mpesa-payments',
+      label: 'M-Pesa Payments',
+      requiredRoles: ['chairman', 'treasurer', 'developer']
+    },
+    {
       id: 'memberDebt',
       label: "memberDebt",
       requiredRoles: ['chairman', 'treasurer', 'developer']
@@ -88,6 +93,11 @@ export class AdminComponent implements OnInit {
     {
       id: 'eventDetails',
       label: "Event Details",
+      requiredRoles: ['chairman', 'secretary', 'treasurer', 'developer']
+    },
+    {
+      id: 'memberDetails',
+      label: "Member Details",
       requiredRoles: ['chairman', 'secretary', 'treasurer', 'developer']
     }
   ];

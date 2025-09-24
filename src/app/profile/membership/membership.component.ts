@@ -9,15 +9,12 @@ import { PaymentService } from 'src/app/services/payment/payment.service';
 import { MemberReceiptsResponse } from 'src/app/services/types/memberService';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { AuthState } from 'src/app/store/auth/auth.reducer';
 
 
 
 // Interfaces
-interface AuthState {
-  user?: {
-    id: string;
-  };
-}
+
 
 interface DebtSummary {
   total_periods: number;
@@ -140,7 +137,7 @@ export class MembershipComponent {
       next: (data) => {
         this.receiptsData = data;
         this.recentReceipts = data.receipts || [];
-        // Update total count to only include successful receipts
+        
         this.totalReceiptsCount = this.getSuccessfulReceipts().length;
         console.log('Receipts data:', this.receiptsData);
 
@@ -157,6 +154,11 @@ export class MembershipComponent {
   viewReceiptDetails(receipt: any) {
     this.selectedReceipt = receipt;
     this.showReceiptDetailsDialog = true;
+  }
+
+  closeReceiptModal() {
+    this.showReceiptDetailsDialog = false;
+    this.selectedReceipt = null;
   }
 
   trackByReceiptId(index: number, receipt: any) {

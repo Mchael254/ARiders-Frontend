@@ -96,7 +96,6 @@ export class MemberEventsComponent implements OnInit, OnDestroy {
 
   // Registration state
   registrationForm!: FormGroup;
-  isRegistering = false;
   registrationError: string | null = null;
 
   // Filter and search properties
@@ -229,7 +228,6 @@ export class MemberEventsComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error loading member events:', error);
-          // Don't show error to user for member events - it's supplementary data
         }
       });
   }
@@ -326,7 +324,7 @@ export class MemberEventsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.isRegistering = true;
+    this.spinner.show();
     this.registrationError = null;
 
     try {
@@ -348,7 +346,7 @@ export class MemberEventsComponent implements OnInit, OnDestroy {
       this.registrationError = 'Failed to register for event. Please try again.';
       this.toastr.error('Registration failed');
     } finally {
-      this.isRegistering = false;
+      this.spinner.hide();
     }
   }
 
@@ -356,16 +354,19 @@ export class MemberEventsComponent implements OnInit, OnDestroy {
     if (!this.currentUserId) return;
 
     if (confirm('Are you sure you want to cancel your registration for this event?')) {
+      this.spinner.show();
       this.eventsService.cancelRegistration(this.currentUserId, event.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
             this.toastr.success('Registration cancelled successfully');
             this.loadMemberEvents(); // Refresh member events
+            this.spinner.hide();
           },
           error: (error) => {
             console.error('Error cancelling registration:', error);
             this.toastr.error('Failed to cancel registration');
+            this.spinner.hide();
           }
         });
     }
@@ -399,6 +400,40 @@ export class MemberEventsComponent implements OnInit, OnDestroy {
     const isNotRegistered = !this.isUserRegistered(event);
 
     return isNotStarted && isNotFull && isNotRegistered;
+  }
+
+  getRegistrationButtonText(event: Event): string {
+    if (this.isUserRegistered(event)) {
+      return 'Registered';
+    }
+    
+    if (this.canRegister(event)) {
+      return 'Register';
+    }
+
+    const now = new Date();
+    const eventStart = new Date(event.start_date);
+    const eventStatus = this.getEventStatus(event).status;
+    
+    // If event has completed
+    if (eventStatus === 'Completed') {
+      return 'Event Completed';
+    }
+    
+    // If event has started (ongoing) or already passed
+    if (now >= eventStart) {
+      return 'Registration Closed';
+    }
+    
+    // If event is upcoming but registration is full
+    const isNotFull = !event.max_participants ||
+      (event.registrations?.filter(r => r.status === 'registered' || r.status === 'confirmed').length || 0) < event.max_participants;
+    
+    if (!isNotFull) {
+      return 'Registration Full';
+    }
+    
+    return 'Registration Closed';
   }
 
   getEventStatus(event: Event): { status: string; class: string } {
@@ -649,6 +684,7 @@ export class MemberEventsComponent implements OnInit, OnDestroy {
     if (!this.currentUserId) return;
 
     if (confirm(`Are you sure you want to cancel your registration for "${memberEvent.event_name}"?`)) {
+      this.spinner.show();
       this.eventsService.cancelRegistration(this.currentUserId, memberEvent.event_id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
@@ -656,10 +692,12 @@ export class MemberEventsComponent implements OnInit, OnDestroy {
             this.toastr.success('Registration cancelled successfully');
             this.loadMemberEvents(); // Refresh member events
             this.loadEvents(); // Also refresh main events to update counts
+            this.spinner.hide();
           },
           error: (error) => {
             console.error('Error cancelling registration:', error);
             this.toastr.error('Failed to cancel registration');
+            this.spinner.hide();
           }
         });
     }

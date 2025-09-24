@@ -8,7 +8,7 @@ export interface AdminPanelState {
 }
 
 export const initialState: AdminPanelState = {
-  currentView: 'members',
+  currentView: 'mpesa-payments',
   selectedMemberId: null,
   viewData: {}
 };

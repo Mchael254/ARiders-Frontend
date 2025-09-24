@@ -1,0 +1,533 @@
+<div class="p-6 bg-gray-50 min-h-screen">
+  <!-- Header Section -->
+  <div class="mb-6">
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">M-Pesa Payments Analysis</h2>
+        <p class="text-gray-600">Monitor and analyze M-Pesa payment transactions</p>
+      </div>
+      <button 
+        (click)="refreshData()" 
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+        [disabled]="loading">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        {{ loading ? 'Refreshing...' : 'Refresh' }}
+      </button>
+    </div>
+
+    <!-- View Mode Tabs -->
+    <div class="flex space-x-1 bg-gray-200 p-1 rounded-lg w-fit">
+      <button 
+        (click)="setViewMode('overview')"
+        [class]="viewMode === 'overview' ? 'bg-white text-blue-600 shadow' : 'text-gray-600 hover:text-gray-900'"
+        class="px-4 py-2 rounded-md text-sm font-medium transition-colors">
+        Overview
+      </button>
+      <button 
+        (click)="setViewMode('members')"
+        [class]="viewMode === 'members' ? 'bg-white text-blue-600 shadow' : 'text-gray-600 hover:text-gray-900'"
+        class="px-4 py-2 rounded-md text-sm font-medium transition-colors">
+        Members
+      </button>
+      <button 
+        *ngIf="selectedMember"
+        (click)="setViewMode('member-receipts')"
+        [class]="viewMode === 'member-receipts' ? 'bg-white text-blue-600 shadow' : 'text-gray-600 hover:text-gray-900'"
+        class="px-4 py-2 rounded-md text-sm font-medium transition-colors">
+        {{ selectedMember.member.name }} Receipts
+      </button>
+      <button 
+        (click)="goToAllReceipts()"
+        [class]="viewMode === 'receipts' ? 'bg-white text-blue-600 shadow' : 'text-gray-600 hover:text-gray-900'"
+        class="px-4 py-2 rounded-md text-sm font-medium transition-colors">
+        All Receipts
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex justify-center items-center h-64">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+  </div>
+
+  <!-- No Data State -->
+  <div *ngIf="noData && !loading" class="text-center py-12">
+    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-gray-900">No M-Pesa data found</h3>
+    <p class="mt-1 text-sm text-gray-500">No payment receipts are available for analysis.</p>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="mpesaData && !loading">
+    
+    <!-- Overview Section -->
+    <div *ngIf="viewMode === 'overview'">
+      <!-- Grand Total Statistics -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-xl shadow-sm border">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Total Receipts</p>
+              <p class="text-2xl font-bold text-gray-900">{{ mpesaData.grand_total.total_receipts }}</p>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Successful</p>
+              <p class="text-2xl font-bold text-green-600">{{ mpesaData.grand_total.successful_receipts }}</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Failed</p>
+              <p class="text-2xl font-bold text-red-600">{{ mpesaData.grand_total.failed_receipts }}</p>
+            </div>
+            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Success Rate</p>
+              <p class="text-2xl font-bold text-blue-600">{{ getSuccessRate(mpesaData.grand_total) }}%</p>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Statistics Row -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-xl shadow-sm border">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Total Successful Amount</p>
+              <p class="text-2xl font-bold text-green-600">{{ formatCurrency(grandTotalAmount) }}</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Active Members</p>
+              <p class="text-2xl font-bold text-purple-600">{{ membersWithReceipts.length }}</p>
+            </div>
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600">Payment Types</p>
+              <p class="text-2xl font-bold text-indigo-600">{{ paymentTypes.length }}</p>
+            </div>
+            <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Performing Members -->
+      <div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Paying Members ({{ membersWithReceipts.length }} with payments)</h3>
+        <div class="space-y-4">
+          <div *ngFor="let memberData of getTopPayingMembers(); trackBy: trackByMemberId" 
+               class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div class="flex items-center space-x-4">
+              <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <span class="text-white font-semibold text-sm">{{ memberData.member.name.charAt(0) }}</span>
+              </div>
+              <div>
+                <p class="font-medium text-gray-900">{{ memberData.member.name }}</p>
+                <p class="text-sm text-gray-500">{{ memberData.member.email }}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="font-semibold text-gray-900">{{ formatCurrency(getMemberSuccessfulAmount(memberData)) }}</p>
+              <p class="text-sm text-gray-500">{{ memberData.analysis.successful_receipts }} successful ({{ getSuccessRate(memberData.analysis) }}%)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Members View -->
+    <div *ngIf="viewMode === 'members'">
+      <!-- Filters -->
+      <div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
+        <div class="flex flex-wrap gap-4">
+          <div class="flex-1 min-w-64">
+            <input 
+              type="text" 
+              placeholder="Search members..."
+              [(ngModel)]="searchTerm"
+              (ngModelChange)="onSearchChange($event)"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+          <button 
+            (click)="clearFilters()"
+            class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+            Clear Filters
+          </button>
+        </div>
+      </div>
+
+      <!-- Members Table -->
+      <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900">Members Payment Analysis</h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Member</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount Paid</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Receipts</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Success Rate</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let memberData of paginatedMembers; trackBy: trackByMemberId" 
+                  class="hover:bg-blue-50 cursor-pointer transition-colors duration-200 hover:shadow-sm"
+                  (click)="viewMemberDetails(memberData)"
+                  title="Click to view {{ memberData.member.name }}'s receipts">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                      <span class="text-white font-semibold text-sm">{{ memberData.member.name.charAt(0) }}</span>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">{{ memberData.member.name }}</div>
+                      <div class="text-sm text-gray-500">{{ memberData.member.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                    {{ memberData.member.current_role.role_name }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <div class="font-semibold">{{ formatCurrency(getMemberSuccessfulAmount(memberData)) }}</div>
+                  <div class="text-xs text-gray-500">
+                    From {{ memberData.analysis.successful_receipts }} successful payments
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <div>{{ memberData.analysis.successful_receipts }}/{{ memberData.analysis.total_receipts }}</div>
+                  <div class="text-xs text-gray-500">
+                    {{ memberData.analysis.failed_receipts }} failed
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                      <div 
+                        class="bg-green-600 h-2 rounded-full" 
+                        [style.width.%]="getSuccessRate(memberData.analysis)">
+                      </div>
+                    </div>
+                    <span class="text-sm text-gray-900">{{ getSuccessRate(memberData.analysis) }}%</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <button 
+                    (click)="viewMemberDetails(memberData); $event.stopPropagation()"
+                    class="text-blue-600 hover:text-blue-900">
+                    View Details
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Member Receipts View -->
+    <div *ngIf="viewMode === 'member-receipts'">
+      <!-- Back Button -->
+      <div class="mb-4">
+        <button 
+          (click)="backToMembers()"
+          class="flex items-center text-blue-600 hover:text-blue-800">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          Back to Members
+        </button>
+        <h3 class="text-lg font-semibold text-gray-900 mt-2">{{ selectedMember!.member.name }} - Payment Receipts</h3>
+      </div>
+
+      <!-- Filters -->
+      <div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <input 
+            type="text" 
+            placeholder="Search receipts..."
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange($event)"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          
+          <select 
+            [(ngModel)]="selectedPaymentType"
+            (change)="onPaymentTypeFilterChange(selectedPaymentType)"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">All Payment Types</option>
+            <option *ngFor="let type of paymentTypes" [value]="type">{{ type | titlecase }}</option>
+          </select>
+
+          <select 
+            [(ngModel)]="selectedStatus"
+            (change)="onStatusFilterChange(selectedStatus)"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">All Statuses</option>
+            <option *ngFor="let status of statusTypes" [value]="status">{{ status }}</option>
+          </select>
+
+          <select 
+            [(ngModel)]="selectedDateRange"
+            (change)="onDateRangeFilterChange(selectedDateRange)"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">All Time</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+          </select>
+        </div>
+        
+        <div class="mt-4 flex justify-between items-center">
+          <div class="text-sm text-gray-600">
+            Showing {{ paginatedReceipts.length }} of {{ filteredCount }} receipts
+            for {{ selectedMember!.member.name }} | Total: {{ formatCurrency(totalAmount) }}
+          </div>
+          <button 
+            (click)="clearFilters()"
+            class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+            Clear Filters
+          </button>
+        </div>
+      </div>
+
+      <!-- Receipts Table -->
+      <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Receipt</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Type</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let receipt of paginatedReceipts" class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">{{ receipt.receipt_number }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ formatCurrency(receipt.amount) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+                    {{ formatPaymentTypeDisplay(receipt) }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ formatDate(receipt.transaction_date) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span [class]="getStatusClass(receipt.status)">
+                    {{ receipt.status }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ receipt.phone_number }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- All Receipts View -->
+    <div *ngIf="viewMode === 'receipts'">
+
+      <!-- Filters -->
+      <div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <input 
+            type="text" 
+            placeholder="Search receipts..."
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange($event)"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          
+          <select 
+            [(ngModel)]="selectedPaymentType"
+            (change)="onPaymentTypeFilterChange(selectedPaymentType)"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">All Payment Types</option>
+            <option *ngFor="let type of paymentTypes" [value]="type">{{ type | titlecase }}</option>
+          </select>
+
+          <select 
+            [(ngModel)]="selectedStatus"
+            (change)="onStatusFilterChange(selectedStatus)"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">All Statuses</option>
+            <option *ngFor="let status of statusTypes" [value]="status">{{ status }}</option>
+          </select>
+
+          <select 
+            [(ngModel)]="selectedDateRange"
+            (change)="onDateRangeFilterChange(selectedDateRange)"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">All Time</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+          </select>
+        </div>
+        
+        <div class="mt-4 flex justify-between items-center">
+          <div class="text-sm text-gray-600">
+            Showing {{ paginatedReceipts.length }} of {{ filteredCount }} receipts
+            | Total Amount: {{ formatCurrency(totalAmount) }}
+          </div>
+          <button 
+            (click)="clearFilters()"
+            class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+            Clear Filters
+          </button>
+        </div>
+      </div>
+
+      <!-- Receipts Table -->
+      <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Receipt</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Type</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let receipt of paginatedReceipts" class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">{{ receipt.receipt_number }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ formatCurrency(receipt.amount) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+                    {{ formatPaymentTypeDisplay(receipt) }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ formatDate(receipt.transaction_date) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span [class]="getStatusClass(receipt.status)">
+                    {{ receipt.status }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ receipt.phone_number }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1 && viewMode !== 'overview'" class="mt-6 flex items-center justify-between">
+      <div class="text-sm text-gray-700">
+        Showing {{ (currentPage - 1) * itemsPerPage + 1 }} to 
+        {{ Math.min(currentPage * itemsPerPage, filteredCount) }} of {{ filteredCount }} results
+      </div>
+      
+      <nav class="flex items-center space-x-2">
+        <button 
+          (click)="goToPreviousPage()" 
+          [disabled]="!canGoToPrevious"
+          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+          Previous
+        </button>
+        
+        <button 
+          *ngFor="let page of pageNumbers" 
+          (click)="goToPage(page)"
+          [class]="page === currentPage ? 'bg-blue-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'"
+          class="px-3 py-2 text-sm font-medium border border-gray-300 rounded-md">
+          {{ page }}
+        </button>
+        
+        <button 
+          (click)="goToNextPage()" 
+          [disabled]="!canGoToNext"
+          class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+          Next
+        </button>
+      </nav>
+    </div>
+  </div>
+</div>

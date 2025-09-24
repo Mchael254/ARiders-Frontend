@@ -1,0 +1,94 @@
+<div class="bg-[#f8f9fa] min-h-screen p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Ultra Compact Header Section -->
+        <div class="mb-4">
+            <div class="flex items-center justify-between">
+                <button (click)="onBackToMembers()"
+                    class="flex items-center gap-2 text-sm font-medium text-white bg-gradient-to-r from-yellow-700 to-yellow-500 rounded-md hover:from-yellow-800 hover:to-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-colors px-3 py-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    <span class="text-xs">Back to Members</span>
+                </button>
+            </div>
+        </div>
+
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Member Details</h1>
+        </div>
+
+        <!-- Member Info Card -->
+        <div *ngIf="member" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6 max-w-xl mx-auto">
+            <div class="flex justify-center mb-2">
+                <h1 class="text-3xl font-bold text-gray-900">{{member.first_name}} {{member.last_name}}</h1>
+            </div>
+
+            <!-- Profile Image (Centered) -->
+            <div class="flex justify-center mb-4">
+                <div>
+                    <img *ngIf="member.profile_image" [src]="member.profile_image"
+                        [alt]="member.first_name + ' ' + member.last_name"
+                        class="h-20 w-20 rounded-full object-cover border-2 border-[#d4a72c] shadow-sm">
+                    <div *ngIf="!member.profile_image"
+                        class="h-20 w-20 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl border-2 border-[#d4a72c] shadow-sm">
+                        {{member.first_name.charAt(0)}}{{member.last_name.charAt(0)}}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Member Information (Two Columns with Borders) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200 text-sm">
+
+                <!-- Left Column -->
+                <div class="p-3 space-y-2 text-left">
+                    <p><span class="font-medium text-gray-600">Full Name:</span>
+                        {{member.first_name}} <span *ngIf="member.middle_name">{{member.middle_name}}
+                        </span>{{member.last_name}}</p>
+
+                    <p><span class="font-medium text-gray-600">Email:</span> {{member.email}}</p>
+
+                    <p><span class="font-medium text-gray-600">Phone:</span> {{member.phone_number}}</p>
+
+                    <p *ngIf="member.emergency_phone"><span class="font-medium text-gray-600">Emergency:</span>
+                        {{member.emergency_phone}}</p>
+                </div>
+
+                <!-- Right Column -->
+                <div class="p-3 space-y-2 text-right md:text-right">
+                    <p>
+                        <span class="font-medium text-gray-600">Status:</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                            [class.bg-green-100]="member.membership_status === 'active'"
+                            [class.text-green-800]="member.membership_status === 'active'"
+                            [class.bg-gray-100]="member.membership_status === 'inactive'"
+                            [class.text-gray-800]="member.membership_status === 'inactive'"
+                            [class.bg-red-100]="member.membership_status === 'suspended'"
+                            [class.text-red-800]="member.membership_status === 'suspended'">
+                            {{member.membership_status | titlecase}}
+                        </span>
+                    </p>
+
+                    <p><span class="font-medium text-gray-600">Role:</span> {{member.role | titlecase}}</p>
+
+                    <p><span class="font-medium text-gray-600">Joined:</span> {{member.joined | date:'MMM d, y'}}</p>
+
+                    <p *ngIf="member.city || member.county"><span class="font-medium text-gray-600">Location:</span>
+                        {{member.city}}<span *ngIf="member.city && member.county">, </span>{{member.county}}</p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Loading State -->
+        <div *ngIf="!member" class="bg-white rounded-xl shadow-md border border-gray-200 p-8">
+            <div class="flex items-center justify-center py-12">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#d4a72c]"></div>
+                <span class="ml-3 text-gray-600">Loading member details...</span>
+            </div>
+        </div>
+
+        <!-- Additional sections can be added here in the future -->
+        <!-- Contribution History, Event Participation, etc. -->
+    </div>
+</div>
