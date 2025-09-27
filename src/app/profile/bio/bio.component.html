@@ -54,7 +54,20 @@
 
                         <div class="bg-[#2c3e50]/20 border border-[#e8c15e]/30 rounded-lg p-3 flex-1 max-w-xs">
                             <h3 class="text-xs font-medium text-amber-100 mb-1">Membership Type</h3>
-                            <p class="text-lg font-semibold text-white">Premium</p>
+                            <p class="text-lg font-semibold text-white">{{profile.role}}</p>
+                        </div>
+                    </div>
+
+                    <!-- Guest Membership Call-to-Action -->
+                    <div *ngIf="isGuestUser(profile)" class="mt-4">
+                        <div class="bg-white/20 border border-[#e8c15e]/30 rounded-lg p-4 text-center">
+                            <h3 class="text-white font-semibold mb-2">Activate Your Full Membership</h3>
+                            <p class="text-amber-100 text-sm mb-3">You're currently a guest member. Unlock full A-Riders benefits!</p>
+                            <button
+                                (click)="openMembershipModal()"
+                                class="bg-white text-[#d4a72c] px-4 py-2 rounded-full font-semibold text-sm hover:bg-gray-100 transition-colors">
+                                Become a Full Member
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -286,3 +299,61 @@
         </div>
     </div>
 </div>
+
+<!-- Membership Activation Modal -->
+<p-dialog 
+    [(visible)]="showMembershipModal" 
+    [modal]="true" 
+    [resizable]="false" 
+    [draggable]="false"
+    styleClass="w-full max-w-md"
+    header="Activate Your A-Riders Membership">
+    
+    <div class="text-center p-4">
+        <div class="mb-6">
+            <div class="w-16 h-16 bg-[#d4a72c] rounded-full flex items-center justify-center mx-auto mb-4">
+                <fa-icon [icon]="faCrown" class="text-white text-2xl"></fa-icon>
+            </div>
+            <h3 class="text-xl font-bold text-[#212529] mb-2">Unlock Full A-Riders Benefits</h3>
+            <p class="text-[#6c757d] text-sm leading-relaxed">
+                As a guest member, you have limited access. Activate your full membership to enjoy:
+            </p>
+        </div>
+
+        <div class="text-left mb-6 space-y-3">
+            <div class="flex items-start gap-3">
+                <div class="w-2 h-2 bg-[#d4a72c] rounded-full mt-2 flex-shrink-0"></div>
+                <p class="text-sm text-[#495057]">Full access to all A-Riders events and activities</p>
+            </div>
+            <div class="flex items-start gap-3">
+                <div class="w-2 h-2 bg-[#d4a72c] rounded-full mt-2 flex-shrink-0"></div>
+                <p class="text-sm text-[#495057]">Voting rights in community decisions</p>
+            </div>
+            <div class="flex items-start gap-3">
+                <div class="w-2 h-2 bg-[#d4a72c] rounded-full mt-2 flex-shrink-0"></div>
+                <p class="text-sm text-[#495057]">Access to exclusive member resources and benefits</p>
+            </div>
+            <div class="flex items-start gap-3">
+                <div class="w-2 h-2 bg-[#d4a72c] rounded-full mt-2 flex-shrink-0"></div>
+                <p class="text-sm text-[#495057]">Priority support and member-only events</p>
+            </div>
+            <div class="flex items-start gap-3">
+                <div class="w-2 h-2 bg-[#d4a72c] rounded-full mt-2 flex-shrink-0"></div>
+                <p class="text-sm text-[#495057]">Full participation in the A-Riders community</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <button 
+                (click)="closeMembershipModal()"
+                class="px-6 py-2 border border-[#e9ecef] text-[#6c757d] rounded-md hover:bg-[#f8f9fa] transition-colors font-medium">
+                Maybe Later
+            </button>
+            <button 
+                (click)="proceedToMembership()"
+                class="px-6 py-2 bg-[#d4a72c] hover:bg-[#b38d25] text-white rounded-md transition-colors font-medium">
+                Become a Member
+            </button>
+        </div>
+    </div>
+</p-dialog>

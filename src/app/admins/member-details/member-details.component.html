@@ -21,7 +21,7 @@
         <!-- Member Info Card -->
         <div *ngIf="member" class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6 max-w-xl mx-auto">
             <div class="flex justify-center mb-2">
-                <h1 class="text-3xl font-bold text-gray-900">{{member.first_name}} {{member.last_name}}</h1>
+                <h1 class="text-3xl font-bold text-gray-900">{{member.first_name | titlecase}} {{member.last_name | titlecase}}</h1>
             </div>
 
             <!-- Profile Image (Centered) -->
@@ -31,7 +31,7 @@
                         [alt]="member.first_name + ' ' + member.last_name"
                         class="h-20 w-20 rounded-full object-cover border-2 border-[#d4a72c] shadow-sm">
                     <div *ngIf="!member.profile_image"
-                        class="h-20 w-20 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl border-2 border-[#d4a72c] shadow-sm">
+                        class="h-20 w-20 rounded-full bg-gradient-to-r from-yellow-700 to-yellow-500 flex items-center justify-center text-white font-bold text-xl border-2 border-[#d4a72c] shadow-sm">
                         {{member.first_name.charAt(0)}}{{member.last_name.charAt(0)}}
                     </div>
                 </div>
@@ -43,8 +43,8 @@
                 <!-- Left Column -->
                 <div class="p-3 space-y-2 text-left">
                     <p><span class="font-medium text-gray-600">Full Name:</span>
-                        {{member.first_name}} <span *ngIf="member.middle_name">{{member.middle_name}}
-                        </span>{{member.last_name}}</p>
+                        {{member.first_name | titlecase}} <span *ngIf="member.middle_name">{{member.middle_name | titlecase}}
+                        </span>{{member.last_name | titlecase}}</p>
 
                     <p><span class="font-medium text-gray-600">Email:</span> {{member.email}}</p>
 

@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { combineLatest, filter, map, take } from 'rxjs';
+import { combineLatest, filter, map, of, take } from 'rxjs';
 import { selectAuthRole, selectIsAuthenticated } from '../../store/auth/auth.selector';
 
 const ROLE_PERMISSIONS = {
@@ -26,6 +26,11 @@ export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
   const store = inject(Store);
   const router = inject(Router);
 
+  // 👇 Allow reset password route without checks
+  if (state.url.startsWith('/resetPassword')) {
+    return of(true);
+  }
+
   return combineLatest([
     store.select(selectIsAuthenticated),
     store.select(selectAuthRole)
@@ -42,15 +47,12 @@ export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
       const requestedPath = state.url;
       const userPermissions = ROLE_PERMISSIONS[role as keyof typeof ROLE_PERMISSIONS] || [];
 
-      // Check if route requires specific permissions
       const requiredPermissions = getRequiredPermissions(requestedPath);
 
-      // If no specific permissions required, allow access
       if (requiredPermissions.length === 0) {
         return true;
       }
 
-      // Check if user has any of the required permissions
       const hasPermission = requiredPermissions.some(permission =>
         userPermissions.includes(permission)
       );
@@ -82,10 +84,8 @@ export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
         return ROUTE_PERMISSIONS[routePath as keyof typeof ROUTE_PERMISSIONS];
       }
     }
-
     return [];
   }
-
 };
 
 

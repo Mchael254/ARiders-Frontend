@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { faBars } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faTachometerAlt, faUsers, faHandHoldingUsd, faExclamationTriangle, faCalendarAlt, faChartBar, faCog, faMobileAlt, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { selectAdminCurrentView, selectAdminSelectedMemberId, selectAdminViewData } from 'src/app/store/panel/admin/selectors';
 import { selectAuthRole } from 'src/app/store/auth/auth.selector';
 import { AppState } from 'src/app/store';
@@ -41,6 +41,15 @@ export class AdminComponent implements OnInit {
 
   sideNavOpen = false;
   faBars = faBars;
+  faTachometerAlt = faTachometerAlt;
+  faUsers = faUsers;
+  faHandHoldingUsd = faHandHoldingUsd;
+  faExclamationTriangle = faExclamationTriangle;
+  faCalendarAlt = faCalendarAlt;
+  faChartBar = faChartBar;
+  faCog = faCog;
+  faMobileAlt = faMobileAlt;
+  faSignOutAlt = faSignOutAlt;
   logoutDialogVisible = false;
 
   // Tab configuration with role-based access

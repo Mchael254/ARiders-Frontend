@@ -1,5 +1,5 @@
 <div class="bg-[#f8f9fa] min-h-screen p-4 md:p-8">
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-7xl mx-auto">
         <!-- Header with Back Button -->
         <div class="mb-6">
             <button (click)="goBackToEvents()"
@@ -606,7 +606,7 @@
                     </div>
 
                     <!-- Search and Filter Controls -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <!-- Search Input -->
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -629,6 +629,15 @@
                                 <option value="confirmed">Confirmed</option>
                                 <option value="pending">Pending</option>
                                 <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+
+                        <!-- Role Filter -->
+                        <div>
+                            <select [(ngModel)]="participantRoleFilter" (change)="onFilterChange()"
+                                class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4a72c] focus:border-transparent bg-white">
+                                <option value="all">All Roles</option>
+                                <option *ngFor="let role of availableRoles" [value]="role">{{ role | titlecase }}</option>
                             </select>
                         </div>
 
@@ -674,13 +683,16 @@
                                     Phone</th>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Role</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Status</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Amount Paid</th>
                                 <th *ngIf="eventSummary.event.is_paid"
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Payment</th>
-                                <th *ngIf="eventSummary.event.is_paid"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Amount</th>
+                                    Payment Status</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -713,6 +725,13 @@
                                     <div class="font-medium">{{ participant.phone_number }}</div>
                                 </td>
 
+                                <!-- Role -->
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        {{ participant.current_role?.name | titlecase }}
+                                    </span>
+                                </td>
+
                                 <!-- Registration Status -->
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span
@@ -721,22 +740,29 @@
                                     </span>
                                 </td>
 
+                                <!-- Amount Paid (for all events) -->
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <div class="font-medium">
+                                        <span *ngIf="participant.amount_paid !== null && participant.amount_paid !== undefined">
+                                            {{ formatCurrency(participant.amount_paid) }}
+                                        </span>
+                                        <span *ngIf="participant.amount_paid === null || participant.amount_paid === undefined" 
+                                              class="text-gray-500 italic">
+                                            {{ eventSummary.event.is_paid ? 'No payment' : 'Free event' }}
+                                        </span>
+                                    </div>
+                                    <div *ngIf="eventSummary.event.fee && eventSummary.event.is_paid && (participant.amount_paid || 0) < eventSummary.event.fee"
+                                        class="text-xs text-red-600">
+                                        Balance: {{ formatCurrency(eventSummary.event.fee - (participant.amount_paid || 0)) }}
+                                    </div>
+                                </td>
+
                                 <!-- Payment Status (only for paid events) -->
                                 <td *ngIf="eventSummary.event.is_paid" class="px-6 py-4 whitespace-nowrap">
                                     <span
                                         [class]="'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ' + getPaymentStatusColor(participant.payment_status)">
                                         {{ participant.payment_status | titlecase }}
                                     </span>
-                                </td>
-
-                                <!-- Amount Paid (only for paid events) -->
-                                <td *ngIf="eventSummary.event.is_paid"
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <div class="font-medium">{{ formatCurrency(participant.amount_paid) }}</div>
-                                    <div *ngIf="participant.amount_paid < eventSummary.event.fee"
-                                        class="text-xs text-red-600">
-                                        Balance: {{ formatCurrency(eventSummary.event.fee - participant.amount_paid) }}
-                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -879,6 +905,10 @@
                 <div>
                     <h4 class="text-lg font-semibold text-gray-900">{{ selectedParticipant.name }}</h4>
                     <div class="flex items-center space-x-2 mt-1">
+                        <p *ngIf="selectedParticipant.current_role"
+                            class="text-xs text-white bg-blue-500 px-2 py-0.5 rounded-full">
+                            {{ selectedParticipant.current_role.name | titlecase }}
+                        </p>
                         <p *ngIf="selectedParticipant.gender"
                             class="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">
                             {{ selectedParticipant.gender }}
@@ -941,7 +971,7 @@
                     </div>
                 </div>
 
-                <!-- Registration Status and Payment Information in a row -->
+                <!-- Registration Status and Amount Information in a row -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <!-- Registration Status Card -->
                     <div class="bg-white rounded-md border border-gray-150 p-3">
@@ -952,29 +982,35 @@
                         </span>
                     </div>
 
-                    <!-- Payment Information Card (only for paid events) -->
-                    <div *ngIf="eventSummary && eventSummary.event.is_paid"
-                        class="bg-white rounded-md border border-gray-150 p-3">
-                        <h5 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Payment</h5>
+                    <!-- Amount Paid Card -->
+                    <div class="bg-white rounded-md border border-gray-150 p-3">
+                        <h5 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Amount Paid</h5>
                         <div class="space-y-1">
                             <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-600">Paid:</span>
+                                <span class="text-xs font-medium text-gray-900">
+                                    <span *ngIf="selectedParticipant.amount_paid !== null && selectedParticipant.amount_paid !== undefined">
+                                        {{ formatCurrency(selectedParticipant.amount_paid) }}
+                                    </span>
+                                    <span *ngIf="selectedParticipant.amount_paid === null || selectedParticipant.amount_paid === undefined" 
+                                          class="text-gray-500 italic">
+                                        {{ (eventSummary && eventSummary.event.is_paid) ? 'No payment' : 'Free event' }}
+                                    </span>
+                                </span>
+                            </div>
+                            <div *ngIf="eventSummary && eventSummary.event.is_paid" class="flex items-center justify-between">
                                 <span class="text-xs text-gray-600">Status:</span>
                                 <span
                                     [class]="'inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-semibold ' + getPaymentStatusColor(selectedParticipant.payment_status)">
                                     {{ selectedParticipant.payment_status | titlecase }}
                                 </span>
                             </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs text-gray-600">Paid:</span>
-                                <span class="text-xs font-medium text-gray-900">{{
-                                    formatCurrency(selectedParticipant.amount_paid) }}</span>
-                            </div>
-                            <div *ngIf="eventSummary && selectedParticipant.amount_paid < eventSummary.event.fee"
+                            <div *ngIf="eventSummary && eventSummary.event.fee && eventSummary.event.is_paid && (selectedParticipant.amount_paid || 0) < eventSummary.event.fee"
                                 class="flex items-center justify-between">
                                 <span class="text-xs text-gray-600">Balance:</span>
                                 <span class="text-xs font-medium text-red-600">
                                     {{ eventSummary ? formatCurrency(eventSummary.event.fee -
-                                    selectedParticipant.amount_paid) : '' }}
+                                    (selectedParticipant.amount_paid || 0)) : '' }}
                                 </span>
                             </div>
                         </div>

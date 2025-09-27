@@ -40,6 +40,7 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
   participantSearchTerm: string = '';
   participantStatusFilter: string = 'all';
   participantPaymentFilter: string = 'all';
+  participantRoleFilter: string = 'all';
   currentPage: number = 1;
   itemsPerPage: number = 10;
 
@@ -279,7 +280,11 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
         this.participantPaymentFilter === 'all' ||
         participant.payment_status === this.participantPaymentFilter;
 
-      return searchMatch && statusMatch && paymentMatch;
+      // Role filter
+      const roleMatch = this.participantRoleFilter === 'all' ||
+        participant.current_role?.name === this.participantRoleFilter;
+
+      return searchMatch && statusMatch && paymentMatch && roleMatch;
     });
 
     return filtered;
@@ -330,7 +335,22 @@ export class EventDetailsComponent implements OnInit, OnChanges, OnDestroy {
     this.participantSearchTerm = '';
     this.participantStatusFilter = 'all';
     this.participantPaymentFilter = 'all';
+    this.participantRoleFilter = 'all';
     this.currentPage = 1;
+  }
+
+  // Get unique roles from participants
+  get availableRoles(): string[] {
+    if (!this.eventSummary?.details || !Array.isArray(this.eventSummary.details)) return [];
+    
+    const roles = new Set<string>();
+    this.eventSummary.details.forEach(participant => {
+      if (participant.current_role?.name) {
+        roles.add(participant.current_role.name);
+      }
+    });
+    
+    return Array.from(roles).sort();
   }
 
   // Modal methods

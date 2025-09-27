@@ -94,10 +94,15 @@ export class AdminEventsComponent implements OnInit, OnDestroy {
   selectedStatus: string = '';
   selectedEventType: string = '';
 
+  // View mode
+  viewMode: 'grid' | 'list' = 'list';
+
   // Pagination properties
   currentPage: number = 1;
   itemsPerPage: number = 5;
   totalPages: number = 0;
+
+
 
   // Calendar configuration
   minDate: Date = new Date();

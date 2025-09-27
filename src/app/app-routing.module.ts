@@ -19,6 +19,7 @@ import { GuestSignupComponent } from './guest/guest-signup/guest-signup.componen
 import { EventsComponent } from './events/events.component';
 import { GuestSigninComponent } from './guest/guest-signin/guest-signin.component';
 import { GuestMainComponent } from './guest/guest-main/guest-main.component';
+import { ResetPasswordComponent } from './profile/reset-password/reset-password.component';
 
 
 const routes: Routes = [
@@ -41,6 +42,7 @@ const routes: Routes = [
   // shared
   { path: 'spinner', component: SpinnerComponent },
   { path: 'footer', component: FooterComponent },
+  {path: 'resetPassword', component:ResetPasswordComponent},
 
 
   //guest

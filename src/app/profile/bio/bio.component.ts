@@ -1,12 +1,13 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { select, Store } from '@ngrx/store';
 import { distinctUntilChanged, filter, Observable, Subject, take, takeUntil } from 'rxjs';
 import { ResponsesService } from 'src/app/services/utilities/toaster/responses.service';
 import { clearUpdateRiderTypeStatus, loadRiderTypes, updateProfileImage, updateRiderType, updateUserProfileSection } from 'src/app/store/auth/auth.actions';
 import { AuthState } from 'src/app/store/auth/auth.reducer';
 import { format } from 'date-fns';
-import { faPen } from '@fortawesome/free-solid-svg-icons';
+import { faPen, faCrown } from '@fortawesome/free-solid-svg-icons';
 import { UserService } from 'src/app/services/members/user.service';
 import { selectRiderType, selectRiderTypes, selectUpdateRiderTypeError, selectUpdateRiderTypeLoading, selectUpdateRiderTypeSuccess } from 'src/app/store/auth/auth.selector';
 import { NgxSpinnerService } from 'ngx-spinner';
@@ -39,6 +40,7 @@ export class BioComponent implements OnInit {
 
   previewImage: string | null = null;
   faPen = faPen;
+  faCrown = faCrown;
   profileBtn: boolean = true;
   fileInput: any;
   selectedFile: File | null = null;
@@ -57,6 +59,9 @@ export class BioComponent implements OnInit {
   selectedGender: string | null = null;
   today: Date = new Date();
 
+  // Membership activation modal properties
+  showMembershipModal: boolean = false;
+
 
   constructor(
     private response: ResponsesService,
@@ -66,6 +71,7 @@ export class BioComponent implements OnInit {
     private spinner: NgxSpinnerService,
     private requestPasswordChange: AuthService,
     private toastr: ToastrService,
+    private router: Router,
   ) {
     this.profile$ = this.store.pipe(select('auth'));
   }
@@ -314,7 +320,23 @@ export class BioComponent implements OnInit {
     });
   }
 
+  // Membership activation modal methods
+  openMembershipModal() {
+    this.showMembershipModal = true;
+  }
 
+  closeMembershipModal() {
+    this.showMembershipModal = false;
+  }
 
+  proceedToMembership() {
+    this.closeMembershipModal();
+    this.router.navigate(['/signup']);
+  }
+
+  // Check if user is a guest
+  isGuestUser(profile: any): boolean {
+    return profile?.user?.role?.toLowerCase() === 'guest';
+  }
 
 }

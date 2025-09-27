@@ -32,6 +32,7 @@
               Membership
             </a>
           </li>
+
           <li>
             <a (click)="setView('events')"
               class="flex cursor-pointer items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
@@ -44,17 +45,14 @@
               Events
             </a>
           </li>
+
           <li>
-            <a (click)="setView('rides')"
-              class="flex cursor-pointer items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
+            <button (click)="setView('rides')"
+              class="flex cursor-pointer items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800 w-full text-left"
               [class.bg-yellow-600]="(currentView$ | async) === 'rides'">
-              <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path>
-              </svg>
+              <fa-icon [icon]="faBicycle" class="w-5 h-5 mr-3"></fa-icon>
               Rides
-            </a>
+            </button>
           </li>
           <li>
             <a (click)="setView('bio')"
@@ -115,11 +113,11 @@
         <app-member-events></app-member-events>
       </div>
 
-      <div *ngIf="(currentView$ | async) === 'rides'" class="bg-white rounded-lg shadow p-6">
-        <!-- Rides content will go here -->
+      <div *ngIf="(currentView$ | async) === 'rides'" class="bg-white rounded-lg shadow p-3 w-100">
+        <app-rides></app-rides>
       </div>
 
-      <div *ngIf="(currentView$ | async) === 'bio' "class="bg-white rounded-lg shadow p-3 w-100">
+      <div *ngIf="(currentView$ | async) === 'bio' " class="bg-white rounded-lg shadow p-3 w-100">
         <app-bio></app-bio>
       </div>
     </main>
@@ -145,35 +143,36 @@
           <li>
             <a (click)="setView('dashboard')"
               class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
-              [class.bg-blue-600]="(currentView$ | async) === 'dashboard'">
+              [class.bg-yellow-600]="(currentView$ | async) === 'dashboard'">
               Dashboard
             </a>
           </li>
           <li>
             <a (click)="setView('profile')"
               class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
-              [class.bg-blue-600]="(currentView$ | async) === 'profile'">
+              [class.bg-yellow-600]="(currentView$ | async) === 'profile'">
               Profile
             </a>
           </li>
           <li>
             <a (click)="setView('events')"
               class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
-              [class.bg-blue-600]="(currentView$ | async) === 'events'">
+              [class.bg-yellow-600]="(currentView$ | async) === 'events'">
               Events
             </a>
           </li>
           <li>
-            <a (click)="setView('rides')"
-              class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
-              [class.bg-blue-600]="(currentView$ | async) === 'rides'">
+            <button (click)="setView('rides')"
+              class="flex w-full text-left items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
+              [class.bg-yellow-600]="(currentView$ | async) === 'rides'">
+              <fa-icon [icon]="faBicycle" class="w-5 h-5 mr-3"></fa-icon>
               Rides
-            </a>
+            </button>
           </li>
           <li>
             <a (click)="setView('bio')"
               class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-gray-800"
-              [class.bg-blue-600]="(currentView$ | async) === 'bio'">
+              [class.bg-yellow-600]="(currentView$ | async) === 'bio'">
               Bio
             </a>
           </li>

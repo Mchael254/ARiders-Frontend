@@ -26,15 +26,12 @@
                     <div>
                         <p class="text-sm font-medium text-gray-600 mb-1">Total Events</p>
                         <p class="text-2xl font-bold text-gray-900">{{ totalEvents }}</p>
-                        <p class="text-xs text-gray-500 mt-1" *ngIf="filteredEvents.length !== totalEvents">
-                            {{ filteredEvents.length }} shown
-                        </p>
                         <p class="text-xs text-gray-500 mt-1" *ngIf="filteredEvents.length === totalEvents">
                             All events
                         </p>
                     </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
                             </path>
@@ -48,7 +45,6 @@
                     <div>
                         <p class="text-sm font-medium text-gray-600 mb-1">Upcoming Events</p>
                         <p class="text-2xl font-bold text-blue-600">{{ upcomingEvents }}</p>
-                        <p class="text-xs text-gray-500 mt-1">Future events</p>
                     </div>
                     <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
                         <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,7 +77,7 @@
                         <p class="text-sm font-medium text-gray-600 mb-1">Ongoing Eevnts</p>
                         <p class="text-2xl font-bold text-[#d4a72c]"> {{ ongoingEvents }} </p>
                     </div>
-                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
@@ -142,121 +138,210 @@
                     </button>
                 </div>
 
-                <!-- View Options -->
+                <!-- View Toggle -->
                 <div class="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
-                    <button class="px-3 py-2 rounded-md text-sm font-medium bg-white text-gray-900 shadow-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-                        </svg>
-                    </button>
-                    <button class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900">
+                    <button (click)="viewMode = 'grid'"
+                        [class]="viewMode === 'grid' ? 'px-3 py-2 rounded-md text-sm font-medium bg-white text-gray-900 shadow-sm' : 'px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900'"
+                        title="Grid View">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
                             </path>
                         </svg>
                     </button>
+                    <button (click)="viewMode = 'list'"
+                        [class]="viewMode === 'list' ? 'px-3 py-2 rounded-md text-sm font-medium bg-white text-gray-900 shadow-sm' : 'px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900'"
+                        title="List View">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- Events Table -->
-        <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-semibold text-gray-900">
-                        All Events
-                        <span *ngIf="searchTerm || selectedStatus || selectedEventType"
-                            class="ml-2 text-sm font-normal text-gray-500">
-                            ({{ filteredEvents.length }} filtered)
-                        </span>
-                    </h3>
-                    <div *ngIf="searchTerm || selectedStatus || selectedEventType"
-                        class="flex items-center text-sm text-gray-500">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
-                            </path>
-                        </svg>
-                        Filters active
+        <!-- Events Grid/List Views -->
+        <div *ngIf="!loadingEvents && !eventsError && filteredEvents.length > 0">
+            <!-- Grid View -->
+            <div *ngIf="viewMode === 'grid'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div *ngFor="let event of filteredEvents; trackBy: trackByEventId"
+                    class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                    (click)="navigateToEventDetails(event)" title="Click to view event details">
+                    
+                    <!-- Event Image -->
+                    <div class="relative h-48 bg-gradient-to-r from-[#d4a72c] to-[#b38d25]">
+                        <div *ngIf="event.image; else noEventImage" class="h-full">
+                            <img [src]="event.image" [alt]="event.name" 
+                                class="w-full h-full object-cover cursor-pointer"
+                                (click)="$event.stopPropagation(); openImageModal(event.image!)">
+                        </div>
+                        <ng-template #noEventImage>
+                            <div class="h-full flex items-center justify-center text-white">
+                                <div class="text-center">
+                                    <svg class="w-12 h-12 mx-auto mb-2 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <div class="text-2xl font-bold opacity-80">{{ getEventInitials(event.name) }}</div>
+                                </div>
+                            </div>
+                        </ng-template>
+                        
+                        <!-- Status Badge -->
+                        <div class="absolute top-3 left-3">
+                            <span [class]="'px-2 py-1 text-xs font-medium rounded-full ' + getEventStatus(event).class">
+                                {{ getEventStatus(event).status }}
+                            </span>
+                        </div>
+                        
+                        <!-- Price Badge -->
+                        <div *ngIf="event.is_paid" class="absolute top-3 right-3">
+                            <span class="px-2 py-1 text-xs font-medium bg-white text-gray-900 rounded-full">
+                                ${{ event.fee }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Event Details -->
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-3">
+                            <h3 class="text-lg font-semibold text-gray-900 line-clamp-2">{{ event.name }}</h3>
+                        </div>
+                        
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ event.description }}</p>
+                        
+                        <!-- Event Meta -->
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                {{ formatDate(event.start_date) }} at {{ formatTime(event.start_date) }}
+                            </div>
+                            
+                            <div class="flex items-center text-sm text-gray-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                {{ event.location }}
+                            </div>
+                            
+                            <div class="flex items-center text-sm text-gray-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                </svg>
+                                {{ event.event_type_name || 'General' }}
+                            </div>
+                        </div>
+                        
+                        <!-- Days to Go -->
+                        <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                            <span class="text-sm font-medium text-[#d4a72c]">{{ getDaysToGo(event) }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
+            
+            <!-- List View -->
+            <div *ngIf="viewMode === 'list'" class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900">
+                            All Events
+                            <span *ngIf="searchTerm || selectedStatus || selectedEventType"
+                                class="ml-2 text-sm font-normal text-gray-500">
+                                ({{ filteredEvents.length }} filtered)
+                            </span>
+                        </h3>
+                        <div *ngIf="searchTerm || selectedStatus || selectedEventType"
+                            class="flex items-center text-sm text-gray-500">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
+                                </path>
+                            </svg>
+                            Filters active
+                        </div>
+                    </div>
+                </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-50">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Event</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Date & Time</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Location</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Category</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Days to Go</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <!-- Dynamic Event Rows -->
+                            <tr *ngFor="let event of filteredEvents; trackBy: trackByEventId"
+                                class="hover:bg-gray-50 hover:shadow-sm cursor-pointer transition-all duration-200"
+                                (click)="navigateToEventDetails(event)" title="Click to view event details">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-12 w-12">
+                                            <div *ngIf="event.image; else noImage" class="h-12 w-12 rounded-lg overflow-hidden">
+                                                <img [src]="event.image" [alt]="event.name" class="h-full w-full object-cover">
+                                            </div>
+                                            <ng-template #noImage>
+                                                <div class="h-12 w-12 rounded-lg bg-gradient-to-r from-[#d4a72c] to-[#b38d25] flex items-center justify-center text-white font-semibold text-sm">
+                                                    {{ getEventInitials(event.name) }}
+                                                </div>
+                                            </ng-template>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900 max-w-xs truncate">{{ event.name }}</div>
+                                            <div class="text-sm text-gray-500 max-w-xs truncate">{{ event.description }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ formatDate(event.start_date) }}</div>
+                                    <div class="text-sm text-gray-500">{{ formatTime(event.start_date) }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900 max-w-32 truncate" [title]="event.location">{{ event.location }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+                                        {{ event.event_type_name || 'General' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span [class]="'px-2 py-1 text-xs font-medium rounded-full ' + getEventStatus(event).class">
+                                        {{ getEventStatus(event).status }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <div class="flex items-center justify-between">
+                                        <span>{{ getDaysToGo(event) }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- No events match your filters row, shown only when filteredEvents is empty -->
+                <div *ngIf="filteredEvents.length === 0" class="w-full">
+                    <table class="w-full">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Event</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Date & Time</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Location</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Category</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Days to Go</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <!-- Loading State -->
-                        <tr *ngIf="loadingEvents">
-                            <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-                                <div class="flex items-center justify-center space-x-2">
-                                    <svg class="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                        fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                            stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor"
-                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                        </path>
-                                    </svg>
-                                    <span>Loading events...</span>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- Error State -->
-                        <tr *ngIf="eventsError && !loadingEvents">
-                            <td colspan="7" class="px-6 py-8 text-center text-red-500">
-                                <div class="flex items-center justify-center space-x-2">
-                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    <span>{{ eventsError }}</span>
-                                    <button (click)="loadEvents()"
-                                        class="underline hover:no-underline ml-2">Retry</button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- Empty State -->
-                        <tr *ngIf="!loadingEvents && !eventsError && events.length === 0">
-                            <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-                                <div class="flex flex-col items-center space-y-2">
-                                    <svg class="h-12 w-12 text-gray-300" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
-                                        </path>
-                                    </svg>
-                                    <span class="text-lg font-medium">No events found</span>
-                                    <p class="text-sm">Get started by creating your first event</p>
-                                    <button (click)="openCreateModal()"
-                                        class="mt-2 bg-[#d4a72c] text-white px-4 py-2 rounded-lg hover:bg-[#b38d25]">
-                                        Create Event
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- No Results State (after filtering) -->
-                        <tr *ngIf="!loadingEvents && !eventsError && events.length > 0 && filteredEvents.length === 0">
                             <td colspan="7" class="px-6 py-8 text-center text-gray-500">
                                 <div class="flex flex-col items-center space-y-2">
                                     <svg class="h-12 w-12 text-gray-300" fill="none" stroke="currentColor"
@@ -273,80 +358,12 @@
                                 </div>
                             </td>
                         </tr>
-
-                        <!-- Dynamic Event Rows -->
-                        <tr *ngFor="let event of filteredEvents; trackBy: trackByEventId"
-                            class="hover:bg-gray-50 hover:shadow-sm cursor-pointer transition-all duration-200"
-                            (click)="navigateToEventDetails(event)" title="Click to view event details">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div *ngIf="event.image; else initialsBlock"
-                                        class="w-10 h-10 rounded-lg mr-3 overflow-hidden">
-                                        <img [src]="event.image" [alt]="event.name" class="w-full h-full object-cover">
-                                    </div>
-                                    <ng-template #initialsBlock>
-                                        <div
-                                            class="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xs mr-3">
-                                            {{ getEventInitials(event.name) }}
-                                        </div>
-                                    </ng-template>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">{{ event.name }}</div>
-                                        <div class="text-sm text-gray-900 font-medium">{{ getDaysToGo(event) }}</div>
-                                        <div class="text-xs text-gray-500">
-                                            <span *ngIf="getDaysToGo(event) === 'Today'" class="text-green-600">Event is
-                                                today</span>
-                                            <span *ngIf="getDaysToGo(event) === '1 day'"
-                                                class="text-blue-600">Tomorrow</span>
-                                            <span *ngIf="getDaysToGo(event) === 'Ended'" class="text-gray-500">Past
-                                                event</span>
-                                            <!-- <span
-                                        *ngIf="getDaysToGo(event).includes('days') && !getDaysToGo(event).includes('1 day')"
-                                        class="text-gray-600">Until event</span> -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ formatDate(event.start_date) }}</div>
-                                <div class="text-sm text-gray-500">
-                                    {{ formatTime(event.start_date) }}
-                                    <span *ngIf="event.end_date">- {{ formatTime(event.end_date) }}</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ event.location || 'Not specified' }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                                    {{ event.event_type_name || 'Unknown' }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span
-                                    [class]="'px-2 py-1 text-xs font-medium rounded-full ' + getEventStatus(event).class">
-                                    {{ getEventStatus(event).status }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900 font-medium">{{ getDaysToGo(event) }}</div>
-                                <div class="text-xs text-gray-500">
-                                    <span *ngIf="getDaysToGo(event) === 'Today'" class="text-green-600">Event is
-                                        today</span>
-                                    <span *ngIf="getDaysToGo(event) === '1 day'" class="text-blue-600">Tomorrow</span>
-                                    <span *ngIf="getDaysToGo(event) === 'Ended'" class="text-gray-500">Past event</span>
-                                    <!-- <span
-                                        *ngIf="getDaysToGo(event).includes('days') && !getDaysToGo(event).includes('1 day')"
-                                        class="text-gray-600">Until event</span> -->
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                    </table>
+                </div>
             </div>
-
+            
             <!-- Pagination Controls -->
-            <div class="bg-white px-6 py-3 border-t border-gray-200 flex items-center justify-between">
+            <div *ngIf="totalPages > 1" class="bg-white px-6 py-3 border-t border-gray-200 flex items-center justify-between">
                 <!-- Mobile pagination -->
                 <div class="flex-1 flex justify-between sm:hidden">
                     <button (click)="goToPreviousPage()" [disabled]="!canGoToPrevious"
@@ -393,7 +410,7 @@
                             <!-- Page numbers -->
                             <button *ngFor="let page of pageNumbers" (click)="goToPage(page)"
                                 [class]="page === currentPage 
-                                    ? 'relative inline-flex items-center px-4 py-2 border text-sm font-medium bg-blue-50 border-blue-500 text-blue-600'
+                                    ? 'relative inline-flex items-center px-4 py-2 border text-sm font-medium bg-yellow-50 border-yellow-500 text-yellow-600'
                                     : 'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50'">
                                 {{ page }}
                             </button>

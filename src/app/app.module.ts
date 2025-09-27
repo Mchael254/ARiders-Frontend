@@ -80,6 +80,8 @@ import { GuestDashboardComponent } from './guest/guest-dashboard/guest-dashboard
 import { GuestMainComponent } from './guest/guest-main/guest-main.component';
 import { MemberDetailsComponent } from './admins/member-details/member-details.component';
 import { MpesaPaymentsComponent } from './admins/mpesa-payments/mpesa-payments.component';
+import { GuestSubcriptionsComponent } from './guest/guest-subcriptions/guest-subcriptions.component';
+import { RidesComponent } from './profile/rides/rides.component';
 
 
 @NgModule({
@@ -125,7 +127,8 @@ import { MpesaPaymentsComponent } from './admins/mpesa-payments/mpesa-payments.c
     GuestMainComponent,
     MemberDetailsComponent,
     MpesaPaymentsComponent,
-
+    GuestSubcriptionsComponent,
+    RidesComponent,
   ],
   imports: [
     DropdownModule,

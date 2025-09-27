@@ -6,63 +6,72 @@
         <div class="flex-grow">
             <ul class="space-y-2">
                 <li>
-                    <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                    <a class="flex items-center p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
                         [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'dashboard'}"
                         (click)="setView('dashboard')">
+                        <fa-icon [icon]="faTachometerAlt" class="w-4 h-4 mr-3"></fa-icon>
                         Dashboard
                     </a>
                 </li>
                 <li>
-                    <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                    <a class="flex items-center p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
                         [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'members'}"
                         (click)="setView('members')">
+                        <fa-icon [icon]="faUsers" class="w-4 h-4 mr-3"></fa-icon>
                         Members
                     </a>
                 </li>
                 <li>
-                    <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                    <a class="flex items-center p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
                         [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'contributions'}"
                         (click)="setView('contributions')">
+                        <fa-icon [icon]="faHandHoldingUsd" class="w-4 h-4 mr-3"></fa-icon>
                         Contributions
                     </a>
                 </li>
                 <li>
-                    <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                    <a class="flex items-center p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
                         [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'debts'}"
                         (click)="setView('debts')">
+                        <fa-icon [icon]="faExclamationTriangle" class="w-4 h-4 mr-3"></fa-icon>
                         Debts
                     </a>
                 </li>
                 <li>
-                    <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                    <a class="flex items-center p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
                         [ngClass]="{'bg-yellow-700 text-white':(currentView$ | async) === 'admin-events'}"
                         (click)="setView('admin-events')">
+                        <fa-icon [icon]="faCalendarAlt" class="w-4 h-4 mr-3"></fa-icon>
                         Events
                     </a>
                 </li>
                 <li>
-                    <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                    <a class="flex items-center p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
                         [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'reports'}"
                         (click)="setView('reports')">
+                        <fa-icon [icon]="faChartBar" class="w-4 h-4 mr-3"></fa-icon>
                         Reports
                     </a>
                 </li>
                 <li>
-                    <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                    <a class="flex items-center p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
                         [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'settings'}"
                         (click)="setView('settings')">
+                        <fa-icon [icon]="faCog" class="w-4 h-4 mr-3"></fa-icon>
                         Settings
                     </a>
                 </li>
                 <li>
-                    <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                    <a class="flex items-center p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
                         [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'mpesa-payments'}"
                         (click)="setView('mpesa-payments')">
+                        <fa-icon [icon]="faMobileAlt" class="w-4 h-4 mr-3"></fa-icon>
                         M-Pesa Payments
                     </a>
                 </li>
                 <li class="mt-4">
-                    <a class="block p-2 rounded hover:bg-red-600 cursor-pointer" (click)="showLogoutDialog()">
+                    <a class="flex items-center p-2 rounded hover:bg-red-600 cursor-pointer" (click)="showLogoutDialog()">
+                        <fa-icon [icon]="faSignOutAlt" class="w-4 h-4 mr-3"></fa-icon>
                         Logout
                     </a>
                 </li>
@@ -94,71 +103,80 @@
         <!-- Mobile Side Panel -->
         <div class="fixed inset-0 z-50" *ngIf="sideNavOpen">
             <div class="absolute inset-0 bg-black bg-opacity-50" (click)="toggleSideNav()"></div>
-            <div class="absolute left-0 top-0 h-full 50 bg-black text-white p-4 transform transition-transform duration-300 ease-in-out"
-                [ngClass]="{ 'translate-x-0': sideNavOpen, '-translate-x-full': !sideNavOpen }">
+            <div class="absolute right-0 top-0 h-full w-64 bg-black text-white p-4 transform transition-transform duration-300 ease-in-out"
+                [ngClass]="{ 'translate-x-0': sideNavOpen, 'translate-x-full': !sideNavOpen }">
                 <div class="flex justify-between items-center mb-6">
                     <h4 class="text-xl font-bold">A Riders</h4>
                     <!-- <button (click)="toggleSideNav()" class="text-white focus:outline-none bg-yellow-500 px-2 py-1 rounded-full">X</button> -->
                 </div>
                 <ul class="space-y-2">
                     <li>
-                        <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                        <a class="flex items-center p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
                             [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'dashboard'}"
                             (click)="setView('dashboard')">
+                            <fa-icon [icon]="faTachometerAlt" class="w-4 h-4 mr-3"></fa-icon>
                             Dashboard
                         </a>
                     </li>
                     <li>
-                        <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                        <a class="flex items-center p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
                             [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'members'}"
                             (click)="setView('members')">
+                            <fa-icon [icon]="faUsers" class="w-4 h-4 mr-3"></fa-icon>
                             Members
                         </a>
                     </li>
                     <li>
-                        <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                        <a class="flex items-center p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
                             [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'contributions'}"
                             (click)="setView('contributions')">
+                            <fa-icon [icon]="faHandHoldingUsd" class="w-4 h-4 mr-3"></fa-icon>
                             Contributions
                         </a>
                     </li>
                     <li>
-                        <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                        <a class="flex items-center p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
                             [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'debts'}"
                             (click)="setView('debts')">
+                            <fa-icon [icon]="faExclamationTriangle" class="w-4 h-4 mr-3"></fa-icon>
                             Debts
                         </a>
                     </li>
                     <li>
-                        <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                        <a class="flex items-center p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
                             [ngClass]="{'bg-yellow-700 text-white':(currentView$ | async) === 'admin-events'}"
                             (click)="setView('admin-events')">
+                            <fa-icon [icon]="faCalendarAlt" class="w-4 h-4 mr-3"></fa-icon>
                             Events
                         </a>
                     </li>
                     <li>
-                        <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                        <a class="flex items-center p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
                             [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'reports'}"
                             (click)="setView('reports')">
+                            <fa-icon [icon]="faChartBar" class="w-4 h-4 mr-3"></fa-icon>
                             Reports
                         </a>
                     </li>
                     <li>
-                        <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                        <a class="flex items-center p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
                             [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'settings'}"
                             (click)="setView('settings')">
+                            <fa-icon [icon]="faCog" class="w-4 h-4 mr-3"></fa-icon>
                             Settings
                         </a>
                     </li>
                     <li>
-                        <a class="block p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
+                        <a class="flex items-center p-2 rounded cursor-pointer transition-colors duration-300 hover:bg-gradient-to-r hover:from-yellow-700 hover:to-yellow-500"
                             [ngClass]="{'bg-yellow-700 text-white': (currentView$ | async) === 'mpesa-payments'}"
                             (click)="setView('mpesa-payments')">
+                            <fa-icon [icon]="faMobileAlt" class="w-4 h-4 mr-3"></fa-icon>
                             M-Pesa Payments
                         </a>
                     </li>
                     <li class="mt-4">
-                        <a class="block p-2 rounded hover:bg-red-600 cursor-pointer" (click)="showLogoutDialog()">
+                        <a class="flex items-center p-2 rounded hover:bg-red-600 cursor-pointer" (click)="showLogoutDialog()">
+                            <fa-icon [icon]="faSignOutAlt" class="w-4 h-4 mr-3"></fa-icon>
                             Logout
                         </a>
                     </li>

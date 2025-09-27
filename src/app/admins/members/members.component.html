@@ -26,11 +26,11 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900">Total Members</h3>
-                        <p class="text-3xl font-bold text-blue-600 mt-2">{{totalCount}}</p>
+                        <p class="text-3xl font-bold text-yellow-600 mt-2">{{totalCount}}</p>
                         <p class="text-sm text-gray-500 mt-1">All registered members</p>
                     </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                         </svg>
                     </div>
@@ -229,13 +229,13 @@
                                              [alt]="member.first_name + ' ' + member.last_name"
                                              class="h-10 w-10 rounded-full object-cover border-2 border-gray-200">
                                         <div *ngIf="!member.profile_image" 
-                                             class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                                             class="h-10 w-10 rounded-full bg-gradient-to-r from-yellow-700 to-yellow-500 flex items-center justify-center text-white font-semibold text-sm">
                                             {{member.first_name.charAt(0)}}{{member.last_name.charAt(0)}}
                                         </div>
                                     </div>
                                     <div class="ml-4">
                                         <div class="text-sm font-medium text-gray-900 hover:text-[#d4a72c] transition-colors">
-                                            {{member.first_name}} {{member.last_name}}
+                                            {{member.first_name | titlecase}} {{member.last_name | titlecase}}
                                         </div>
                                         <div class="text-sm text-gray-500">{{member.email}}</div>
                                     </div>

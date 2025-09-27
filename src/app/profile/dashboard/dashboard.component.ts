@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { faBars } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faBicycle } from '@fortawesome/free-solid-svg-icons';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import * as MemberPanelActions from '../../store/panel/member/actions';
@@ -22,6 +22,7 @@ export class DashboardComponent {
 
   sideNavOpen = false;
   faBars = faBars;
+  faBicycle = faBicycle;
   logoutDialogVisible = false;
 
   constructor(private store: Store) { }

@@ -166,10 +166,15 @@ export interface EventSummaryDetail {
   gender: string;
   status: string;
   payment_status: string;
-  amount_paid: number;
+  amount_paid: number | null;
   notes?: string;
   emergency_contact?: string;
   emergency_phone?: string;
+  current_role: {
+    id: string;
+    name: string;
+    description: string;
+  };
 }
 
 export interface EventSummaryResponse {

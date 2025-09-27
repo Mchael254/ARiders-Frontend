@@ -426,8 +426,11 @@ export class DashbaodContentComponent implements OnInit, OnDestroy {
     this.viewChange.emit('bio');
   }
 
+  navigateToRides(): void {
+    this.viewChange.emit('rides');
+  }
+
   openPaymentModal(): void {
-    // Navigate to membership where payment functionality exists
     this.viewChange.emit('profile');
   }
 }
